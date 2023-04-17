@@ -26,10 +26,33 @@ class VoorkeurenDAO {
 
     fun getGebruikersVoorkeuren(gebruiker: Int): ResultSet {
         return try {
-            connectionService!!.initializeConnection((databaseProperties!!.getConnectionString()))
+            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
             val statement: PreparedStatement = VoorkeurenSQLPreparedStatementBuilder.voorkeurenStatements.buildGetGebruikersVoorkeurPreparedStatement(connectionService,gebruiker)
             statement.executeQuery()
         } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+
+    fun gebruikersVoorkeurenToevoegen(gebruiker: Int,voorkeur: String) {
+        try{
+            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            val result = voorkeurBestaat(voorkeur)
+            if(result.next()) {
+                val statement = VoorkeurenSQLPreparedStatementBuilder.voorkeurenStatements.buildGebruikersVoorkeurenToevoegenPreparedStatement(connectionService, gebruiker, voorkeur)
+                statement.executeUpdate()
+            }
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+
+    fun voorkeurBestaat(voorkeur: String): ResultSet{
+        return try{
+            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            val statement = VoorkeurenSQLPreparedStatementBuilder.voorkeurenStatements.buildVoorkeurBestaatPreparedStatement(connectionService,voorkeur)
+            statement.executeQuery()
+        } catch (e: SQLException){
             throw DatabaseConnectionException()
         }
     }

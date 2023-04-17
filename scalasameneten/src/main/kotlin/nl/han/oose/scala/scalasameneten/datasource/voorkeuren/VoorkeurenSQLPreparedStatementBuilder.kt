@@ -29,5 +29,28 @@ class VoorkeurenSQLPreparedStatementBuilder {
                 throw DatabaseConnectionException()
             }
         }
+
+        fun buildGebruikersVoorkeurenToevoegenPreparedStatement(connectionService: ConnectionService,gebruiker: Int,voorkeur: String): PreparedStatement {
+            val sql = "INSERT INTO gebruiker_heeft_voorkeur(gebruikers_id,naam) VALUES (?,?)"
+            return try {
+                val stmt = connectionService.getConnection()!!.prepareStatement(sql)
+                stmt.setInt(1,gebruiker)
+                stmt.setString(2,voorkeur)
+                stmt
+            } catch (e: SQLException){
+                throw DatabaseConnectionException()
+            }
+        }
+
+        fun buildVoorkeurBestaatPreparedStatement(connectionService: ConnectionService,voorkeur: String): PreparedStatement{
+            val sql = "SELECT 1 FROM voorkeur WHERE naam=?"
+            return try {
+                val stmt = connectionService.getConnection()!!.prepareStatement(sql)
+                stmt.setString(1,voorkeur)
+                stmt
+            } catch (e: SQLException){
+                throw DatabaseConnectionException()
+            }
+        }
     }
 }
