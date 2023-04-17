@@ -23,7 +23,6 @@ class VoorkeurenDAO {
             throw DatabaseConnectionException()
         }
     }
-
     fun getGebruikersVoorkeuren(gebruiker: Int): ResultSet {
         return try {
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
@@ -33,12 +32,24 @@ class VoorkeurenDAO {
             throw DatabaseConnectionException()
         }
     }
-
+    fun gebruikerHeeftVoorkeur(gebruiker: Int,voorkeur: String): Boolean {
+        try {
+            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            val result = getGebruikersVoorkeuren(gebruiker)
+            while(result.next()){
+                if(result.getString("naam")==voorkeur){
+                    return true
+                }
+            }
+            return false
+        } catch(e: SQLException){
+            throw DatabaseConnectionException()
+        }
+    }
     fun gebruikersVoorkeurenToevoegen(gebruiker: Int,voorkeur: String) {
         try{
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-            val result = voorkeurBestaat(voorkeur)
-            if(result.next()) {
+            if(!gebruikerHeeftVoorkeur(gebruiker,voorkeur)) {
                 val statement = VoorkeurenSQLPreparedStatementBuilder.voorkeurenStatements.buildGebruikersVoorkeurenToevoegenPreparedStatement(connectionService, gebruiker, voorkeur)
                 statement.executeUpdate()
             }
@@ -46,7 +57,6 @@ class VoorkeurenDAO {
             throw DatabaseConnectionException()
         }
     }
-
     fun voorkeurBestaat(voorkeur: String): ResultSet{
         return try{
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
@@ -56,7 +66,17 @@ class VoorkeurenDAO {
             throw DatabaseConnectionException()
         }
     }
-
+    fun gebruikersVoorkeurVerwijderen(gebruiker: Int,voorkeur: String){
+        try{
+            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            if(gebruikerHeeftVoorkeur(gebruiker,voorkeur)) {
+                val stmt = VoorkeurenSQLPreparedStatementBuilder.voorkeurenStatements.buildVoorkeurVerwijderenPreparedStatement(connectionService, gebruiker, voorkeur)
+                stmt.executeUpdate()
+            }
+        } catch (e: SQLException){
+            throw DatabaseConnectionException()
+        }
+    }
     fun makeVoorkeurenDTO(): VoorkeurenDTO? {
         val voorkeurenDTO = VoorkeurenDTOFactory.create.createVoorkeurenDTO()
         return try {

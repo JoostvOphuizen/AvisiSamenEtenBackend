@@ -28,6 +28,10 @@ class VoorkeurenService {
     fun voorkeurBestaat(voorkeur: String): Response {
         return Response.status(200).entity(voorkeurenDAO!!.voorkeurBestaat(voorkeur)).build()
     }
+    fun gebruikersVoorkeurVerwijderen(gebruiker: Int,voorkeur: String): Response{
+        voorkeurenDAO!!.gebruikersVoorkeurVerwijderen(gebruiker,voorkeur)
+        return Response.status(200).build()
+    }
 
     @Inject
     fun setVoorkeurenDAO(voorkeurenDao: VoorkeurenDAO) {

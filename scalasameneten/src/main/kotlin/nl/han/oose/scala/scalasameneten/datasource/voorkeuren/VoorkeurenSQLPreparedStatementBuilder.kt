@@ -10,7 +10,7 @@ class VoorkeurenSQLPreparedStatementBuilder {
     object voorkeurenStatements {
 
         fun buildGetGebruikersVoorkeurPreparedStatement(connectionService: ConnectionService, gebruiker: Int): PreparedStatement {
-            val getGebruikersVoorkeurPreparedStatement = "SELECT naam FROM gebruiker_heeft_voorkeur WHERE gebruikers_id=$gebruiker"
+            val getGebruikersVoorkeurPreparedStatement = "SELECT naam FROM gebruiker_heeft_voorkeur WHERE gebruiker_id=?"
             return try {
                 val preparedStatement = connectionService.getConnection()!!.prepareStatement(getGebruikersVoorkeurPreparedStatement)
                 preparedStatement.setInt(1, gebruiker)
@@ -19,8 +19,6 @@ class VoorkeurenSQLPreparedStatementBuilder {
                 throw DatabaseConnectionException()
             }
         }
-
-
         fun buildGetAlleVoorkeurenPreparedStatement(connectionService: ConnectionService): PreparedStatement {
             val getAlleVoorkeurenPreparedStatement = "SELECT naam FROM voorkeur"
             return try {
@@ -29,9 +27,8 @@ class VoorkeurenSQLPreparedStatementBuilder {
                 throw DatabaseConnectionException()
             }
         }
-
         fun buildGebruikersVoorkeurenToevoegenPreparedStatement(connectionService: ConnectionService,gebruiker: Int,voorkeur: String): PreparedStatement {
-            val sql = "INSERT INTO gebruiker_heeft_voorkeur(gebruikers_id,naam) VALUES (?,?)"
+            val sql = "INSERT INTO gebruiker_heeft_voorkeur(gebruiker_id,naam) VALUES (?,?)"
             return try {
                 val stmt = connectionService.getConnection()!!.prepareStatement(sql)
                 stmt.setInt(1,gebruiker)
@@ -41,12 +38,22 @@ class VoorkeurenSQLPreparedStatementBuilder {
                 throw DatabaseConnectionException()
             }
         }
-
         fun buildVoorkeurBestaatPreparedStatement(connectionService: ConnectionService,voorkeur: String): PreparedStatement{
             val sql = "SELECT 1 FROM voorkeur WHERE naam=?"
             return try {
                 val stmt = connectionService.getConnection()!!.prepareStatement(sql)
                 stmt.setString(1,voorkeur)
+                stmt
+            } catch (e: SQLException){
+                throw DatabaseConnectionException()
+            }
+        }
+        fun buildVoorkeurVerwijderenPreparedStatement(connectionService: ConnectionService,gebruiker: Int,voorkeur: String): PreparedStatement{
+            val sql = "DELETE FROM gebruiker_heeft_voorkeur WHERE gebruiker_id=? AND voorkeur=?"
+            return try {
+                val stmt = connectionService.getConnection()!!.prepareStatement(sql)
+                stmt.setInt(1,gebruiker)
+                stmt.setString(2,voorkeur)
                 stmt
             } catch (e: SQLException){
                 throw DatabaseConnectionException()
