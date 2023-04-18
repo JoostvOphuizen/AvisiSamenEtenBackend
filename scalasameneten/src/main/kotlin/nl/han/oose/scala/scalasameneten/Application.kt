@@ -12,18 +12,6 @@ import java.util.*
 @ComponentScan(basePackages = ["com.example.springboot", "nl.han.oose.scala.scalasameneten.controller"])
 class Application {
 
-    @Bean
-    fun commandLineRunner(ctx: ApplicationContext): CommandLineRunner {
-        return CommandLineRunner { args ->
-            println("Let's inspect the beans provided by Spring Boot:")
-            val beanNames: Array<String> = ctx.getBeanDefinitionNames()
-            Arrays.sort(beanNames)
-            for (beanName in beanNames) {
-                println(beanName)
-            }
-        }
-    }
-
     companion object {
         @kotlin.jvm.JvmStatic
         fun main(args: Array<String>) {

@@ -1,9 +1,6 @@
 package nl.han.oose.scala.scalasameneten.dto.voorkeur
 
-class VoorkeurDTO {
+data class VoorkeurDTO(var voorkeuren: ArrayList<String>) {
 
-    lateinit var voorkeuren: ArrayList<String>
-    fun addVoorkeur(voorkeur: String){
-        voorkeuren.add(voorkeur)
-    }
+
 }

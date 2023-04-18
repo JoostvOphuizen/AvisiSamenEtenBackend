@@ -1,6 +1,9 @@
 package nl.han.oose.scala.scalasameneten.datasource.voorkeur
 
 import jakarta.annotation.PostConstruct
+import jakarta.json.Json
+import jakarta.json.JsonArray
+import jakarta.json.JsonObjectBuilder
 import nl.han.oose.scala.scalasameneten.datasource.connection.ConnectionService
 import nl.han.oose.scala.scalasameneten.datasource.connection.DatabaseProperties
 import nl.han.oose.scala.scalasameneten.datasource.exceptions.DatabaseConnectionException
@@ -14,14 +17,14 @@ import java.sql.SQLException
 
 @Component
 @ComponentScan("nl.han.oose.scala.scalasameneten.datasource.connection")
-class VoorkeurDAO(private val connectionService: ConnectionService) {
-    private val databaseProperties = connectionService.getDatabaseProperties()
+class VoorkeurDAO(private val connectionService: ConnectionService,private val databaseProperties: DatabaseProperties) {
 
     fun getAlleVoorkeuren(): ResultSet {
         return try {
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
             val statement: PreparedStatement = VoorkeurSQLPreparedStatementBuilder.voorkeurenStatements.buildGetAlleVoorkeurenPreparedStatement(connectionService)
-            statement.executeQuery()
+            val result = statement.executeQuery()
+            result
         } catch (e: SQLException) {
             throw DatabaseConnectionException()
         }
@@ -81,13 +84,13 @@ class VoorkeurDAO(private val connectionService: ConnectionService) {
         }
     }
     fun makeVoorkeurenDTO(): VoorkeurDTO {
-        val voorkeurenDTO = VoorkeurDTOFactory.create.createVoorkeurenDTO()
         return try {
             val resultSet: ResultSet = getAlleVoorkeuren()
+            var voorkeuren = ArrayList<String>()
             while (resultSet != null && resultSet.next()) {
-                voorkeurenDTO.addVoorkeur(resultSet.getString("naam"))
+                voorkeuren.add(resultSet.getString("voorkeur_naam"))
             }
-            voorkeurenDTO
+            VoorkeurDTO(voorkeuren)
         } catch (e: SQLException) {
             throw DatabaseConnectionException()
         }

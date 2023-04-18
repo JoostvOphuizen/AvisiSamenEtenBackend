@@ -1,18 +1,19 @@
 package nl.han.oose.scala.scalasameneten.datasource.connection
 
-import jakarta.annotation.PostConstruct
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration
+
+import org.springframework.context.annotation.PropertySource
 import org.springframework.stereotype.Component
 import java.io.IOException
 import java.util.*
 
+@Component
 class DatabaseProperties {
-    private val properties: Properties
+    private val properties: Properties = Properties()
+
 
     init {
-        properties = Properties()
         try {
-            javaClass.classLoader.getResourceAsStream("database.properties").use { inputStream ->
+            javaClass.classLoader.getResourceAsStream("application.properties").use { inputStream ->
                 properties.load(inputStream)
                 Class.forName(driver)
             }

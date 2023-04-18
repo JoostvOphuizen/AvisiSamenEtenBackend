@@ -5,8 +5,8 @@ import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurDTO
 class VoorkeurDTOFactory {
 
     object create {
-        fun createVoorkeurenDTO(): VoorkeurDTO {
+       /* fun createVoorkeurenDTO(): VoorkeurDTO {
             return VoorkeurDTO()
-        }
+        }*/
     }
 }
