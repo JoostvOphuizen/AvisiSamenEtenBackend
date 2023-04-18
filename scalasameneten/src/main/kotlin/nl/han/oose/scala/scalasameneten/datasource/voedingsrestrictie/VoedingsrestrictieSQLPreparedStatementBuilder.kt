@@ -9,7 +9,7 @@ class VoedingsrestrictieSQLPreparedStatementBuilder {
 
     object algemeen {
         fun buildGetGebruikersRestrictiesPreparedStatement(connectionService: ConnectionService, gebruiker: Int): PreparedStatement {
-            val getGebruikersVoorkeurPreparedStatement = "SELECT naam,type FROM gebruiker_heeft_voedingsrestrictie WHERE gebruiker_id=?"
+            val getGebruikersVoorkeurPreparedStatement = "SELECT restrictie_naam,type FROM gebruiker_heeft_voedingsrestrictie WHERE gebruiker_id=?"
             return try {
                 val preparedStatement = connectionService.getConnection()!!.prepareStatement(getGebruikersVoorkeurPreparedStatement)
                 preparedStatement.setInt(1, gebruiker)
@@ -21,7 +21,7 @@ class VoedingsrestrictieSQLPreparedStatementBuilder {
     }
     object allergie {
         fun buildGetAlleAllergieenPreparedStatement(connectionService: ConnectionService): PreparedStatement {
-            val getAlleVoorkeurenPreparedStatement = "SELECT naam FROM voedingsrestrictie WHERE type='allergie'"
+            val getAlleVoorkeurenPreparedStatement = "SELECT restrictie_naam FROM voedingsrestrictie WHERE type='allergie'"
             return try {
                 connectionService.getConnection()!!.prepareStatement(getAlleVoorkeurenPreparedStatement)
             } catch (e: SQLException) {
@@ -30,7 +30,7 @@ class VoedingsrestrictieSQLPreparedStatementBuilder {
         }
 
         fun buildGebruikersAllergieToevoegenPreparedStatement(connectionService: ConnectionService, gebruiker: Int, allergie: String): PreparedStatement {
-            val sql = "INSERT INTO gebruiker_heeft_voedingsrestrictie(gebruiker_id,naam,type) VALUES (?,?,'allergie')"
+            val sql = "INSERT INTO gebruiker_heeft_voedingsrestrictie(gebruiker_id,restrictie_naam,type) VALUES (?,?,'allergie')"
             return try {
                 val stmt = connectionService.getConnection()!!.prepareStatement(sql)
                 stmt.setInt(1,gebruiker)
@@ -42,7 +42,7 @@ class VoedingsrestrictieSQLPreparedStatementBuilder {
         }
 
         fun buildAllergieBestaatPreparedStatement(connectionService: ConnectionService, allergie: String): PreparedStatement {
-            val sql = "SELECT 1 FROM voedingsrestrictie WHERE naam=? AND type='allergie'"
+            val sql = "SELECT 1 FROM voedingsrestrictie WHERE restrictie_naam=? AND type='allergie'"
             return try {
                 val stmt = connectionService.getConnection()!!.prepareStatement(sql)
                 stmt.setString(1,allergie)
@@ -66,7 +66,7 @@ class VoedingsrestrictieSQLPreparedStatementBuilder {
 
     object geloof {
         fun buildGetAlleGeloofPreparedStatement(connectionService: ConnectionService): PreparedStatement {
-            val getAlleVoorkeurenPreparedStatement = "SELECT naam FROM voedingsrestrictie WHERE type='geloof'"
+            val getAlleVoorkeurenPreparedStatement = "SELECT restrictie_naam FROM voedingsrestrictie WHERE type='geloof'"
             return try {
                 connectionService.getConnection()!!.prepareStatement(getAlleVoorkeurenPreparedStatement)
             } catch (e: SQLException) {
@@ -75,7 +75,7 @@ class VoedingsrestrictieSQLPreparedStatementBuilder {
         }
 
         fun buildGebruikersGeloofToevoegenPreparedStatement(connectionService: ConnectionService, gebruiker: Int, geloof: String): PreparedStatement {
-            val sql = "INSERT INTO gebruiker_heeft_voedingsrestrictie(gebruiker_id,naam,type) VALUES (?,?,'geloof')"
+            val sql = "INSERT INTO gebruiker_heeft_voedingsrestrictie(gebruiker_id,restrictie_naam,type) VALUES (?,?,'geloof')"
             return try {
                 val stmt = connectionService.getConnection()!!.prepareStatement(sql)
                 stmt.setInt(1,gebruiker)
@@ -87,7 +87,7 @@ class VoedingsrestrictieSQLPreparedStatementBuilder {
         }
 
         fun buildGeloofBestaatPreparedStatement(connectionService: ConnectionService, geloof: String): PreparedStatement {
-            val sql = "SELECT 1 FROM voedingsrestrictie WHERE naam=? AND type='geloof'"
+            val sql = "SELECT 1 FROM voedingsrestrictie WHERE restrictie_naam=? AND type='geloof'"
             return try {
                 val stmt = connectionService.getConnection()!!.prepareStatement(sql)
                 stmt.setString(1,geloof)
@@ -111,7 +111,7 @@ class VoedingsrestrictieSQLPreparedStatementBuilder {
 
     object dieet {
         fun buildGetAlleDieetPreparedStatement(connectionService: ConnectionService): PreparedStatement {
-            val getAlleVoorkeurenPreparedStatement = "SELECT naam FROM voedingsrestrictie WHERE type='dieet'"
+            val getAlleVoorkeurenPreparedStatement = "SELECT restrictie_naam FROM voedingsrestrictie WHERE type='dieet'"
             return try {
                 connectionService.getConnection()!!.prepareStatement(getAlleVoorkeurenPreparedStatement)
             } catch (e: SQLException) {
@@ -120,7 +120,7 @@ class VoedingsrestrictieSQLPreparedStatementBuilder {
         }
 
         fun buildGebruikersDieetToevoegenPreparedStatement(connectionService: ConnectionService, gebruiker: Int, dieet: String): PreparedStatement {
-            val sql = "INSERT INTO gebruiker_heeft_voedingsrestrictie(gebruiker_id,naam,type) VALUES (?,?,'dieet')"
+            val sql = "INSERT INTO gebruiker_heeft_voedingsrestrictie(gebruiker_id,restrictie_naam,type) VALUES (?,?,'dieet')"
             return try {
                 val stmt = connectionService.getConnection()!!.prepareStatement(sql)
                 stmt.setInt(1,gebruiker)
@@ -132,7 +132,7 @@ class VoedingsrestrictieSQLPreparedStatementBuilder {
         }
 
         fun buildDieetBestaatPreparedStatement(connectionService: ConnectionService, dieet: String): PreparedStatement {
-            val sql = "SELECT 1 FROM voedingsrestrictie WHERE naam=? AND type='dieet'"
+            val sql = "SELECT 1 FROM voedingsrestrictie WHERE restrictie_naam=? AND type='dieet'"
             return try {
                 val stmt = connectionService.getConnection()!!.prepareStatement(sql)
                 stmt.setString(1,dieet)
