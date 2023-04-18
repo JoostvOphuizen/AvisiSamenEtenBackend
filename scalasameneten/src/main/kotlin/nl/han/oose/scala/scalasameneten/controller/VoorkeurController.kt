@@ -10,11 +10,10 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/voorkeuren")
-@ComponentScan(basePackageClasses = [VoorkeurService::class])
-class VoorkeurController(private val voorkeurService: VoorkeurService, private val voedingsrestrictieService: VoedingsrestrictieService) {
+class VoorkeurController {
 
-    @GetMapping(produces = ["application/json"])
-    fun getVoorkeur(@RequestParam id: Int): ResponseEntity<VoorkeurDTO> = voorkeurService.getVoorkeuren()
+    @GetMapping("/test")
+    fun getVoorkeur2(): String = "test"
 /*
     @GetMapping(produces = ["application/json"])
     fun getVoedingsRestrictie(@RequestParam id: Int): ResponseEntity<ArrayList<VoedingsrestrictieDTO>> = voedingsrestrictieService.getVoedingsrestricties()
