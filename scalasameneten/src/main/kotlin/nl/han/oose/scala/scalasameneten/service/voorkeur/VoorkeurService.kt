@@ -4,34 +4,39 @@ import jakarta.inject.Inject
 import jakarta.ws.rs.core.Response
 import nl.han.oose.scala.scalasameneten.datasource.voorkeur.VoorkeurDAO
 import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurDTO
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.ComponentScan
 import org.springframework.http.ResponseEntity
+import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 
 @Service
-class VoorkeurService(private val voorkeurenDAO: VoorkeurDAO) {
+@Component
+@ComponentScan("nl.han.oose.scala.scalasameneten.datasource.voorkeur")
+class VoorkeurService(private val voorkeurDAO: VoorkeurDAO) {
 
     fun getVoorkeuren(): ResponseEntity<VoorkeurDTO> {
-        return ResponseEntity.ok(voorkeurenDAO!!.makeVoorkeurenDTO())
+        return ResponseEntity.ok(voorkeurDAO!!.makeVoorkeurenDTO())
     }
 
     fun getAlleVoorkeuren(): Response {
-        return Response.status(200).entity(voorkeurenDAO!!.getAlleVoorkeuren()).build()
+        return Response.status(200).entity(voorkeurDAO!!.getAlleVoorkeuren()).build()
     }
 
     fun getVoorkeurenVanGebruiker(gebruiker: Int): Response {
-        return Response.status(200).entity(voorkeurenDAO!!.getGebruikersVoorkeuren(gebruiker)).build()
+        return Response.status(200).entity(voorkeurDAO!!.getGebruikersVoorkeuren(gebruiker)).build()
     }
 
     fun gebruikersVoorkeurToevoegen(gebruiker: Int,voorkeur: String): Response{
-        voorkeurenDAO!!.gebruikersVoorkeurenToevoegen(gebruiker,voorkeur)
+        voorkeurDAO!!.gebruikersVoorkeurenToevoegen(gebruiker,voorkeur)
         return Response.status(200).build()
     }
 
     fun voorkeurBestaat(voorkeur: String): Response {
-        return Response.status(200).entity(voorkeurenDAO!!.voorkeurBestaat(voorkeur)).build()
+        return Response.status(200).entity(voorkeurDAO!!.voorkeurBestaat(voorkeur)).build()
     }
     fun gebruikersVoorkeurVerwijderen(gebruiker: Int,voorkeur: String): Response{
-        voorkeurenDAO!!.gebruikersVoorkeurVerwijderen(gebruiker,voorkeur)
+        voorkeurDAO!!.gebruikersVoorkeurVerwijderen(gebruiker,voorkeur)
         return Response.status(200).build()
     }
 

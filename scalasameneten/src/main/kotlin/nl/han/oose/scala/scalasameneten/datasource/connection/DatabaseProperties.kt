@@ -1,8 +1,10 @@
 package nl.han.oose.scala.scalasameneten.datasource.connection
 
+import jakarta.annotation.PostConstruct
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration
+import org.springframework.stereotype.Component
 import java.io.IOException
 import java.util.*
-
 
 class DatabaseProperties {
     private val properties: Properties

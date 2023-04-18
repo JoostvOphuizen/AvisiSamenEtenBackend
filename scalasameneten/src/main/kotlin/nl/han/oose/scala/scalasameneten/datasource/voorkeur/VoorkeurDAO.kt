@@ -1,5 +1,6 @@
 package nl.han.oose.scala.scalasameneten.datasource.voorkeur
 
+import jakarta.annotation.PostConstruct
 import nl.han.oose.scala.scalasameneten.datasource.connection.ConnectionService
 import nl.han.oose.scala.scalasameneten.datasource.connection.DatabaseProperties
 import nl.han.oose.scala.scalasameneten.datasource.exceptions.DatabaseConnectionException
@@ -12,8 +13,9 @@ import java.sql.ResultSet
 import java.sql.SQLException
 
 @Component
-@ComponentScan(basePackageClasses = [ConnectionService::class, DatabaseProperties::class])
-class VoorkeurDAO(private val connectionService: ConnectionService, private val databaseProperties: DatabaseProperties) {
+@ComponentScan("nl.han.oose.scala.scalasameneten.datasource.connection")
+class VoorkeurDAO(private val connectionService: ConnectionService) {
+    private val databaseProperties = connectionService.getDatabaseProperties()
 
     fun getAlleVoorkeuren(): ResultSet {
         return try {
