@@ -3,13 +3,15 @@ package nl.han.oose.scala.scalasameneten.service.voorkeur
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.Response
 import nl.han.oose.scala.scalasameneten.datasource.voorkeur.VoorkeurDAO
+import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurDTO
+import org.springframework.http.ResponseEntity
+import org.springframework.stereotype.Service
 
+@Service
+class VoorkeurService(private val voorkeurenDAO: VoorkeurDAO) {
 
-class VoorkeurService {
-    private var voorkeurenDAO: VoorkeurDAO? = null
-
-    fun getVoorkeuren(): Response {
-        return Response.status(200).entity(voorkeurenDAO!!.makeVoorkeurenDTO()).build()
+    fun getVoorkeuren(): ResponseEntity<VoorkeurDTO> {
+        return ResponseEntity.ok(voorkeurenDAO!!.makeVoorkeurenDTO())
     }
 
     fun getAlleVoorkeuren(): Response {
@@ -33,8 +35,4 @@ class VoorkeurService {
         return Response.status(200).build()
     }
 
-    @Inject
-    fun setVoorkeurenDAO(voorkeurenDao: VoorkeurDAO) {
-        this.voorkeurenDAO = voorkeurenDao
-    }
 }

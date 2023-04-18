@@ -5,15 +5,16 @@ import nl.han.oose.scala.scalasameneten.datasource.connection.DatabaseProperties
 import nl.han.oose.scala.scalasameneten.datasource.exceptions.DatabaseConnectionException
 import nl.han.oose.scala.scalasameneten.dto.factory.VoorkeurDTOFactory
 import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurDTO
+import org.springframework.context.annotation.ComponentScan
+import org.springframework.stereotype.Component
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.SQLException
 
+@Component
+@ComponentScan(basePackageClasses = [ConnectionService::class, DatabaseProperties::class])
+class VoorkeurDAO(private val connectionService: ConnectionService, private val databaseProperties: DatabaseProperties) {
 
-class VoorkeurDAO {
-
-    private val connectionService: ConnectionService? = null
-    private val databaseProperties: DatabaseProperties? = null
     fun getAlleVoorkeuren(): ResultSet {
         return try {
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
@@ -77,7 +78,7 @@ class VoorkeurDAO {
             throw DatabaseConnectionException()
         }
     }
-    fun makeVoorkeurenDTO(): VoorkeurDTO? {
+    fun makeVoorkeurenDTO(): VoorkeurDTO {
         val voorkeurenDTO = VoorkeurDTOFactory.create.createVoorkeurenDTO()
         return try {
             val resultSet: ResultSet = getAlleVoorkeuren()
