@@ -10,7 +10,11 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/voorkeuren")
-class VoorkeurController {
+@ComponentScan("nl.han.oose.scala.scalasameneten.service.voorkeur")
+class VoorkeurController(private val voorkeurService: VoorkeurService) {
+
+    @GetMapping(produces = ["application/json"])
+    fun getVoorkeur(): ResponseEntity<VoorkeurDTO> = voorkeurService.getVoorkeuren()
 /*
     @GetMapping(produces = ["application/json"])
     fun getVoorkeur(@RequestParam id: Int): ResponseEntity<VoorkeurDTO> = voorkeurService.getVoorkeuren()
