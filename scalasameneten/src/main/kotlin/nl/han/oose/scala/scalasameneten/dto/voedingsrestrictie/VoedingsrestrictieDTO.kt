@@ -1,6 +1,6 @@
-package nl.han.oose.scala.scalasameneten.dto.voedingsrestricties
+package nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie
 
-abstract class VoedingsrestrictiesDTO {
+abstract class VoedingsrestrictieDTO {
     lateinit var restricties: ArrayList<String>
 
     fun addRestrictie(restrictie: String){

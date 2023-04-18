@@ -1,12 +1,11 @@
-package nl.han.oose.scala.scalasameneten.service.voedingsrestricties
+package nl.han.oose.scala.scalasameneten.service.voedingsrestrictie
 
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.Response
-import nl.han.oose.scala.scalasameneten.datasource.voedingsrestricties.VoedingsrestrictiesDAO
-import nl.han.oose.scala.scalasameneten.datasource.voorkeuren.VoorkeurenDAO
+import nl.han.oose.scala.scalasameneten.datasource.voedingsrestrictie.VoedingsrestrictieDAO
 
-class VoedingsrestrictiesService {
-    private var voedingsrestrictiesDAO: VoedingsrestrictiesDAO? = null
+class VoedingsrestrictieService {
+    private var voedingsrestrictiesDAO: VoedingsrestrictieDAO? = null
 
     fun getVoedingsrestricties(): Response {
         return Response.status(200).entity(voedingsrestrictiesDAO!!.makeRestrictiesDTO()).build()
@@ -57,7 +56,7 @@ class VoedingsrestrictiesService {
         return Response.status(200).build()
     }
     @Inject
-    fun setVoedingsrestrictiesDAO(voedingsrestrictiesDAO: VoedingsrestrictiesDAO) {
+    fun setVoedingsrestrictiesDAO(voedingsrestrictiesDAO: VoedingsrestrictieDAO) {
         this.voedingsrestrictiesDAO = voedingsrestrictiesDAO
     }
 }

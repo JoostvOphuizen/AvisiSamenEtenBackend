@@ -1,11 +1,11 @@
-package nl.han.oose.scala.scalasameneten.datasource.voedingsrestricties
+package nl.han.oose.scala.scalasameneten.datasource.voedingsrestrictie
 
 import nl.han.oose.scala.scalasameneten.datasource.connection.ConnectionService
 import nl.han.oose.scala.scalasameneten.datasource.exceptions.DatabaseConnectionException
 import java.sql.PreparedStatement
 import java.sql.SQLException
 
-class VoedingsrestrictiesSQLPreparedStatementBuilder {
+class VoedingsrestrictieSQLPreparedStatementBuilder {
 
     object algemeen {
         fun buildGetGebruikersRestrictiesPreparedStatement(connectionService: ConnectionService, gebruiker: Int): PreparedStatement {

@@ -1,23 +1,23 @@
-package nl.han.oose.scala.scalasameneten.datasource.voorkeuren
+package nl.han.oose.scala.scalasameneten.datasource.voorkeur
 
 import nl.han.oose.scala.scalasameneten.datasource.connection.ConnectionService
 import nl.han.oose.scala.scalasameneten.datasource.connection.DatabaseProperties
 import nl.han.oose.scala.scalasameneten.datasource.exceptions.DatabaseConnectionException
-import nl.han.oose.scala.scalasameneten.datasource.factory.VoorkeurenDTOFactory
-import nl.han.oose.scala.scalasameneten.dto.voorkeuren.VoorkeurenDTO
+import nl.han.oose.scala.scalasameneten.dto.factory.VoorkeurDTOFactory
+import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurDTO
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.SQLException
 
 
-class VoorkeurenDAO {
+class VoorkeurDAO {
 
     private val connectionService: ConnectionService? = null
     private val databaseProperties: DatabaseProperties? = null
     fun getAlleVoorkeuren(): ResultSet {
         return try {
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-            val statement: PreparedStatement = VoorkeurenSQLPreparedStatementBuilder.voorkeurenStatements.buildGetAlleVoorkeurenPreparedStatement(connectionService)
+            val statement: PreparedStatement = VoorkeurSQLPreparedStatementBuilder.voorkeurenStatements.buildGetAlleVoorkeurenPreparedStatement(connectionService)
             statement.executeQuery()
         } catch (e: SQLException) {
             throw DatabaseConnectionException()
@@ -26,7 +26,7 @@ class VoorkeurenDAO {
     fun getGebruikersVoorkeuren(gebruiker: Int): ResultSet {
         return try {
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-            val statement: PreparedStatement = VoorkeurenSQLPreparedStatementBuilder.voorkeurenStatements.buildGetGebruikersVoorkeurPreparedStatement(connectionService,gebruiker)
+            val statement: PreparedStatement = VoorkeurSQLPreparedStatementBuilder.voorkeurenStatements.buildGetGebruikersVoorkeurPreparedStatement(connectionService,gebruiker)
             statement.executeQuery()
         } catch (e: SQLException) {
             throw DatabaseConnectionException()
@@ -50,7 +50,7 @@ class VoorkeurenDAO {
         try{
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
             if(!gebruikerHeeftVoorkeur(gebruiker,voorkeur)) {
-                val statement = VoorkeurenSQLPreparedStatementBuilder.voorkeurenStatements.buildGebruikersVoorkeurenToevoegenPreparedStatement(connectionService, gebruiker, voorkeur)
+                val statement = VoorkeurSQLPreparedStatementBuilder.voorkeurenStatements.buildGebruikersVoorkeurenToevoegenPreparedStatement(connectionService, gebruiker, voorkeur)
                 statement.executeUpdate()
             }
         } catch (e: SQLException) {
@@ -60,7 +60,7 @@ class VoorkeurenDAO {
     fun voorkeurBestaat(voorkeur: String): ResultSet{
         return try{
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-            val statement = VoorkeurenSQLPreparedStatementBuilder.voorkeurenStatements.buildVoorkeurBestaatPreparedStatement(connectionService,voorkeur)
+            val statement = VoorkeurSQLPreparedStatementBuilder.voorkeurenStatements.buildVoorkeurBestaatPreparedStatement(connectionService,voorkeur)
             statement.executeQuery()
         } catch (e: SQLException){
             throw DatabaseConnectionException()
@@ -70,15 +70,15 @@ class VoorkeurenDAO {
         try{
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
             if(gebruikerHeeftVoorkeur(gebruiker,voorkeur)) {
-                val stmt = VoorkeurenSQLPreparedStatementBuilder.voorkeurenStatements.buildVoorkeurVerwijderenPreparedStatement(connectionService, gebruiker, voorkeur)
+                val stmt = VoorkeurSQLPreparedStatementBuilder.voorkeurenStatements.buildVoorkeurVerwijderenPreparedStatement(connectionService, gebruiker, voorkeur)
                 stmt.executeUpdate()
             }
         } catch (e: SQLException){
             throw DatabaseConnectionException()
         }
     }
-    fun makeVoorkeurenDTO(): VoorkeurenDTO? {
-        val voorkeurenDTO = VoorkeurenDTOFactory.create.createVoorkeurenDTO()
+    fun makeVoorkeurenDTO(): VoorkeurDTO? {
+        val voorkeurenDTO = VoorkeurDTOFactory.create.createVoorkeurenDTO()
         return try {
             val resultSet: ResultSet = getAlleVoorkeuren()
             while (resultSet != null && resultSet.next()) {

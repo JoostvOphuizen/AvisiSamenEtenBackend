@@ -1,12 +1,12 @@
-package nl.han.oose.scala.scalasameneten.service.voorkeuren
+package nl.han.oose.scala.scalasameneten.service.voorkeur
 
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.Response
-import nl.han.oose.scala.scalasameneten.datasource.voorkeuren.VoorkeurenDAO
+import nl.han.oose.scala.scalasameneten.datasource.voorkeur.VoorkeurDAO
 
 
-class VoorkeurenService {
-    private var voorkeurenDAO: VoorkeurenDAO? = null
+class VoorkeurService {
+    private var voorkeurenDAO: VoorkeurDAO? = null
 
     fun getVoorkeuren(): Response {
         return Response.status(200).entity(voorkeurenDAO!!.makeVoorkeurenDTO()).build()
@@ -34,7 +34,7 @@ class VoorkeurenService {
     }
 
     @Inject
-    fun setVoorkeurenDAO(voorkeurenDao: VoorkeurenDAO) {
+    fun setVoorkeurenDAO(voorkeurenDao: VoorkeurDAO) {
         this.voorkeurenDAO = voorkeurenDao
     }
 }

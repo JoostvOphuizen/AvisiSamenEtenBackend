@@ -1,4 +1,4 @@
-package nl.han.oose.scala.scalasameneten.datasource.voorkeuren
+package nl.han.oose.scala.scalasameneten.datasource.voorkeur
 
 import nl.han.oose.scala.scalasameneten.datasource.connection.ConnectionService
 import nl.han.oose.scala.scalasameneten.datasource.exceptions.DatabaseConnectionException
@@ -6,7 +6,7 @@ import java.sql.PreparedStatement
 import java.sql.SQLException
 
 
-class VoorkeurenSQLPreparedStatementBuilder {
+class VoorkeurSQLPreparedStatementBuilder {
     object voorkeurenStatements {
 
         fun buildGetGebruikersVoorkeurPreparedStatement(connectionService: ConnectionService, gebruiker: Int): PreparedStatement {
