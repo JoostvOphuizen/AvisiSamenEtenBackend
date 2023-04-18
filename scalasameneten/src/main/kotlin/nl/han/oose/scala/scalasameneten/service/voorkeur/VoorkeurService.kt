@@ -21,25 +21,4 @@ class VoorkeurService(private val voorkeurDAO: VoorkeurDAO) {
         return ResponseEntity.ok(voorkeurDAO!!.makeVoorkeurenDTO())
     }
 
-    fun getAlleVoorkeuren(): ResponseEntity<ResultSet> {
-        return ResponseEntity.ok(voorkeurDAO!!.getAlleVoorkeuren())
-    }
-
-    fun getVoorkeurenVanGebruiker(gebruiker: Int): Response {
-        return Response.status(200).entity(voorkeurDAO!!.getGebruikersVoorkeuren(gebruiker)).build()
-    }
-
-    fun gebruikersVoorkeurToevoegen(gebruiker: Int,voorkeur: String): Response{
-        voorkeurDAO!!.gebruikersVoorkeurenToevoegen(gebruiker,voorkeur)
-        return Response.status(200).build()
-    }
-
-    fun voorkeurBestaat(voorkeur: String): Response {
-        return Response.status(200).entity(voorkeurDAO!!.voorkeurBestaat(voorkeur)).build()
-    }
-    fun gebruikersVoorkeurVerwijderen(gebruiker: Int,voorkeur: String): Response{
-        voorkeurDAO!!.gebruikersVoorkeurVerwijderen(gebruiker,voorkeur)
-        return Response.status(200).build()
-    }
-
 }

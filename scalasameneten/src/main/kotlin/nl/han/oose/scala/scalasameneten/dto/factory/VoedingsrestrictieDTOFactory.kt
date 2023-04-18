@@ -1,11 +1,7 @@
 package nl.han.oose.scala.scalasameneten.dto.factory
 
-import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.AllergieDTO
-import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.DieetDTO
-import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.GeloofDTO
-
 class VoedingsrestrictieDTOFactory {
-    object create {
+    /*object create {
         fun createAllergieDTO(): AllergieDTO {
             return AllergieDTO()
         }
@@ -15,5 +11,5 @@ class VoedingsrestrictieDTOFactory {
         fun createDieetDTO(): DieetDTO {
             return DieetDTO()
         }
-    }
+    }*/
 }
