@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/voorkeuren")
 class VoorkeurController {
+/*
+    @GetMapping(produces = ["application/json"])
+    fun getVoorkeur(@RequestParam id: Int): ResponseEntity<VoorkeurDTO> = voorkeurService.getVoorkeuren()
+*/
 
     @GetMapping("/test")
     fun getVoorkeur2(): String = "test"
