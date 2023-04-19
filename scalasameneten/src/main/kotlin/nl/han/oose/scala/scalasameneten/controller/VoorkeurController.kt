@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/voorkeuren")
 @ComponentScan("nl.han.oose.scala.scalasameneten.service.voorkeur")
+@CrossOrigin
 class VoorkeurController(private val voorkeurService: VoorkeurService) {
-
     @GetMapping(produces = ["application/json"])
     fun getVoorkeur(): ResponseEntity<VoorkeurenDTO> = voorkeurService.getVoorkeuren()
 
@@ -18,8 +18,6 @@ class VoorkeurController(private val voorkeurService: VoorkeurService) {
     fun getVoorkeur2(@RequestParam id: Int): ResponseEntity<VoorkeurDTO> = voorkeurService.getVoorkeuren()
 */
 
-    @GetMapping("/test")
-    fun getVoorkeur3(): String = "test"
 /*
     @GetMapping(produces = ["application/json"])
     fun getVoedingsRestrictie(@RequestParam id: Int): ResponseEntity<ArrayList<VoedingsrestrictieDTO>> = voedingsrestrictieService.getVoedingsrestricties()
