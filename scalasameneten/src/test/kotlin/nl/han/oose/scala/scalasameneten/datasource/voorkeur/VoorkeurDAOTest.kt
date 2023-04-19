@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.InputStreamReader
 import java.sql.DriverManager
-import java.sql.SQLException
 import java.util.*
 
 
@@ -27,7 +26,18 @@ class VoorkeurDAOTest {
         mockedConnectionService = ConnectionService()
         voorkeurDAO = VoorkeurDAO(mockedConnectionService,databaseProperties)
     }
-
+    @Test
+    fun getAlleVoorkeuren(){
+        //arrange
+        //act
+        val returnValue = voorkeurDAO.getAlleVoorkeuren()
+        var counter = 0
+        while (returnValue.next()) {
+            counter++
+        }
+        //assert
+        assertEquals(9, counter)
+    }
     @Test
     fun voorkeurBestaat() {
         //arrage
