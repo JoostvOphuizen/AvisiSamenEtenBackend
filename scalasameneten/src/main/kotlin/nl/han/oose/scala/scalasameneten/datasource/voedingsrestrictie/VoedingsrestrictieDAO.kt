@@ -1,22 +1,27 @@
 package nl.han.oose.scala.scalasameneten.datasource.voedingsrestrictie
 
+import nl.han.oose.scala.scalasameneten.datasource.PreparedStatementBuilder
 import nl.han.oose.scala.scalasameneten.datasource.connection.ConnectionService
 import nl.han.oose.scala.scalasameneten.datasource.connection.DatabaseProperties
 import nl.han.oose.scala.scalasameneten.datasource.exceptions.DatabaseConnectionException
+import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictieDTO
 import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictiesDTO
+import org.springframework.context.annotation.ComponentScan
+import org.springframework.stereotype.Component
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.SQLException
 
-class VoedingsrestrictieDAO {
-    private val connectionService: ConnectionService? = null
-    private val databaseProperties: DatabaseProperties? = null
+@Component
+@ComponentScan("nl.han.oose.scala.scalasameneten.datasource.connection")
+class VoedingsrestrictieDAO(private val connectionService: ConnectionService,private val databaseProperties: DatabaseProperties) {
 
     fun getAlleAllergieen(): ResultSet {
         return try {
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-            val statement: PreparedStatement = VoedingsrestrictieSQLPreparedStatementBuilder.allergie.buildGetAlleAllergieenPreparedStatement(connectionService)
-            statement.executeQuery()
+            val stmt = PreparedStatementBuilder(connectionService,"SELECT restrictie_naam FROM voedingsrestrictie WHERE type='allergie'")
+                    .build()
+            stmt.executeQuery()
         } catch (e: SQLException) {
             throw DatabaseConnectionException()
         }
@@ -24,8 +29,9 @@ class VoedingsrestrictieDAO {
     fun getAlleGeloof(): ResultSet {
         return try {
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-            val statement: PreparedStatement = VoedingsrestrictieSQLPreparedStatementBuilder.geloof.buildGetAlleGeloofPreparedStatement(connectionService)
-            statement.executeQuery()
+            val stmt = PreparedStatementBuilder(connectionService,"SELECT restrictie_naam FROM voedingsrestrictie WHERE type='geloof'")
+                    .build()
+            stmt.executeQuery()
         } catch (e: SQLException) {
             throw DatabaseConnectionException()
         }
@@ -33,8 +39,9 @@ class VoedingsrestrictieDAO {
     fun getAlleDieet(): ResultSet {
         return try {
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-            val statement: PreparedStatement = VoedingsrestrictieSQLPreparedStatementBuilder.dieet.buildGetAlleDieetPreparedStatement(connectionService)
-            statement.executeQuery()
+            val stmt = PreparedStatementBuilder(connectionService,"SELECT restrictie_naam FROM voedingsrestrictie WHERE type='dieet'")
+                    .build()
+            stmt.executeQuery()
         } catch (e: SQLException) {
             throw DatabaseConnectionException()
         }
@@ -42,8 +49,10 @@ class VoedingsrestrictieDAO {
     fun allergieBestaat(allergie: String): ResultSet {
         return try{
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-            val statement = VoedingsrestrictieSQLPreparedStatementBuilder.allergie.buildAllergieBestaatPreparedStatement(connectionService,allergie)
-            statement.executeQuery()
+            val stmt = PreparedStatementBuilder(connectionService,"SELECT 1 FROM voedingsrestrictie WHERE restrictie_naam=? AND type='allergie'")
+                    .setString(allergie)
+                    .build()
+            stmt.executeQuery()
         } catch (e: SQLException){
             throw DatabaseConnectionException()
         }
@@ -51,8 +60,10 @@ class VoedingsrestrictieDAO {
     fun geloofBestaat(geloof: String): ResultSet {
         return try{
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-            val statement = VoedingsrestrictieSQLPreparedStatementBuilder.geloof.buildGeloofBestaatPreparedStatement(connectionService,geloof)
-            statement.executeQuery()
+            val stmt = PreparedStatementBuilder(connectionService,"SELECT 1 FROM voedingsrestrictie WHERE restrictie_naam=? AND type='geloof'")
+                    .setString(geloof)
+                    .build()
+            stmt.executeQuery()
         } catch (e: SQLException){
             throw DatabaseConnectionException()
         }
@@ -60,8 +71,10 @@ class VoedingsrestrictieDAO {
     fun dieetBestaat(dieet: String): ResultSet {
         return try{
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-            val statement = VoedingsrestrictieSQLPreparedStatementBuilder.dieet.buildDieetBestaatPreparedStatement(connectionService,dieet)
-            statement.executeQuery()
+            val stmt = PreparedStatementBuilder(connectionService,"SELECT 1 FROM voedingsrestrictie WHERE restrictie_naam=? AND type='dieet'")
+                    .setString(dieet)
+                    .build()
+            stmt.executeQuery()
         } catch (e: SQLException){
             throw DatabaseConnectionException()
         }
@@ -71,15 +84,15 @@ class VoedingsrestrictieDAO {
             val allergieen: ResultSet = getAlleAllergieen()
             val geloof = getAlleGeloof()
             val dieet = getAlleDieet()
-            var voedingsrestricties = HashMap<String, String>()
+            var voedingsrestricties = ArrayList<VoedingsrestrictieDTO>()
             while (allergieen != null && allergieen.next()) {
-                voedingsrestricties[allergieen.getString("restrictie_naam")] = "allergie"
+                voedingsrestricties.add(VoedingsrestrictieDTO(allergieen.getString("restrictie_naam"),"allergie"))
             }
             while (geloof != null && geloof.next()) {
-                voedingsrestricties[allergieen.getString("restrictie_naam")] = "geloof"
+                voedingsrestricties.add(VoedingsrestrictieDTO(geloof.getString("restrictie_naam"),"geloof"))
             }
             while (dieet != null && dieet.next()) {
-                voedingsrestricties[allergieen.getString("restrictie_naam")] = "dieet"
+                voedingsrestricties.add(VoedingsrestrictieDTO(dieet.getString("restrictie_naam"),"dieet"))
             }
             VoedingsrestrictiesDTO(voedingsrestricties)
         } catch (e: SQLException) {

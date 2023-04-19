@@ -1,5 +1,6 @@
 package nl.han.oose.scala.scalasameneten.datasource.voorkeur
 
+import nl.han.oose.scala.scalasameneten.datasource.PreparedStatementBuilder
 import nl.han.oose.scala.scalasameneten.datasource.connection.ConnectionService
 import nl.han.oose.scala.scalasameneten.datasource.connection.DatabaseProperties
 import nl.han.oose.scala.scalasameneten.datasource.exceptions.DatabaseConnectionException
@@ -18,9 +19,9 @@ class VoorkeurDAO(private val connectionService: ConnectionService,private val d
     fun getAlleVoorkeuren(): ResultSet {
         return try {
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-            val statement: PreparedStatement = VoorkeurSQLPreparedStatementBuilder.voorkeurenStatements.buildGetAlleVoorkeurenPreparedStatement(connectionService)
-            val result = statement.executeQuery()
-            result
+            val stmt = PreparedStatementBuilder(connectionService, "SELECT voorkeur_naam FROM voorkeur")
+                    .build()
+            stmt.executeQuery()
         } catch (e: SQLException) {
             throw DatabaseConnectionException()
         }
@@ -28,8 +29,10 @@ class VoorkeurDAO(private val connectionService: ConnectionService,private val d
     fun voorkeurBestaat(voorkeur: String): ResultSet{
         return try{
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-            val statement = VoorkeurSQLPreparedStatementBuilder.voorkeurenStatements.buildVoorkeurBestaatPreparedStatement(connectionService,voorkeur)
-            statement.executeQuery()
+            val stmt = PreparedStatementBuilder(connectionService,"SELECT 1 FROM voorkeur WHERE voorkeur_naam=?")
+                    .setString(voorkeur)
+                    .build()
+            stmt.executeQuery()
         } catch (e: SQLException){
             throw DatabaseConnectionException()
         }
