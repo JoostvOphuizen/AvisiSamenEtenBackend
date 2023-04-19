@@ -1,14 +1,10 @@
 package nl.han.oose.scala.scalasameneten.controller
 
-import jakarta.json.JsonArray
-import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictieDTO
-import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurDTO
-import nl.han.oose.scala.scalasameneten.service.voedingsrestrictie.VoedingsrestrictieService
+import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurenDTO
 import nl.han.oose.scala.scalasameneten.service.voorkeur.VoorkeurService
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.sql.ResultSet
 
 @RestController
 @RequestMapping("/voorkeuren")
@@ -16,7 +12,7 @@ import java.sql.ResultSet
 class VoorkeurController(private val voorkeurService: VoorkeurService) {
 
     @GetMapping(produces = ["application/json"])
-    fun getVoorkeur(): ResponseEntity<VoorkeurDTO> = voorkeurService.getVoorkeuren()
+    fun getVoorkeur(): ResponseEntity<VoorkeurenDTO> = voorkeurService.getVoorkeuren()
 
     /*@GetMapping(produces = ["application/json"])
     fun getVoorkeur2(@RequestParam id: Int): ResponseEntity<VoorkeurDTO> = voorkeurService.getVoorkeuren()

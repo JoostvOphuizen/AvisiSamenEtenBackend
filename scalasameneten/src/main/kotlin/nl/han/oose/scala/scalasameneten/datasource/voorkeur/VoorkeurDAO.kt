@@ -1,14 +1,10 @@
 package nl.han.oose.scala.scalasameneten.datasource.voorkeur
 
-import jakarta.annotation.PostConstruct
-import jakarta.json.Json
-import jakarta.json.JsonArray
-import jakarta.json.JsonObjectBuilder
 import nl.han.oose.scala.scalasameneten.datasource.connection.ConnectionService
 import nl.han.oose.scala.scalasameneten.datasource.connection.DatabaseProperties
 import nl.han.oose.scala.scalasameneten.datasource.exceptions.DatabaseConnectionException
-import nl.han.oose.scala.scalasameneten.dto.factory.VoorkeurDTOFactory
 import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurDTO
+import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurenDTO
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.stereotype.Component
 import java.sql.PreparedStatement
@@ -38,14 +34,15 @@ class VoorkeurDAO(private val connectionService: ConnectionService,private val d
             throw DatabaseConnectionException()
         }
     }
-    fun makeVoorkeurenDTO(): VoorkeurDTO {
+    fun makeVoorkeurenDTO(): VoorkeurenDTO {
         return try {
             val resultSet: ResultSet = getAlleVoorkeuren()
-            var voorkeuren = ArrayList<String>()
+            var voorkeuren = ArrayList<VoorkeurDTO>()
             while (resultSet != null && resultSet.next()) {
-                voorkeuren.add(resultSet.getString("voorkeur_naam"))
+                val x = VoorkeurDTO(resultSet.getString("voorkeur_naam"))
+                voorkeuren.add(x)
             }
-            VoorkeurDTO(voorkeuren)
+            VoorkeurenDTO(voorkeuren)
         } catch (e: SQLException) {
             throw DatabaseConnectionException()
         }

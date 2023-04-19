@@ -21,4 +21,58 @@ class GebruikerDAO {
             throw DatabaseConnectionException()
         }
     }
+    fun getGebruikersVoedingsrestricties(gebruiker: Int): ResultSet {
+        return try {
+            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            val stmt = GebruikerSQLPreparedStatementBuilder.voeding.buildGetGebruikersVoedingsestrictiesPreparedStatement(connectionService,gebruiker)
+            stmt.executeQuery()
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+    fun getGebruikersVoorkeuren(gebruiker: Int): ResultSet {
+        return try {
+            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            val stmt = GebruikerSQLPreparedStatementBuilder.voeding.buildGetGebruikersVoorkeurPreparedStatement(connectionService,gebruiker)
+            stmt.executeQuery()
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+    fun gebruikersVoedingsrestrictieToevoegen(gebruiker: Int,restrictie: String,type: String) {
+        try {
+            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            val stmt = GebruikerSQLPreparedStatementBuilder.voeding.buildGebruikersVoedingsrestrictieToevoegenPreparedStatement(connectionService,gebruiker,restrictie,type)
+            stmt.executeUpdate()
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+    fun gebruikersVoorkeurToevoegen(gebruiker: Int,voorkeur: String) {
+        try {
+            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            val stmt = GebruikerSQLPreparedStatementBuilder.voeding.buildGebruikersVoorkeurToevoegenPreparedStatement(connectionService,gebruiker,voorkeur)
+            stmt.executeUpdate()
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+    fun gebruikersVoedingsrestrictieVerwijderen(gebruiker: Int,restrictie: String,type: String) {
+        try {
+            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            val stmt = GebruikerSQLPreparedStatementBuilder.voeding.buildVoedingsrestrictieVerwijderenPreparedStatement(connectionService,gebruiker,restrictie,type)
+            stmt.executeUpdate()
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+    fun gebruikersVoorkeurVerwijderen(gebruiker: Int,voorkeur: String) {
+        try {
+            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            val stmt = GebruikerSQLPreparedStatementBuilder.voeding.buildGebruikersVoorkeurVerwijderenPreparedStatement(connectionService,gebruiker,voorkeur)
+            stmt.executeUpdate()
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
 }

@@ -1,7 +1,5 @@
 package nl.han.oose.scala.scalasameneten.dto.factory
 
-import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurDTO
-
 class VoorkeurDTOFactory {
 
     object create {

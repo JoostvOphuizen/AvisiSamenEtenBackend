@@ -16,16 +16,6 @@ class GebruikerSQLPreparedStatementBuilder {
                 throw DatabaseConnectionException()
             }
         }
-        fun buildGebruikerToevoegenPreparedStatement(connectionService: ConnectionService,naam: String): PreparedStatement {
-            val sql = "INSERT INTO gebruiker(gebruikersnaam) VALUES (?)"
-            return try {
-                val preparedStatement = connectionService.getConnection()!!.prepareStatement(sql)
-                preparedStatement.setString(1,naam)
-                preparedStatement
-            } catch (e: SQLException) {
-                throw DatabaseConnectionException()
-            }
-        }
     }
 
     object voeding {
@@ -41,12 +31,12 @@ class GebruikerSQLPreparedStatementBuilder {
         }
 
 
-        fun buildGebruikersVoedingsrestrictieToevoegenPreparedStatement(connectionService: ConnectionService, gebruiker: Int, allergie: String,type: String): PreparedStatement {
+        fun buildGebruikersVoedingsrestrictieToevoegenPreparedStatement(connectionService: ConnectionService, gebruiker: Int, restrictie: String,type: String): PreparedStatement {
             val sql = "INSERT INTO gebruiker_heeft_voedingsrestrictie(gebruiker_id,restrictie_naam,type) VALUES (?,?,?)"
             return try {
                 val stmt = connectionService.getConnection()!!.prepareStatement(sql)
                 stmt.setInt(1,gebruiker)
-                stmt.setString(2,allergie)
+                stmt.setString(2,restrictie)
                 stmt.setString(3,type)
                 stmt
             } catch (e: SQLException){
@@ -54,12 +44,12 @@ class GebruikerSQLPreparedStatementBuilder {
             }
         }
 
-        fun buildVoedingsrestrictieVerwijderenPreparedStatement(connectionService: ConnectionService,gebruiker: Int,allergie: String,type: String): PreparedStatement{
+        fun buildVoedingsrestrictieVerwijderenPreparedStatement(connectionService: ConnectionService,gebruiker: Int,restrictie: String,type: String): PreparedStatement{
             val sql = "DELETE FROM gebruiker_heeft_voedingsrestrictie WHERE gebruiker_id=? AND restrictie_naam=? AND type=?"
             return try {
                 val stmt = connectionService.getConnection()!!.prepareStatement(sql)
                 stmt.setInt(1,gebruiker)
-                stmt.setString(2,allergie)
+                stmt.setString(2,restrictie)
                 stmt.setString(3,type)
                 stmt
             } catch (e: SQLException){

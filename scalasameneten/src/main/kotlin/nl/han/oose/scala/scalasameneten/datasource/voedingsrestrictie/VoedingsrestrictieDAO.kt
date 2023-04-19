@@ -3,9 +3,7 @@ package nl.han.oose.scala.scalasameneten.datasource.voedingsrestrictie
 import nl.han.oose.scala.scalasameneten.datasource.connection.ConnectionService
 import nl.han.oose.scala.scalasameneten.datasource.connection.DatabaseProperties
 import nl.han.oose.scala.scalasameneten.datasource.exceptions.DatabaseConnectionException
-import nl.han.oose.scala.scalasameneten.dto.factory.VoedingsrestrictieDTOFactory
-import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictieDTO
-import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurDTO
+import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictiesDTO
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.SQLException
@@ -68,7 +66,7 @@ class VoedingsrestrictieDAO {
             throw DatabaseConnectionException()
         }
     }
-    fun makeRestrictiesDTO(): VoedingsrestrictieDTO {
+    fun makeRestrictiesDTO(): VoedingsrestrictiesDTO {
         return try {
             val allergieen: ResultSet = getAlleAllergieen()
             val geloof = getAlleGeloof()
@@ -83,7 +81,7 @@ class VoedingsrestrictieDAO {
             while (dieet != null && dieet.next()) {
                 voedingsrestricties[allergieen.getString("restrictie_naam")] = "dieet"
             }
-            VoedingsrestrictieDTO(voedingsrestricties)
+            VoedingsrestrictiesDTO(voedingsrestricties)
         } catch (e: SQLException) {
             throw DatabaseConnectionException()
         }
