@@ -29,15 +29,18 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
             throw DatabaseConnectionException()
         }
     }
-    fun getNaamVanGebruiker(id: Int): String {
+    fun getNaamVanGebruiker(id: Int): String? {
         return try {
             connectionService.initializeConnection((databaseProperties.getConnectionString()))
             val stmt = PreparedStatementBuilder(connectionService,"SELECT gebruikersnaam FROM gebruiker WHERE gebruiker_id=?")
                     .setInt(id)
                     .build()
             val result = stmt.executeQuery()
-            result.next()
-            result.getString("gebruikersnaam")
+            if(result.next()) {
+                result.getString("gebruikersnaam")
+            } else {
+                null
+            }
         } catch (e: SQLException) {
             throw DatabaseConnectionException()
         }
@@ -89,6 +92,7 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
                     .build()
             stmt.executeUpdate()
         } catch (e: SQLException) {
+            e.printStackTrace()
             throw DatabaseConnectionException()
         }
     }
@@ -153,6 +157,6 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
         while(result.next()){
             restricties.add(VoedingsrestrictieDTO(result.getString("restrictie_naam"),result.getString("type")))
         }
-        return GebruikerDTO(id,getNaamVanGebruiker(id),voorkeuren,restricties)
+        return GebruikerDTO(id,getNaamVanGebruiker(id)!!,voorkeuren,restricties)
     }
 }

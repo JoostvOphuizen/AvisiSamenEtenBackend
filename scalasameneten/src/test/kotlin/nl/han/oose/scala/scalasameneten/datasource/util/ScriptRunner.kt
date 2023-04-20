@@ -188,7 +188,7 @@ class ScriptRunner
             printlnError(e)
             throw e
         } finally {
-            //conn.rollback()
+            conn.rollback()
             flush()
         }
     }

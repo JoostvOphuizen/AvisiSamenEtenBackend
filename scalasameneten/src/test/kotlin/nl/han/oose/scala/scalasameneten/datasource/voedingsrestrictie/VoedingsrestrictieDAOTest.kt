@@ -3,28 +3,33 @@ package nl.han.oose.scala.scalasameneten.datasource.voedingsrestrictie
 import nl.han.oose.scala.scalasameneten.datasource.connection.ConnectionService
 import nl.han.oose.scala.scalasameneten.datasource.connection.DatabaseProperties
 import nl.han.oose.scala.scalasameneten.datasource.util.ScriptRunner
-import nl.han.oose.scala.scalasameneten.datasource.voorkeur.VoorkeurDAO
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.InputStreamReader
+import java.sql.Connection
 import java.sql.DriverManager
 import java.util.*
 
 class VoedingsrestrictieDAOTest {
     lateinit var voedingsrestrictieDAO: VoedingsrestrictieDAO
-    lateinit var mockedConnectionService: ConnectionService
+    lateinit var mockedConnectedService: ConnectionService
+    val databaseProperties = DatabaseProperties()
+    lateinit var connection: Connection
 
     @BeforeEach
     fun setup()    {
-        val databaseProperties = DatabaseProperties()
-        val connection = DriverManager.getConnection(databaseProperties.getConnectionString())
+        connection = DriverManager.getConnection(databaseProperties.getConnectionString())
         val scriptRunner = ScriptRunner(connection, true, true)
-        scriptRunner.runScript(InputStreamReader(Objects.requireNonNull(ClassLoader.getSystemResourceAsStream("import.sql"))));
-        connection.close()
+        scriptRunner.runScript(InputStreamReader(Objects.requireNonNull(ClassLoader.getSystemResourceAsStream("import.sql"))))
 
-        mockedConnectionService = ConnectionService()
-        voedingsrestrictieDAO = VoedingsrestrictieDAO(mockedConnectionService,databaseProperties)
+        connection.createStatement().executeUpdate("INSERT INTO voedingsrestrictie(restrictie_naam,type) VALUES ('noten','allergie')")
+        connection.createStatement().executeUpdate("INSERT INTO voedingsrestrictie(restrictie_naam,type) VALUES ('varkensvlees','geloof')")
+        connection.createStatement().executeUpdate("INSERT INTO voedingsrestrictie(restrictie_naam,type) VALUES ('vlees','dieet')")
+
+        mockedConnectedService = ConnectionService()
+        voedingsrestrictieDAO = VoedingsrestrictieDAO(mockedConnectedService,databaseProperties)
+        connection.close()
     }
     @Test
     fun getAlleAllergieen(){
