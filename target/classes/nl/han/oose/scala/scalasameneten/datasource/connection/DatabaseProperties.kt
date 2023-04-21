@@ -30,3 +30,4 @@ class DatabaseProperties {
         return properties.getProperty("connectionstring")
         }
 }
+
