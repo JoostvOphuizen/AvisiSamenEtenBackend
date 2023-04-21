@@ -1,5 +1,7 @@
 package nl.han.oose.scala.scalasameneten.controller
 
+import jakarta.json.Json
+import jakarta.json.JsonObject
 import jakarta.ws.rs.Path
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikerDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikersDTO
@@ -18,6 +20,16 @@ import java.sql.ResultSet
 class GebruikerController(private val gebruikerService: GebruikerService) {
     @GetMapping(produces = ["application/json"])
     fun getGebruikers(): ResponseEntity<GebruikersDTO> = gebruikerService.getGebruikers()
+
+    @PostMapping(produces = ["application/json"])
+    fun slaVoorkeurenOp(@RequestParam id: Int,@RequestParam voorkeuren: Any) {
+        when(voorkeuren){
+            is Array<*> -> "Array"
+            is Json -> "Json"
+            is JsonObject -> "Jsonobject"
+            else -> "iets anders"
+        }
+    }
 
     @RequestMapping("/profiel")
     @GetMapping(produces = ["application/json"])
