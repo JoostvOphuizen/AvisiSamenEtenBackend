@@ -1,17 +1,19 @@
 package nl.han.oose.scala.scalasameneten.datasource.gebruiker
 
+import com.example.springboot.Application
 import nl.han.oose.scala.scalasameneten.datasource.connection.ConnectionService
 import nl.han.oose.scala.scalasameneten.datasource.connection.DatabaseProperties
 import nl.han.oose.scala.scalasameneten.datasource.util.ScriptRunner
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.boot.test.context.SpringBootTest
 import java.io.InputStreamReader
 import java.sql.Connection
 import java.sql.DriverManager
 import java.util.*
 
-
+@SpringBootTest
 class GebruikerDAOTest {
 
     lateinit var gebruikerDAO: GebruikerDAO
