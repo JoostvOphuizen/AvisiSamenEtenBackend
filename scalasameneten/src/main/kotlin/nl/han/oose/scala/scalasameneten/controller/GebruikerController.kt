@@ -24,7 +24,12 @@ class GebruikerController(private val gebruikerService: GebruikerService, privat
     fun getGebruiker(@RequestParam id: Int): ResponseEntity<GebruikerDTO> = gebruikerService.getGebruiker(id)
 
 
-    @PostMapping("/slavoorkeurenop" ,produces = ["application/json"], consumes = ["application/json"])
+    @RequestMapping("/haalvoorkeurenop")
+    @GetMapping(produces = ["application/json"], consumes = ["application/json"])
+    fun postVoorkeuren(@RequestParam id: Int) : ResponseEntity<VoorkeurenDTO> = gebruikerService.getGebruikersVoorkeuren(id)
+
+    @RequestMapping("/slavoorkeurenop")
+    @PostMapping(produces = ["application/json"], consumes = ["application/json"])
     fun postVoorkeuren(@RequestParam id: Int, @RequestBody voorkeuren: VoorkeurenDTO) : ResponseEntity<Void> {
         val voorkeurenDTO = modelMapper.map(voorkeuren, VoorkeurenDTO::class.java)
         return gebruikerService.postGebruikersVoorkeuren(id, voorkeurenDTO)

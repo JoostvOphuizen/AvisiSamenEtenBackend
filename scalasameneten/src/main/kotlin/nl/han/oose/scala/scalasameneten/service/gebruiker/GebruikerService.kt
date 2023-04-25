@@ -22,9 +22,9 @@ class GebruikerService(private val gebruikerDAO: GebruikerDAO) {
 
 
 
-//    fun getGebruikersVoorkeuren(id: Int): ResponseEntity<VoorkeurenDTO> {
-//        return ResponseEntity.ok(gebruikerDAO!!.makeVoorkeurenDTO(id))
-//    }
+    fun getGebruikersVoorkeuren(id: Int): ResponseEntity<VoorkeurenDTO> {
+        return ResponseEntity.ok(gebruikerDAO!!.makeVoorkeurenDTO(id))
+    }
 
     fun postGebruikersVoorkeuren(id: Int, voorkeurenDTO: VoorkeurenDTO): ResponseEntity<Void> {
         return ResponseEntity.ok(gebruikerDAO!!.setGebruikersVoorkeuren(id, voorkeurenDTO))

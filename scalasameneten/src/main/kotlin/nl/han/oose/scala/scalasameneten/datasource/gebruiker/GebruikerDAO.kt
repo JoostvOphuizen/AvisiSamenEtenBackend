@@ -165,6 +165,22 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
             throw DatabaseConnectionException()
         }
     }
+
+    fun makeVoorkeurenDTO(id: Int): VoorkeurenDTO {
+        return try{
+            val result: ResultSet = getGebruikersVoorkeuren(id)
+            var voorkeuren = ArrayList<VoorkeurDTO>()
+            while (result != null && result.next()) {
+                voorkeuren.add(VoorkeurDTO(result.getString("voorkeur_naam")))
+            }
+            VoorkeurenDTO(voorkeuren)
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+
+    }
+
+
     fun makeGebruikersDTO(): GebruikersDTO {
         return try {
             val result: ResultSet = getAlleGebruikers()
