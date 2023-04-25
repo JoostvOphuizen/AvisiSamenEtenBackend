@@ -1,3 +1,6 @@
 package nl.han.oose.scala.scalasameneten.dto.voorkeur
 
-data class VoorkeurDTO(val naam: String)
+data class VoorkeurDTO(val naam: String?) {
+    constructor() : this(null)
+
+}
