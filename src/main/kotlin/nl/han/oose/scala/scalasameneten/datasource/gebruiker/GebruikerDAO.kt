@@ -11,7 +11,6 @@ import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurDTO
 import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurenDTO
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.stereotype.Component
-import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.SQLException
 
@@ -96,6 +95,49 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
             throw DatabaseConnectionException()
         }
     }
+
+    fun alleGebruikersVoorkeurenVerwijderen(gebruiker: Int) {
+        try {
+            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            val sql = "DELETE FROM voorkeur_van_gebruiker WHERE gebruiker_id=?"
+            val stmt = PreparedStatementBuilder(connectionService,sql)
+                .setInt(gebruiker)
+                .build()
+            stmt.executeUpdate()
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+    fun setGebruikersVoorkeuren(id: Int, voorkeurenDTO: VoorkeurenDTO): Void? {
+        try{
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
+            var sql = "INSERT INTO voorkeur_van_gebruiker(gebruiker_id,voorkeur_naam) VALUES "
+            val voorkeuren = voorkeurenDTO.voorkeuren
+            if (voorkeuren != null) {
+                for(i in 0 until voorkeuren.size){
+                    val voorkeur = voorkeuren[i]
+                    if (voorkeur.naam != null) {
+                        if (i != 0) { sql += "," }
+                        sql += "(?,?)"
+                    }
+                }
+                val stmt = PreparedStatementBuilder(connectionService, sql)
+                for (voorkeur in voorkeuren) {
+                    stmt.setInt(id)
+                        .setString(voorkeur.naam!!)
+                }
+                alleGebruikersVoorkeurenVerwijderen(id)
+                stmt.build().executeUpdate()
+            }
+        } catch (e: Exception){
+            e.printStackTrace()
+            throw DatabaseConnectionException()
+        }
+        return null
+    }
+
+
+
     fun gebruikersVoedingsrestrictieVerwijderen(gebruiker: Int,restrictie: String,type: String) {
         try {
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
@@ -123,6 +165,22 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
             throw DatabaseConnectionException()
         }
     }
+
+    fun makeVoorkeurenDTO(id: Int): VoorkeurenDTO {
+        return try{
+            val result: ResultSet = getGebruikersVoorkeuren(id)
+            var voorkeuren = ArrayList<VoorkeurDTO>()
+            while (result != null && result.next()) {
+                voorkeuren.add(VoorkeurDTO(result.getString("voorkeur_naam")))
+            }
+            VoorkeurenDTO(voorkeuren)
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+
+    }
+
+
     fun makeGebruikersDTO(): GebruikersDTO {
         return try {
             val result: ResultSet = getAlleGebruikers()

@@ -8,7 +8,6 @@ import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurDTO
 import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurenDTO
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.stereotype.Component
-import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.SQLException
 
