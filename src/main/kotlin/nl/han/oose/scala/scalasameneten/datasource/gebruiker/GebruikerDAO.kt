@@ -114,20 +114,22 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
             var sql = "INSERT INTO voorkeur_van_gebruiker(gebruiker_id,voorkeur_naam) VALUES "
             val voorkeuren = voorkeurenDTO.voorkeuren
             if (voorkeuren != null) {
-                for(i in 0 until voorkeuren.size){
-                    val voorkeur = voorkeuren[i]
-                    if (voorkeur.naam != null) {
-                        if (i != 0) { sql += "," }
-                        sql += "(?,?)"
-                    }
-                }
-                val stmt = PreparedStatementBuilder(connectionService, sql)
-                for (voorkeur in voorkeuren) {
-                    stmt.setInt(id)
-                        .setString(voorkeur.naam!!)
-                }
                 alleGebruikersVoorkeurenVerwijderen(id)
-                stmt.build().executeUpdate()
+                if (voorkeuren.size > 0) {
+                    for(i in 0 until voorkeuren.size){
+                        val voorkeur = voorkeuren[i]
+                        if (voorkeur.naam != null) {
+                            if (i != 0) { sql += "," }
+                            sql += "(?,?)"
+                        }
+                    }
+                    val stmt = PreparedStatementBuilder(connectionService, sql)
+                    for (voorkeur in voorkeuren) {
+                        stmt.setInt(id)
+                            .setString(voorkeur.naam!!)
+                    }
+                    stmt.build().executeUpdate()
+                }
             }
         } catch (e: Exception){
             e.printStackTrace()
