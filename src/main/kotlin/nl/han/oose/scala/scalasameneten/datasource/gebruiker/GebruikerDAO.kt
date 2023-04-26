@@ -6,6 +6,7 @@ import nl.han.oose.scala.scalasameneten.datasource.connection.DatabaseProperties
 import nl.han.oose.scala.scalasameneten.datasource.exceptions.DatabaseConnectionException
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikerDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikersDTO
+import nl.han.oose.scala.scalasameneten.dto.gebruiker.LoginDTO
 import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictieDTO
 import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurDTO
 import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurenDTO
@@ -21,7 +22,7 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
     fun getAlleGebruikers(): ResultSet {
         return try {
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-            val stmt = PreparedStatementBuilder(connectionService,"SELECT gebruikersnaam,gebruiker_id FROM gebruiker")
+            val stmt = PreparedStatementBuilder(connectionService,"SELECT gebruikersnaam,gebruiker_id,email,token FROM gebruiker")
                     .build()
             stmt.executeQuery()
         } catch (e: SQLException) {
@@ -91,7 +92,6 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
                     .build()
             stmt.executeUpdate()
         } catch (e: SQLException) {
-            e.printStackTrace()
             throw DatabaseConnectionException()
         }
     }
@@ -132,7 +132,6 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
                 }
             }
         } catch (e: Exception){
-            e.printStackTrace()
             throw DatabaseConnectionException()
         }
         return null
@@ -219,4 +218,67 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
         }
         return GebruikerDTO(id,getNaamVanGebruiker(id)!!,voorkeuren,restricties)
     }
+
+
+    fun setGebruikersToken(id: Int, token: String){
+        try {
+            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            val sql = "UPDATE gebruiker SET token=? WHERE gebruiker_id=?"
+            val stmt = PreparedStatementBuilder(connectionService,sql)
+                .setString(token)
+                .setInt(id)
+                .build()
+            stmt.executeUpdate()
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+
+    fun setNieuweGebruiker(login: LoginDTO){
+        try {
+            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            val sql = "INSERT INTO gebruiker (gebruikersnaam, email, token) VALUES (?,?,?)"
+            val stmt = PreparedStatementBuilder(connectionService,sql)
+                .setString(login.naam)
+                .setString(login.email)
+                .setString("0000-0000-0000")
+                .build()
+            stmt.executeUpdate()
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+    fun getGebruikerID(login: LoginDTO): Int{
+        try {
+            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            val sql = "SELECT gebruiker_id FROM gebruiker WHERE gebruikersnaam=?"
+            val stmt = PreparedStatementBuilder(connectionService,sql)
+                .setString(login.naam)
+                .build()
+            val result = stmt.executeQuery()
+            if(result.next()){
+                return result.getInt("gebruiker_id")
+            }
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+        return -1
+    }
+
+    fun loginGebruiker(login: LoginDTO, token: String): Int{
+        var nieuweGebruiker = true
+        val result = getAlleGebruikers()
+        while (result.next()){
+            if(result.getString("email") == login.email){
+                nieuweGebruiker = false
+            }
+        }
+        if(nieuweGebruiker){
+            setNieuweGebruiker(login)
+        }
+        val id = getGebruikerID(login)
+        setGebruikersToken(id, token)
+        return id
+    }
+
 }
