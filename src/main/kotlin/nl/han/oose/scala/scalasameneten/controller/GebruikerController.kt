@@ -2,6 +2,7 @@ package nl.han.oose.scala.scalasameneten.controller
 
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikerDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikersDTO
+import nl.han.oose.scala.scalasameneten.dto.gebruiker.LoginDTO
 import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurenDTO
 import nl.han.oose.scala.scalasameneten.service.gebruiker.GebruikerService
 import org.modelmapper.ModelMapper
@@ -16,13 +17,17 @@ import org.springframework.web.bind.annotation.*
 @CrossOrigin
 class GebruikerController(private val gebruikerService: GebruikerService, private val modelMapper: ModelMapper) {
 
+    @RequestMapping("/login")
+    @PostMapping(produces = ["application/json"], consumes = ["application/json"])
+    fun postLoginGebruiker(@RequestBody login: LoginDTO) = gebruikerService.loginGebruiker(login)
+
+
     @GetMapping(produces = ["application/json"])
     fun getGebruikers(): ResponseEntity<GebruikersDTO> = gebruikerService.getGebruikers()
 
     @RequestMapping("/profiel")
     @GetMapping(produces = ["application/json"])
     fun getGebruiker(@RequestParam id: Int): ResponseEntity<GebruikerDTO> = gebruikerService.getGebruiker(id)
-
 
     @RequestMapping("/haalvoorkeurenop")
     @GetMapping(produces = ["application/json"], consumes = ["application/json"])
