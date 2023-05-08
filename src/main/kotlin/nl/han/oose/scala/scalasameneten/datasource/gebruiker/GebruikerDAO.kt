@@ -7,6 +7,7 @@ import nl.han.oose.scala.scalasameneten.datasource.exceptions.DatabaseConnection
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikerDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikersDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.LoginDTO
+import nl.han.oose.scala.scalasameneten.dto.gebruiker.TokenDTO
 import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictieDTO
 import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurDTO
 import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurenDTO
@@ -265,7 +266,7 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
         return -1
     }
 
-    fun loginGebruiker(login: LoginDTO, token: String): Int{
+    fun loginGebruiker(login: LoginDTO, token: String): TokenDTO {
         var nieuweGebruiker = true
         val result = getAlleGebruikers()
         while (result.next()){
@@ -278,7 +279,7 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
         }
         val id = getGebruikerID(login)
         setGebruikersToken(id, token)
-        return id
+        return TokenDTO(token)
     }
 
 }

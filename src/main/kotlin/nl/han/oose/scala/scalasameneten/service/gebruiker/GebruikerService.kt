@@ -4,6 +4,7 @@ import nl.han.oose.scala.scalasameneten.datasource.gebruiker.GebruikerDAO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikerDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikersDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.LoginDTO
+import nl.han.oose.scala.scalasameneten.dto.gebruiker.TokenDTO
 import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurenDTO
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.http.ResponseEntity
@@ -42,9 +43,10 @@ class GebruikerService(private val gebruikerDAO: GebruikerDAO) {
         }
     }
 
-    fun loginGebruiker(login: LoginDTO): ResponseEntity<GebruikerDTO> {
-        val id = gebruikerDAO!!.loginGebruiker(login, genereerToken())
-        return ResponseEntity.ok(gebruikerDAO!!.makeGebruiker(id))
+    fun loginGebruiker(login: LoginDTO): ResponseEntity<TokenDTO> {
+//        val id = gebruikerDAO!!.loginGebruiker(login, genereerToken())
+        val token = gebruikerDAO!!.loginGebruiker(login, genereerToken())
+        return ResponseEntity.ok(token)
     }
 
     fun getGebruikers(): ResponseEntity<GebruikersDTO> {
