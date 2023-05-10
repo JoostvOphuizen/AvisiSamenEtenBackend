@@ -88,35 +88,6 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
             throw DatabaseConnectionException()
         }
     }
-//    fun gebruikersVoedingsrestrictieToevoegen(gebruiker: Int,restrictie: String,type: String) {
-//        try {
-//            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-//            val sql = "INSERT INTO gebruiker_heeft_voedingsrestrictie(gebruiker_id,restrictie_naam,type) VALUES (?,?,?)"
-//            val stmt = PreparedStatementBuilder(connectionService,sql)
-//                    .setInt(gebruiker)
-//                    .setString(restrictie)
-//                    .setString(type)
-//                    .build()
-//            stmt.executeUpdate()
-//        } catch (e: SQLException) {
-//            throw DatabaseConnectionException()
-//        }
-//    }
-//    fun gebruikersVoorkeurToevoegen(gebruiker: Int,voorkeur: String) {
-//        try {
-//            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-//            val sql = "INSERT INTO voorkeur_van_gebruiker(gebruiker_id,voorkeur_naam) VALUES (?,?)"
-//            val stmt = PreparedStatementBuilder(connectionService,sql)
-//                    .setInt(gebruiker)
-//                    .setString(voorkeur)
-//                    .build()
-//            stmt.executeUpdate()
-//        } catch (e: SQLException) {
-//            throw DatabaseConnectionException()
-//        }
-//    }
-
-
 
     fun alleGebruikersVoorkeurenVerwijderen(token: String) {
         try {
@@ -161,36 +132,6 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
         return null
     }
 
-
-
-//    fun gebruikersVoedingsrestrictieVerwijderen(gebruiker: Int,restrictie: String,type: String) {
-//        try {
-//            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-//            val sql = "DELETE FROM gebruiker_heeft_voedingsrestrictie WHERE gebruiker_id=? AND restrictie_naam=? AND type=?"
-//            val stmt = PreparedStatementBuilder(connectionService,sql)
-//                    .setInt(gebruiker)
-//                    .setString(restrictie)
-//                    .setString(type)
-//                    .build()
-//            stmt.executeUpdate()
-//        } catch (e: SQLException) {
-//            throw DatabaseConnectionException()
-//        }
-//    }
-//    fun gebruikersVoorkeurVerwijderen(gebruiker: Int,voorkeur: String) {
-//        try {
-//            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-//            val sql = "DELETE FROM voorkeur_van_gebruiker WHERE gebruiker_id=? AND voorkeur_naam=?"
-//            val stmt = PreparedStatementBuilder(connectionService,sql)
-//                    .setInt(gebruiker)
-//                    .setString(voorkeur)
-//                    .build()
-//            stmt.executeUpdate()
-//        } catch (e: SQLException) {
-//            throw DatabaseConnectionException()
-//        }
-//    }
-
     fun makeVoorkeurenDTO(token: String): VoorkeurenDTO {
         return try{
             val result: ResultSet = getGebruikersVoorkeuren(token)
@@ -204,7 +145,6 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
         }
 
     }
-
 
     fun makeGebruikersDTO(): GebruikersDTO {
         return try {

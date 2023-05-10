@@ -44,7 +44,6 @@ class GebruikerService(private val gebruikerDAO: GebruikerDAO) {
     }
 
     fun loginGebruiker(login: LoginDTO): ResponseEntity<TokenDTO> {
-//        val id = gebruikerDAO!!.loginGebruiker(login, genereerToken())
         val token = gebruikerDAO!!.loginGebruiker(login, genereerToken())
         return ResponseEntity.ok(token)
     }

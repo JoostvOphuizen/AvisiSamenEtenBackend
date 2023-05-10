@@ -25,10 +25,7 @@ class GebruikerDAOTest {
         connection = DriverManager.getConnection(databaseProperties.getConnectionString())
         val scriptRunner = ScriptRunner(connection, true, true)
         scriptRunner.runScript(InputStreamReader(Objects.requireNonNull(ClassLoader.getSystemResourceAsStream("import.sql"))))
-
-        connection.createStatement().executeUpdate("INSERT INTO gebruiker(gebruikersnaam) VALUES ('user1'),('user2')")
-        connection.createStatement().executeUpdate("INSERT INTO gebruiker_heeft_voedingsrestrictie(restrictie_naam,type,gebruiker_id) VALUES ('vlees','dieet',1)")
-        connection.createStatement().executeUpdate("INSERT INTO voorkeur_van_gebruiker(voorkeur_naam,gebruiker_id) VALUES ('vlees',1)")
+        scriptRunner.runScript(InputStreamReader(Objects.requireNonNull(ClassLoader.getSystemResourceAsStream("insert.sql"))))
 
         mockedConnectedService = ConnectionService()
         gebruikerDAO = GebruikerDAO(mockedConnectedService,databaseProperties)
@@ -45,13 +42,13 @@ class GebruikerDAOTest {
             counter++
         }
         //assert
-        assertEquals(2, counter)
+        assertEquals(3, counter)
     }
     @Test
     fun getNaamVanBestaandeGebruiker() {
         //arrage
         //act
-        val naam = gebruikerDAO?.getNaamVanGebruiker(1)
+        val naam = gebruikerDAO?.getNaamVanGebruiker("0000-0000-0000")
         //assert
         assertEquals("user1", naam)
     }
@@ -59,7 +56,7 @@ class GebruikerDAOTest {
     fun getNaamVanNietBestaandeGebruiker() {
         //arrage
         //act
-        val naam = gebruikerDAO?.getNaamVanGebruiker(3)
+        val naam = gebruikerDAO?.getNaamVanGebruiker("1212-1212-1212")
         //assert
         assertEquals(null, naam)
     }
@@ -67,32 +64,7 @@ class GebruikerDAOTest {
     fun getGebruikersVoedingsRestricties(){
         //arrange
         //act
-        val returnValue = gebruikerDAO!!.getGebruikersVoedingsrestricties(1)
-        var counter = 0
-        while (returnValue.next()) {
-            counter++
-        }
-        //assert
-        assertEquals(1, counter)
-    }
-    @Test
-    fun getGebruikersVoorkeuren(){
-        //arrange
-        //act
-        val returnValue = gebruikerDAO!!.getGebruikersVoorkeuren(1)
-        var counter = 0
-        while (returnValue.next()) {
-            counter++
-        }
-        //assert
-        assertEquals(1, counter)
-    }
-    @Test
-    fun gebruikersVoedingsRestrictieToevoegen(){
-        //arrange
-        //act
-        gebruikerDAO!!.gebruikersVoedingsrestrictieToevoegen(1,"vis","dieet")
-        val returnValue = gebruikerDAO!!.getGebruikersVoedingsrestricties(1)
+        val returnValue = gebruikerDAO!!.getGebruikersVoedingsrestricties("0000-0000-0000")
         var counter = 0
         while (returnValue.next()) {
             counter++
@@ -101,11 +73,10 @@ class GebruikerDAOTest {
         assertEquals(2, counter)
     }
     @Test
-    fun gebruikersVoorkeurToevoegen(){
+    fun getGebruikersVoorkeuren(){
         //arrange
         //act
-        gebruikerDAO!!.gebruikersVoorkeurToevoegen(1,"soep")
-        val returnValue = gebruikerDAO.getGebruikersVoorkeuren(1)
+        val returnValue = gebruikerDAO!!.getGebruikersVoorkeuren("0000-0000-0000")
         var counter = 0
         while (returnValue.next()) {
             counter++
