@@ -2,6 +2,8 @@ drop table if exists gebruiker;
 create table GEBRUIKER (
                            GEBRUIKER_ID         INT         AUTO_INCREMENT          not null,
                            GEBRUIKERSNAAM       VARCHAR(256)                 not null,
+                           EMAIL       VARCHAR(256)                 not null,
+                           TOKEN       VARCHAR(14)                 not null,
                            constraint PK_GEBRUIKER primary key (GEBRUIKER_ID)
 )
     ;

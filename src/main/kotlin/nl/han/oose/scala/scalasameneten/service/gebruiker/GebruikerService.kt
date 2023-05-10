@@ -4,6 +4,7 @@ import nl.han.oose.scala.scalasameneten.datasource.gebruiker.GebruikerDAO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikerDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikersDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.LoginDTO
+import nl.han.oose.scala.scalasameneten.dto.gebruiker.TokenDTO
 import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurenDTO
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.http.ResponseEntity
@@ -42,25 +43,25 @@ class GebruikerService(private val gebruikerDAO: GebruikerDAO) {
         }
     }
 
-    fun loginGebruiker(login: LoginDTO): ResponseEntity<GebruikerDTO> {
-        val id = gebruikerDAO!!.loginGebruiker(login, genereerToken())
-        return ResponseEntity.ok(gebruikerDAO!!.makeGebruiker(id))
+    fun loginGebruiker(login: LoginDTO): ResponseEntity<TokenDTO> {
+        val token = gebruikerDAO!!.loginGebruiker(login, genereerToken())
+        return ResponseEntity.ok(token)
     }
 
     fun getGebruikers(): ResponseEntity<GebruikersDTO> {
         return ResponseEntity.ok(gebruikerDAO!!.makeGebruikersDTO())
     }
-    fun getGebruiker(id: Int): ResponseEntity<GebruikerDTO> {
-        return ResponseEntity.ok(gebruikerDAO!!.makeGebruiker(id))
+    fun getGebruiker(token: String): ResponseEntity<GebruikerDTO> {
+        return ResponseEntity.ok(gebruikerDAO!!.makeGebruiker(token))
     }
 
 
 
-    fun getGebruikersVoorkeuren(id: Int): ResponseEntity<VoorkeurenDTO> {
-        return ResponseEntity.ok(gebruikerDAO!!.makeVoorkeurenDTO(id))
+    fun getGebruikersVoorkeuren(token: String): ResponseEntity<VoorkeurenDTO> {
+        return ResponseEntity.ok(gebruikerDAO!!.makeVoorkeurenDTO(token))
     }
 
-    fun postGebruikersVoorkeuren(id: Int, voorkeurenDTO: VoorkeurenDTO): ResponseEntity<Void> {
-        return ResponseEntity.ok(gebruikerDAO!!.setGebruikersVoorkeuren(id, voorkeurenDTO))
+    fun postGebruikersVoorkeuren(token: String, voorkeurenDTO: VoorkeurenDTO): ResponseEntity<Void> {
+        return ResponseEntity.ok(gebruikerDAO!!.setGebruikersVoorkeuren(token, voorkeurenDTO))
     }
 }
