@@ -51,17 +51,17 @@ class GebruikerService(private val gebruikerDAO: GebruikerDAO) {
     fun getGebruikers(): ResponseEntity<GebruikersDTO> {
         return ResponseEntity.ok(gebruikerDAO!!.makeGebruikersDTO())
     }
-    fun getGebruiker(id: String): ResponseEntity<GebruikerDTO> {
-        return ResponseEntity.ok(gebruikerDAO!!.makeGebruiker(id))
+    fun getGebruiker(token: String): ResponseEntity<GebruikerDTO> {
+        return ResponseEntity.ok(gebruikerDAO!!.makeGebruiker(token))
     }
 
 
 
-    fun getGebruikersVoorkeuren(id: String): ResponseEntity<VoorkeurenDTO> {
-        return ResponseEntity.ok(gebruikerDAO!!.makeVoorkeurenDTO(id))
+    fun getGebruikersVoorkeuren(token: String): ResponseEntity<VoorkeurenDTO> {
+        return ResponseEntity.ok(gebruikerDAO!!.makeVoorkeurenDTO(token))
     }
 
-    fun postGebruikersVoorkeuren(id: String, voorkeurenDTO: VoorkeurenDTO): ResponseEntity<Void> {
-        return ResponseEntity.ok(gebruikerDAO!!.setGebruikersVoorkeuren(id, voorkeurenDTO))
+    fun postGebruikersVoorkeuren(token: String, voorkeurenDTO: VoorkeurenDTO): ResponseEntity<Void> {
+        return ResponseEntity.ok(gebruikerDAO!!.setGebruikersVoorkeuren(token, voorkeurenDTO))
     }
 }
