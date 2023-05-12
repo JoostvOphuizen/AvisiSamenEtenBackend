@@ -64,6 +64,24 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
         }
     }
 
+    fun getTokenVanGebruiker(gebruikerId: Int): String {
+        return try {
+            connectionService.initializeConnection((databaseProperties.getConnectionString()))
+            val stmt = PreparedStatementBuilder(connectionService,"SELECT token FROM gebruiker WHERE gebruiker_id=?")
+                .setInt(gebruikerId)
+                .build()
+            val result = stmt.executeQuery()
+            if(result.next()) {
+                result.getString("token")
+            } else {
+                throw SQLException()
+            }
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+
+
     fun getGebruikersVoedingsrestricties(gebruikerToken: String): ResultSet {
         return try {
             val gebruikerId = getIdVanGebruiker(gebruikerToken)!!
