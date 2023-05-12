@@ -17,13 +17,11 @@ import org.springframework.stereotype.Service
 class RestaurantService(private val restaurantDAO: RestaurantDAO, private val gebruikerDAO: GebruikerDAO){
     //TODO
     fun bepaalRestaurant(geselecteerdeGebruikers: GroepDTO): ResponseEntity<RestaurantDTO> {
-        //foreach loop
         for (token in geselecteerdeGebruikers.ledenTokens){
             val gebruikerDTO = gebruikerDAO.makeGebruiker(token)
         //        logica moet hier komen te staan om het restaurant te bepalen aan de hand van de geselecteerde gebruikers
 
         }
-
 //        return ResponseEntity.ok(restaurantDAO!!.makeRestaurantDTO(/*?restaurantId?*/))
         return ResponseEntity.ok(restaurantDAO!!.makeRestaurantDTO(1))
     }
