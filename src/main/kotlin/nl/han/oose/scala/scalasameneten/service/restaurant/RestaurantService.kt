@@ -1,5 +1,6 @@
 package nl.han.oose.scala.scalasameneten.service.restaurant
 
+import nl.han.oose.scala.scalasameneten.datasource.exceptions.DatabaseConnectionException
 import nl.han.oose.scala.scalasameneten.datasource.gebruiker.GebruikerDAO
 import nl.han.oose.scala.scalasameneten.datasource.restaurant.RestaurantDAO
 import nl.han.oose.scala.scalasameneten.dto.restaurant.GroepDTO
@@ -13,11 +14,12 @@ import org.springframework.stereotype.Service
 @Component
 @ComponentScan("nl.han.oose.scala.scalasameneten.datasource.restaurant")
 @ComponentScan("nl.han.oose.scala.scalasameneten.datasource.gebruiker")
-class RestaurantService(private val restaurantDAO: RestaurantDAO, private val gebruikerDAO: GebruikerDAO){
+class RestaurantService(private val restaurantDAO: RestaurantDAO){
 
     fun bepaalRestaurant(geselecteerdeGebruikers: GroepDTO): ResponseEntity<RestaurantDTO> {
         var restaurants = mutableListOf<Int>()
         var mogelijkerestaurants = mutableListOf<Int>()
+        var voorstellen = mutableListOf<Int>()
 
         //ophalen van alle restaurants
         var allresult = restaurantDAO.getRestaurants()
@@ -33,33 +35,21 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
                 mogelijkerestaurants.add(filterresult.getInt("RESTAURANT_ID"))
             }
             restaurants = restaurants.intersect(mogelijkerestaurants).toMutableList()
+            mogelijkerestaurants.clear()
         }
 
-        if(restaurants.size > 0){
+        //aan de hand van de voorkeuren van de gebruikers wordt een restaurant voorgesteld (uit de gefilterde restaurants)
+        if(restaurants.size > 0) {
             val voorstelresult = restaurantDAO!!.getRestaurantVoorstel(geselecteerdeGebruikers, restaurants)
             while (voorstelresult != null && voorstelresult.next()) {
-
+                voorstellen.add(voorstelresult.getInt("RESTAURANT_ID"))
             }
+            //random restaurant uit de voorstellen (voor als er meerdere voorstellen zijn)
+            val random = (0 until voorstellen.size).random()
+            return ResponseEntity.ok(restaurantDAO!!.makeRestaurantDTO(voorstellen[random]))
         }
         else {
-            //TODO: return error: Geen restaurants gevonden
+            throw DatabaseConnectionException()
         }
-
-
-//        //voorkeuren van de gebruikers
-//        val voorkeurenArray = mutableMapOf<String, Int>()
-//        val voorkeurenresult = restaurantDAO!!.getVoorkeurenPrioterisering(geselecteerdeGebruikers)
-//        while (voorkeurenresult != null && voorkeurenresult.next()) {
-//            //associative array
-//            val naam = mapOf("naam" to voorkeurenresult.getString("VOORKEUR_NAAM"), "aantal" to voorkeurenresult.getInt("aantal"))
-//            voorkeurenArray.put(naam["naam"].toString(), naam["aantal"] as Int)
-//        }
-
-
-//        for(voorkeur in voorkeurenArray){
-//        }
-
-//        return ResponseEntity.ok(restaurantDAO!!.makeRestaurantDTO(/*?restaurantId?*/))
-        return ResponseEntity.ok(restaurantDAO!!.makeRestaurantDTO(1))
     }
 }
