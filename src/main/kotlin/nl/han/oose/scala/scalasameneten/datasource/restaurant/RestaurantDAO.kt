@@ -6,7 +6,6 @@ import nl.han.oose.scala.scalasameneten.datasource.connection.DatabaseProperties
 import nl.han.oose.scala.scalasameneten.datasource.exceptions.DatabaseConnectionException
 import nl.han.oose.scala.scalasameneten.dto.restaurant.GroepDTO
 import nl.han.oose.scala.scalasameneten.dto.restaurant.RestaurantDTO
-import nl.han.oose.scala.scalasameneten.service.restaurant.RestaurantService
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.stereotype.Component
 import java.sql.ResultSet
@@ -31,7 +30,8 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
     fun getRestaurantenZonderRestricties(lidId: Int): ResultSet {
         return try {
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-            val stmt = PreparedStatementBuilder(connectionService,"select RESTAURANT_ID from RESTAURANT except select RESTAURANT_ID from VOEDINGSRESTRICTIE_IN_RESTAURANT where RESTRICTIE_NAAM in ( select v.RESTRICTIE_NAAM from VOEDINGSRESTRICTIE v inner join GEBRUIKER_HEEFT_VOEDINGSRESTRICTIE gv on v.RESTRICTIE_NAAM = gv.RESTRICTIE_NAAM where gv.GEBRUIKER_ID = ? group by v.RESTRICTIE_NAAM)")
+//            val stmt = PreparedStatementBuilder(connectionService,"select RESTAURANT_ID from RESTAURANT except select RESTAURANT_ID from VOEDINGSRESTRICTIE_IN_RESTAURANT where RESTRICTIE_NAAM in ( select v.RESTRICTIE_NAAM from VOEDINGSRESTRICTIE v inner join GEBRUIKER_HEEFT_VOEDINGSRESTRICTIE gv on v.RESTRICTIE_NAAM = gv.RESTRICTIE_NAAM where gv.GEBRUIKER_ID = ? group by v.RESTRICTIE_NAAM)")
+            val stmt = PreparedStatementBuilder(connectionService,"select * from RESTAURANT where RESTAURANT_ID not in(select RESTAURANT_ID from VOEDINGSRESTRICTIE_IN_RESTAURANT where RESTRICTIE_NAAM in (select v.RESTRICTIE_NAAM from VOEDINGSRESTRICTIE v inner join GEBRUIKER_HEEFT_VOEDINGSRESTRICTIE gv on v.RESTRICTIE_NAAM = gv.RESTRICTIE_NAAM where gv.GEBRUIKER_ID = 2 group by v.RESTRICTIE_NAAM))")
                 .setInt(lidId)
                 .build()
             stmt.executeQuery()
@@ -39,6 +39,60 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
             throw DatabaseConnectionException()
         }
     }
+
+    fun getRestaurantVoorstel(geselecteerdeGebruikers: GroepDTO, restaurants: MutableList<Int>): ResultSet {
+        return try {
+            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            var sql = "select distinct rv.RESTAURANT_ID, SUM(COUNT(vg.voorkeur_naam)) over (PARTITION by restaurant_id) as matchendevoorkeuren from VOORKEUR_VAN_GEBRUIKER vg inner join RESTAURANT_HEEFT_VOORKEUR rv on vg.VOORKEUR_NAAM = rv.VOORKEUR_NAAM where ( "
+
+            for(lid in geselecteerdeGebruikers.leden!!) {
+                sql += "GEBRUIKER_ID = ? or "
+            }
+            sql = sql.substring(0, sql.length - 3)
+
+            sql += ") and ("
+
+            for(restaurant in restaurants) {
+                sql += "RESTAURANT_ID = ? or "
+            }
+            sql = sql.substring(0, sql.length - 3)
+
+            sql += " ) group by vg.VOORKEUR_NAAM, RESTAURANT_ID order by matchendevoorkeuren desc"
+
+            val stmt = PreparedStatementBuilder(connectionService, sql)
+            for(lid in geselecteerdeGebruikers.leden!!) {
+                stmt.setInt(lid)
+            }
+            for(restaurant in restaurants) {
+                stmt.setInt(restaurant)
+            }
+            stmt.build().executeQuery()
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+
+
+
+//    fun getRestaurantInfo(restaurants: MutableList<Int>): ResultSet {
+//        return try {
+//            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+//            var sql = "select * from RESTAURANT where "
+//
+//            for(restaurant in restaurants) {
+//                sql += "RESTAURANT_ID = ? or "
+//            }
+//            sql = sql.substring(0, sql.length - 3)
+//
+//            val stmt = PreparedStatementBuilder(connectionService, sql)
+//            for(restaurant in restaurants) {
+//                stmt.setInt(restaurant)
+//            }
+//            stmt.build().executeQuery()
+//        } catch (e: SQLException) {
+//            throw DatabaseConnectionException()
+//        }
+//    }
 
     fun getVoorkeurenPrioterisering(geselecteerdeGebruikers: GroepDTO): ResultSet {
         return try {
