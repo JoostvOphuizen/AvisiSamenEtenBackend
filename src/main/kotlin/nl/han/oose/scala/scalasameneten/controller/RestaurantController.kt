@@ -16,11 +16,10 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/restaurant")
 @ComponentScan("nl.han.oose.scala.scalasameneten.service.restaurant")
 @CrossOrigin
-class RestaurantController(private val restaurantService: RestaurantService, private val modelMapper: ModelMapper) {
+class RestaurantController(private val restaurantService: RestaurantService) {
     @RequestMapping("/bepaal")
     @PostMapping(produces = ["application/json"], consumes = ["application/json"])
     fun postBepaalRestaurant(@RequestBody geselecteerdeGebruikers: ArrayList<Int>): ResponseEntity<VoorstelDTO> {
-//        val groepDTO = modelMapper.map(geselecteerdeGebruikers, GroepDTO::class.java)
         return restaurantService.bepaalRestaurant(GroepDTO(geselecteerdeGebruikers))
     }
 }

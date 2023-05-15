@@ -19,7 +19,7 @@ import java.sql.SQLException
 @ComponentScan("nl.han.oose.scala.scalasameneten.datasource.connection")
 class RestaurantDAO (private val connectionService: ConnectionService, private val databaseProperties: DatabaseProperties){
 
-    fun getRestaurants(): ResultSet? {
+    fun getRestaurants(): ResultSet {
         return try {
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
             val stmt = PreparedStatementBuilder(connectionService,"select * from RESTAURANT")
@@ -139,7 +139,7 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
         return try {
             val restricties: ResultSet = getRestricties(restaurantId)
             var voedingsrestricties = ArrayList<VoedingsrestrictieDTO>()
-            while (restricties != null && restricties.next()) {
+            while (restricties.next()) {
                 voedingsrestricties.add(VoedingsrestrictieDTO(restricties.getString("restrictie_naam"), restricties.getString("type")))
             }
             VoedingsrestrictiesDTO(voedingsrestricties)

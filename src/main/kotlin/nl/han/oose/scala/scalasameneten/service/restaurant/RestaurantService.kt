@@ -43,7 +43,7 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val vo
         //aan de hand van de voorkeuren van de gebruikers wordt een restaurant voorgesteld (uit de gefilterde restaurants)
         if(restaurants.size > 0) {
             val voorstelresult = restaurantDAO!!.getRestaurantVoorstel(geselecteerdeGebruikers, restaurants)
-            while (voorstelresult != null && voorstelresult.next()) {
+            while (voorstelresult.next()) {
                 voorstellen.add(voorstelresult.getInt("RESTAURANT_ID"))
             }
             //random restaurant uit de voorstellen (voor als er meerdere voorstellen zijn)
