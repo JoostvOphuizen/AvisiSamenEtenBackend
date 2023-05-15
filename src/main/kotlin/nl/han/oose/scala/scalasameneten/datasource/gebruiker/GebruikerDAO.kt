@@ -23,7 +23,7 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
     fun getAlleGebruikers(): ResultSet {
         return try {
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-            val stmt = PreparedStatementBuilder(connectionService,"SELECT gebruikersnaam,gebruiker_id,email,token FROM gebruiker")
+            val stmt = PreparedStatementBuilder(connectionService,"SELECT gebruikersnaam,gebruiker_id,email,token,foto FROM gebruiker")
                     .build()
             stmt.executeQuery()
         } catch (e: SQLException) {
@@ -157,7 +157,7 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
             while (result != null && result.next()) {
                 voorkeuren.add(VoorkeurDTO(result.getString("voorkeur_naam")))
             }
-            VoorkeurenDTO(voorkeuren)
+            VoorkeurenDTO("Voorkeuren", voorkeuren)
         } catch (e: SQLException) {
             throw DatabaseConnectionException()
         }
@@ -191,8 +191,8 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
     fun makeGebruikersDTOBaseInfo(): GebruikersDTO {
         return try {
             val result: ResultSet = getAlleGebruikers()
-            var gebruikers = ArrayList<GebruikerDTO>()
-            while (result != null && result.next()) {
+            val gebruikers = ArrayList<GebruikerDTO>()
+            while (result.next()) {
                 val x = makeGebruiker(result.getInt("gebruiker_id"), result.getString("gebruikersnaam"), result.getString("foto"))
                 gebruikers.add(x)
             }
@@ -222,7 +222,7 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
             restricties.add(VoedingsrestrictieDTO(result.getString("restrictie_naam"),result.getString("type")))
         }
         val gebruikerId = getIdVanGebruiker(gebruikerToken)!!
-        return GebruikerDTO(gebruikerId,getNaamVanGebruiker(gebruikerToken)!!,voorkeuren,restricties)
+        return GebruikerDTO(gebruikerId, getNaamVanGebruiker(gebruikerToken)!!, null,  null, null)
     }
 
 

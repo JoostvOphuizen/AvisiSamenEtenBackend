@@ -4,7 +4,10 @@ import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.Voedingsrestricti
 import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurDTO
 
 
-data class GebruikerDTO(val id: Int, val naam: String, val foto: String, var voorkeuren: ArrayList<VoorkeurDTO>?,var restricties: ArrayList<VoedingsrestrictieDTO>?){
+data class GebruikerDTO(val id: Int, val naam: String, val foto: String?, var voorkeuren: ArrayList<VoorkeurDTO>?,var restricties: ArrayList<VoedingsrestrictieDTO>?){
+
+    constructor() : this(0, "", "", null, null)
+
     fun slaVoorkeurenOp(voorkeuren: ArrayList<VoorkeurDTO>){
         this.voorkeuren = voorkeuren
     }
