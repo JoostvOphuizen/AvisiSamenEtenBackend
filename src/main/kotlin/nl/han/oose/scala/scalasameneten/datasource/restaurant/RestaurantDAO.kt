@@ -6,6 +6,9 @@ import nl.han.oose.scala.scalasameneten.datasource.connection.DatabaseProperties
 import nl.han.oose.scala.scalasameneten.datasource.exceptions.DatabaseConnectionException
 import nl.han.oose.scala.scalasameneten.dto.restaurant.GroepDTO
 import nl.han.oose.scala.scalasameneten.dto.restaurant.RestaurantDTO
+import nl.han.oose.scala.scalasameneten.dto.restaurant.VoorstelDTO
+import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictieDTO
+import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictiesDTO
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.stereotype.Component
 import java.sql.ResultSet
@@ -57,7 +60,12 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
         return try {
 
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-            var sql = "with matches as ( select distinct rv.RESTAURANT_ID, SUM(COUNT(vg.voorkeur_naam)) over (PARTITION by restaurant_id) as matchendevoorkeuren from VOORKEUR_VAN_GEBRUIKER vg inner join RESTAURANT_HEEFT_VOORKEUR rv on vg.VOORKEUR_NAAM = rv.VOORKEUR_NAAM where ( "
+            var sql = "with matches as ( " +
+                    "select distinct rv.RESTAURANT_ID, SUM(COUNT(vg.voorkeur_naam)) over (PARTITION by restaurant_id) as matchendevoorkeuren " +
+                    "from VOORKEUR_VAN_GEBRUIKER vg " +
+                    "inner join RESTAURANT_HEEFT_VOORKEUR rv " +
+                    "on vg.VOORKEUR_NAAM = rv.VOORKEUR_NAAM " +
+                    "where ( "
 
             for(lid in geselecteerdeGebruikers.leden!!) {
                 sql += "GEBRUIKER_ID = ? or "
@@ -71,7 +79,16 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
             }
             sql = sql.substring(0, sql.length - 3)
 
-            sql += " ) group by vg.VOORKEUR_NAAM, RESTAURANT_ID ) select * from RESTAURANT r inner join matches m on r.RESTAURANT_ID = m.RESTAURANT_ID where matchendevoorkeuren = (select MAX(matchendevoorkeuren) from matches) order by matchendevoorkeuren desc"
+            sql += ")group by vg.VOORKEUR_NAAM, RESTAURANT_ID) " +
+                    "select r.RESTAURANT_ID, RESTAURANT_NAAM, POSTCODE, STRAATNAAM, HUISNUMMER, STRING_AGG(RESTRICTIE_NAAM, ',') as RESTRICTIES " +
+                    "from RESTAURANT r " +
+                    "inner join matches m " +
+                    "on r.RESTAURANT_ID = m.RESTAURANT_ID " +
+                    "left join VOEDINGSRESTRICTIE_IN_RESTAURANT vr " +
+                    "on r.RESTAURANT_ID = vr.RESTAURANT_ID " +
+                    "where matchendevoorkeuren = (select MAX(matchendevoorkeuren) from matches) " +
+                    "group by r.RESTAURANT_ID, RESTAURANT_NAAM, POSTCODE, STRAATNAAM, HUISNUMMER, matchendevoorkeuren " +
+                    "order by matchendevoorkeuren desc"
 
             val stmt = PreparedStatementBuilder(connectionService, sql)
             for(lid in geselecteerdeGebruikers.leden!!) {
@@ -103,4 +120,33 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
             throw DatabaseConnectionException()
         }
     }
+
+
+    fun getRestricties(restaurantId: Int): ResultSet{
+        return try {
+            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            val stmt = PreparedStatementBuilder(connectionService,"SELECT * FROM VOEDINGSRESTRICTIE_IN_RESTAURANT WHERE restaurant_id=?")
+                .setInt(restaurantId)
+                .build()
+            stmt.executeQuery()
+        } catch (e: SQLException) {
+            println(e)
+            throw DatabaseConnectionException()
+        }
+    }
+
+    fun generateVoedingsrestrictiesDTO(restaurantId: Int): VoedingsrestrictiesDTO {
+        return try {
+            val restricties: ResultSet = getRestricties(restaurantId)
+            var voedingsrestricties = ArrayList<VoedingsrestrictieDTO>()
+            while (restricties != null && restricties.next()) {
+                voedingsrestricties.add(VoedingsrestrictieDTO(restricties.getString("restrictie_naam"), restricties.getString("type")))
+            }
+            VoedingsrestrictiesDTO(voedingsrestricties)
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+
+
 }
