@@ -21,7 +21,6 @@ class GebruikerController(private val gebruikerService: GebruikerService, privat
     @PostMapping(produces = ["application/json"], consumes = ["application/json"])
     fun postLoginGebruiker(@RequestBody login: LoginDTO) = gebruikerService.loginGebruiker(login)
 
-
     @GetMapping(produces = ["application/json"])
     fun getGebruikers(): ResponseEntity<GebruikersDTO> = gebruikerService.getGebruikers()
 
