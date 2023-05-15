@@ -3,10 +3,13 @@ package nl.han.oose.scala.scalasameneten.controller
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikersDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.LoginDTO
 import nl.han.oose.scala.scalasameneten.dto.restaurant.GroepDTO
+import nl.han.oose.scala.scalasameneten.dto.restaurant.RestaurantDTO
+import nl.han.oose.scala.scalasameneten.dto.restaurant.VoorstelDTO
 import nl.han.oose.scala.scalasameneten.service.gebruiker.GebruikerService
 import nl.han.oose.scala.scalasameneten.service.restaurant.RestaurantService
 import org.modelmapper.ModelMapper
 import org.springframework.context.annotation.ComponentScan
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -16,5 +19,7 @@ import org.springframework.web.bind.annotation.*
 class RestaurantController(private val restaurantService: RestaurantService) {
     @RequestMapping("/bepaal")
     @PostMapping(produces = ["application/json"], consumes = ["application/json"])
-    fun postBepaalRestaurant(@RequestBody geselecteerdeGebruikers: GroepDTO) = restaurantService.bepaalRestaurant(geselecteerdeGebruikers)
+    fun postBepaalRestaurant(@RequestBody geselecteerdeGebruikers: ArrayList<Int>): ResponseEntity<VoorstelDTO> {
+        return restaurantService.bepaalRestaurant(GroepDTO(geselecteerdeGebruikers))
+    }
 }
