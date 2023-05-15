@@ -80,14 +80,11 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
             sql = sql.substring(0, sql.length - 3)
 
             sql += ")group by vg.VOORKEUR_NAAM, RESTAURANT_ID) " +
-                    "select r.RESTAURANT_ID, RESTAURANT_NAAM, POSTCODE, STRAATNAAM, HUISNUMMER, STRING_AGG(RESTRICTIE_NAAM, ',') as RESTRICTIES " +
+                    "select * " +
                     "from RESTAURANT r " +
                     "inner join matches m " +
                     "on r.RESTAURANT_ID = m.RESTAURANT_ID " +
-                    "left join VOEDINGSRESTRICTIE_IN_RESTAURANT vr " +
-                    "on r.RESTAURANT_ID = vr.RESTAURANT_ID " +
                     "where matchendevoorkeuren = (select MAX(matchendevoorkeuren) from matches) " +
-                    "group by r.RESTAURANT_ID, RESTAURANT_NAAM, POSTCODE, STRAATNAAM, HUISNUMMER, matchendevoorkeuren " +
                     "order by matchendevoorkeuren desc"
 
             val stmt = PreparedStatementBuilder(connectionService, sql)
