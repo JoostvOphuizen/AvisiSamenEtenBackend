@@ -157,7 +157,7 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
             while (result != null && result.next()) {
                 voorkeuren.add(VoorkeurDTO(result.getString("voorkeur_naam")))
             }
-            VoorkeurenDTO(voorkeuren)
+            VoorkeurenDTO("Voorkeruen", voorkeuren)
         } catch (e: SQLException) {
             throw DatabaseConnectionException()
         }
@@ -187,6 +187,26 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
             throw DatabaseConnectionException()
         }
     }
+
+    fun makeGebruikersDTOBaseInfo(): GebruikersDTO {
+        return try {
+            val result: ResultSet = getAlleGebruikers()
+            var gebruikers = ArrayList<GebruikerDTO>()
+            while (result != null && result.next()) {
+                val x = makeGebruiker(result.getInt("gebruiker_id"), result.getString("gebruikersnaam"), result.getString("foto"))
+                gebruikers.add(x)
+            }
+            GebruikersDTO(gebruikers)
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+
+    fun makeGebruiker(gebruikersId: Int, gebruikersNaam: String, gebruikersFoto: String): GebruikerDTO {
+         return GebruikerDTO(gebruikersId, gebruikersNaam, gebruikersFoto, null, null)
+    }
+
+
     fun makeGebruiker(gebruikerToken: String): GebruikerDTO {
         var result = getGebruikersVoorkeuren(gebruikerToken)
         val voorkeuren = ArrayList<VoorkeurDTO>()
@@ -217,14 +237,19 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
         }
     }
 
-    fun setNieuweGebruiker(login: LoginDTO){
+    fun setNieuweGebruiker(login: LoginDTO, gebruikerToken: String){
         try {
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
             val sql = "INSERT INTO gebruiker (gebruikersnaam, email, token) VALUES (?,?,?)"
             val stmt = PreparedStatementBuilder(connectionService,sql)
                 .setString(login.naam)
                 .setString(login.email)
+<<<<<<< Updated upstream
                 .setString("0000-0000-0000")
+=======
+                .setString(gebruikerToken)
+                .setString(login.foto)
+>>>>>>> Stashed changes
                 .build()
             stmt.executeUpdate()
         } catch (e: SQLException) {
@@ -257,7 +282,7 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
             }
         }
         if(nieuweGebruiker){
-            setNieuweGebruiker(login)
+            setNieuweGebruiker(login, token)
         }
         val id = getGebruikerID(login)
         setGebruikersToken(id, token)
