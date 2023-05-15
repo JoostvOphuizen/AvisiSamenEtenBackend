@@ -157,7 +157,7 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
             while (result != null && result.next()) {
                 voorkeuren.add(VoorkeurDTO(result.getString("voorkeur_naam")))
             }
-            VoorkeurenDTO("Voorkeruen", voorkeuren)
+            VoorkeurenDTO("Voorkeuren", voorkeuren)
         } catch (e: SQLException) {
             throw DatabaseConnectionException()
         }
