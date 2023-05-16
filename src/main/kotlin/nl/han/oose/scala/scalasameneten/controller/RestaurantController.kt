@@ -15,6 +15,6 @@ class RestaurantController(private val restaurantService: RestaurantService) {
     @RequestMapping("/bepaal")
     @PostMapping(produces = ["application/json"], consumes = ["application/json"])
     fun postBepaalRestaurant(@RequestBody geselecteerdeGebruikers: ArrayList<Int>): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>? {
-        return restaurantService.bepaalRestaurant(GroepDTO(geselecteerdeGebruikers))
+        return restaurantService.bepaalRestaurant(GroepDTO(geselecteerdeGebruikers, "Placeholder"))
     }
 }
