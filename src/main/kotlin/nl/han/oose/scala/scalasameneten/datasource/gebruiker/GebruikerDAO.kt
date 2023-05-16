@@ -243,11 +243,10 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
     fun setNieuweGebruiker(login: LoginDTO, gebruikerToken: String){
         try {
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-            val sql = "INSERT INTO gebruiker (gebruikersnaam, email, token) VALUES (?,?,?)"
+            val sql = "INSERT INTO gebruiker (gebruikersnaam, email, token, foto) VALUES (?,?,?,?)"
             val stmt = PreparedStatementBuilder(connectionService,sql)
                 .setString(login.naam)
                 .setString(login.email)
-                .setString("0000-0000-0000")
                 .setString(gebruikerToken)
                 .setString(login.foto)
                 .build()
