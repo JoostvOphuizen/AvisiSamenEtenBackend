@@ -30,6 +30,31 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
             throw DatabaseConnectionException()
         }
     }
+
+    fun getAllGebruikersWithVoorkeurenAndRestricties(): ResultSet {
+        return try {
+            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            val stmt = PreparedStatementBuilder(connectionService,
+                "SELECT gebruikersnaam,gebruiker_id,email,token,foto,\n" +
+                    "       (\n" +
+                    "           SELECT STRING_AGG(V.VOORKEUR_NAAM, ',')\n" +
+                    "           FROM VOORKEUR_VAN_GEBRUIKER RV\n" +
+                    "           JOIN VOORKEUR V ON RV.VOORKEUR_NAAM = V.VOORKEUR_NAAM\n" +
+                    "           WHERE RV.GEBRUIKER_ID = g.GEBRUIKER_ID\n" +
+                    "       ) AS VOORKEUREN,\n" +
+                    "       (\n" +
+                    "           SELECT STRING_AGG(VR.RESTRICTIE_NAAM, ',')\n" +
+                    "           FROM GEBRUIKER_HEEFT_VOEDINGSRESTRICTIE VR\n" +
+                    "           WHERE VR.GEBRUIKER_ID = g.GEBRUIKER_ID\n" +
+                    "       ) AS RESTRICTIES\n" +
+                    "FROM gebruiker g")
+                    .build()
+            stmt.executeQuery()
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+
     fun getNaamVanGebruiker(gebruikerToken: String): String? {
         return try {
             connectionService.initializeConnection((databaseProperties.getConnectionString()))
