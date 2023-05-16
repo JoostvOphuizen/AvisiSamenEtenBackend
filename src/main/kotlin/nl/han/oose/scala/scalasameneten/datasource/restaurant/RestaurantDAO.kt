@@ -6,7 +6,6 @@ import nl.han.oose.scala.scalasameneten.datasource.connection.DatabaseProperties
 import nl.han.oose.scala.scalasameneten.datasource.exceptions.DatabaseConnectionException
 import nl.han.oose.scala.scalasameneten.dto.restaurant.GroepDTO
 import nl.han.oose.scala.scalasameneten.dto.restaurant.RestaurantDTO
-import nl.han.oose.scala.scalasameneten.dto.restaurant.VoorstelDTO
 import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictieDTO
 import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictiesDTO
 import org.springframework.context.annotation.ComponentScan
@@ -22,7 +21,31 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
     fun getRestaurants(): ResultSet {
         return try {
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-            val stmt = PreparedStatementBuilder(connectionService,"select * from RESTAURANT")
+            val stmt = PreparedStatementBuilder(connectionService,"select RESTAURANT_ID, RESTAURANT_NAAM, POSTCODE, STRAATNAAM, HUISNUMMER from RESTAURANT")
+                .build()
+            stmt.executeQuery()
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+
+    fun getAllRestaurantsWithVoorkeurenAndRestricties(): ResultSet {
+        return try {
+            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            val stmt = PreparedStatementBuilder(connectionService,
+                "SELECT R.RESTAURANT_ID, R.RESTAURANT_NAAM, R.POSTCODE, R.STRAATNAAM, R.HUISNUMMER,\n" +
+                    "       (\n" +
+                    "           SELECT STRING_AGG(V.VOORKEUR_NAAM, ',')\n" +
+                    "           FROM RESTAURANT_HEEFT_VOORKEUR RV\n" +
+                    "           JOIN VOORKEUR V ON RV.VOORKEUR_NAAM = V.VOORKEUR_NAAM\n" +
+                    "           WHERE RV.RESTAURANT_ID = R.RESTAURANT_ID\n" +
+                    "       ) AS VOORKEUREN,\n" +
+                    "       (\n" +
+                    "           SELECT STRING_AGG(VR.RESTRICTIE_NAAM, ',')\n" +
+                    "           FROM VOEDINGSRESTRICTIE_IN_RESTAURANT VR\n" +
+                    "           WHERE VR.RESTAURANT_ID = R.RESTAURANT_ID\n" +
+                    "       ) AS RESTRICTIES\n" +
+                    "FROM RESTAURANT R;\n")
                 .build()
             stmt.executeQuery()
         } catch (e: SQLException) {

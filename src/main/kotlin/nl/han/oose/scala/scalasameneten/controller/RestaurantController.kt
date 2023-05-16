@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*
 class RestaurantController(private val restaurantService: RestaurantService) {
     @RequestMapping("/bepaal")
     @PostMapping(produces = ["application/json"], consumes = ["application/json"])
-    fun postBepaalRestaurant(@RequestBody geselecteerdeGebruikers: ArrayList<Int>): ResponseEntity<VoorstelDTO> {
-        return restaurantService.bepaalRestaurant(GroepDTO(geselecteerdeGebruikers))
+    fun postBepaalRestaurant(@RequestBody geselecteerdeGebruikers: ArrayList<Int>): ResponseEntity<VoorstelDTO>? {
+        return restaurantService.bepaalRestaurant2(GroepDTO(geselecteerdeGebruikers))
     }
 }
