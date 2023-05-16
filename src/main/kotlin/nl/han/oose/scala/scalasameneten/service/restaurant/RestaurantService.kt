@@ -7,8 +7,13 @@ import nl.han.oose.scala.scalasameneten.datasource.voedingsrestrictie.Voedingsre
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikerWithVoorkeurenAndRestrictiesDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikersDTO
 import nl.han.oose.scala.scalasameneten.dto.restaurant.GroepDTO
+import nl.han.oose.scala.scalasameneten.dto.restaurant.RestaurantDTO
 import nl.han.oose.scala.scalasameneten.dto.restaurant.RestaurantWithVoorkeurenAndRestrictiesDTO
 import nl.han.oose.scala.scalasameneten.dto.restaurant.VoorstelDTO
+import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictieDTO
+import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictiesDTO
+import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurDTO
+import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurenDTO
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
@@ -18,6 +23,7 @@ import org.springframework.stereotype.Service
 @Component
 @ComponentScan("nl.han.oose.scala.scalasameneten.datasource.restaurant")
 @ComponentScan("nl.han.oose.scala.scalasameneten.datasource.voedingsrestrictie")
+@ComponentScan("nl.han.oose.scala.scalasameneten.datasource.gebruiker")
 class RestaurantService(private val restaurantDAO: RestaurantDAO, private val voedingsrestrictieDAO: VoedingsrestrictieDAO, private val gebruikerDAO: GebruikerDAO){
 
     fun bepaalRestaurant(geselecteerdeGebruikers: GroepDTO): ResponseEntity<VoorstelDTO> {
@@ -62,31 +68,32 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val vo
         }
     }
 
-    fun bepaalRestaurant2(geselecteerdeGebruikers: GroepDTO): ResponseEntity<VoorstelDTO>? {
+    fun bepaalRestaurant2(geselecteerdeGebruikers: GroepDTO): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>? {
         val restaurants = getAllRestaurantsWithVoorkeurenAndResticties()
-        val gebruikers = getAllGebruikersWithVoorkeurenAndRestricties()
+        val gebruikers = getAllGebruikersWithVoorkeurenAndRestricties(geselecteerdeGebruikers)
 
         val prioritizedVoorkeuren = mutableMapOf<String, Int>()
         for (gebruiker in gebruikers) {
-            gebruiker.voorkeuren?.forEach { voorkeur ->
-                val count = prioritizedVoorkeuren[voorkeur] ?: 0
-                prioritizedVoorkeuren[voorkeur] = count + 1
+            gebruiker.voorkeuren?.voorkeuren?.forEach { voorkeur ->
+                val count = prioritizedVoorkeuren[voorkeur.naam] ?: 0
+                prioritizedVoorkeuren[voorkeur.naam!!] = count + 1
             }
         }
         val SortedPrioList = prioritizedVoorkeuren.toList().sortedByDescending { (_, value) -> value }.toMap()
         println("SortedPrioList: $SortedPrioList")
         var remainingRestaurants = restaurants.toMutableList()
-        var selectedRestaurantId: Int? = null
+        var selectedRestaurant: RestaurantWithVoorkeurenAndRestrictiesDTO? = null
 
         for (voorkeur in SortedPrioList) {
-            val filteredRestaurants = remainingRestaurants.filter { it.voorkeuren?.contains(voorkeur.key) == true }
+            val filteredRestaurants = remainingRestaurants.filter { it.voorkeuren?.voorkeuren?.contains(VoorkeurDTO(voorkeur.key)) == true }
+
             if (filteredRestaurants.isNotEmpty()) {
                 remainingRestaurants = filteredRestaurants.toMutableList()
-                selectedRestaurantId = remainingRestaurants.random().restaurantId
+                selectedRestaurant = remainingRestaurants.random()
             } else {
-                if (selectedRestaurantId != null) {
-                    println("Selected restaurant id: $selectedRestaurantId")
-                    return null
+                if (selectedRestaurant != null) {
+                    println("Selected restaurant id: ${selectedRestaurant.restaurantId}")
+                    return ResponseEntity.ok(selectedRestaurant)
                 }
             }
         }
@@ -100,9 +107,9 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val vo
 
 
 
-    private fun getAllGebruikersWithVoorkeurenAndRestricties(): MutableList<GebruikerWithVoorkeurenAndRestrictiesDTO> {
+    private fun getAllGebruikersWithVoorkeurenAndRestricties(groep: GroepDTO): MutableList<GebruikerWithVoorkeurenAndRestrictiesDTO> {
         val gebruikers = mutableListOf<GebruikerWithVoorkeurenAndRestrictiesDTO>()
-        val gebruikersResult = gebruikerDAO.getAllGebruikersWithVoorkeurenAndRestricties()
+        val gebruikersResult = gebruikerDAO.getAllGebruikersWithVoorkeurenAndRestricties(groep)
         while (gebruikersResult.next()) {
             val gebruikerId = gebruikersResult.getInt("GEBRUIKER_ID")
             val gebruikerNaam = gebruikersResult.getString("GEBRUIKERSNAAM")
@@ -114,7 +121,17 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val vo
             val restrictiesString = gebruikersResult.getString("RESTRICTIES")
 
             val voorkeuren = voorkeurenString?.split(",")?.toTypedArray()
+            val conversieVoorkeuren = ArrayList<VoorkeurDTO>()
+            voorkeuren?.forEach { voorkeur ->
+                conversieVoorkeuren.add(VoorkeurDTO(voorkeur))
+            }
+
             val restricties = restrictiesString?.split(",")?.toTypedArray()
+            val conversieRestricties = ArrayList<VoedingsrestrictieDTO>()
+            restricties?.forEach { restrictie ->
+                conversieRestricties.add(VoedingsrestrictieDTO(restrictie, "null"))
+            }
+
 
             val gebruiker = GebruikerWithVoorkeurenAndRestrictiesDTO(
                 gebruikerId,
@@ -122,8 +139,8 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val vo
                 email,
                 token,
                 foto,
-                voorkeuren,
-                restricties
+                VoorkeurenDTO(null,conversieVoorkeuren),
+                VoedingsrestrictiesDTO(conversieRestricties)
             )
 
             gebruikers.add(gebruiker)
@@ -139,13 +156,24 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val vo
             val restaurantNaam = allResult.getString("RESTAURANT_NAAM")
             val postcode = allResult.getString("POSTCODE")
             val straatnaam = allResult.getString("STRAATNAAM")
-            val huisnummer = allResult.getString("HUISNUMMER")
+            val huisnummer = allResult.getInt("HUISNUMMER")
+            val link = allResult.getString("LINK")
+            val foto = allResult.getString("FOTO")
 
             val voorkeurenString = allResult.getString("VOORKEUREN")
             val restrictiesString = allResult.getString("RESTRICTIES")
 
             val voorkeuren = voorkeurenString?.split(",")?.toTypedArray()
+            val conversieVoorkeuren = ArrayList<VoorkeurDTO>()
+            voorkeuren?.forEach { voorkeur ->
+                conversieVoorkeuren.add(VoorkeurDTO(voorkeur))
+            }
+
             val restricties = restrictiesString?.split(",")?.toTypedArray()
+            val conversieRestricties = ArrayList<VoedingsrestrictieDTO>()
+            restricties?.forEach { restrictie ->
+                conversieRestricties.add(VoedingsrestrictieDTO(restrictie, "null"))
+            }
 
             val restaurant = RestaurantWithVoorkeurenAndRestrictiesDTO(
                 restaurantId,
@@ -153,8 +181,10 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val vo
                 postcode,
                 straatnaam,
                 huisnummer,
-                voorkeuren,
-                restricties
+                link,
+                foto,
+                VoorkeurenDTO(null,conversieVoorkeuren),
+                VoedingsrestrictiesDTO(conversieRestricties)
             )
 
             restaurants.add(restaurant)

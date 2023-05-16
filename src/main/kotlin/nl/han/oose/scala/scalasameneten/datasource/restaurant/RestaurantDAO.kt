@@ -33,7 +33,7 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
         return try {
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
             val stmt = PreparedStatementBuilder(connectionService,
-                "SELECT R.RESTAURANT_ID, R.RESTAURANT_NAAM, R.POSTCODE, R.STRAATNAAM, R.HUISNUMMER,\n" +
+                "SELECT R.RESTAURANT_ID, R.RESTAURANT_NAAM, R.POSTCODE, R.STRAATNAAM, R.HUISNUMMER, R.LINK, R.FOTO,\n" +
                     "       (\n" +
                     "           SELECT STRING_AGG(V.VOORKEUR_NAAM, ',')\n" +
                     "           FROM RESTAURANT_HEEFT_VOORKEUR RV\n" +
@@ -132,7 +132,10 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
                 val postcode = restaurantresult.getString("postcode")
                 val straatnaam = restaurantresult.getString("straatnaam")
                 val huisnummer = restaurantresult.getInt("huisnummer")
-                RestaurantDTO(id, naam, postcode, straatnaam, huisnummer)
+                val link = restaurantresult.getString("link")
+                val foto = restaurantresult.getString("foto")
+
+                RestaurantDTO(id, naam, postcode, straatnaam, huisnummer, link, foto)
             } else {
                 throw DatabaseConnectionException()
             }
