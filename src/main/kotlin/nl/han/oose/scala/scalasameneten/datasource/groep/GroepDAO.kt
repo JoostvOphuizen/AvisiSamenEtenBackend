@@ -6,6 +6,7 @@ import nl.han.oose.scala.scalasameneten.datasource.connection.DatabaseProperties
 import nl.han.oose.scala.scalasameneten.datasource.exceptions.DatabaseConnectionException
 import nl.han.oose.scala.scalasameneten.dto.restaurant.GroepDTO
 import org.springframework.context.annotation.ComponentScan
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import java.sql.ResultSet
 import java.sql.SQLException

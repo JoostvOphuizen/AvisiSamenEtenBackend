@@ -1,4 +1,6 @@
 package nl.han.oose.scala.scalasameneten.dto.restaurant
 
-class GroepenDTO(val id: Int,val groepsNaam: String ) {
+data class GroepenDTO( val groepen:ArrayList<GroepDTO> ) {
+    constructor(): this(ArrayList<GroepDTO>())
+
 }
