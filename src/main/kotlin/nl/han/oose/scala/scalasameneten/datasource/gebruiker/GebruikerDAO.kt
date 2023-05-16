@@ -8,6 +8,7 @@ import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikerDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikersDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.LoginDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.TokenDTO
+import nl.han.oose.scala.scalasameneten.dto.restaurant.GroepDTO
 import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictieDTO
 import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurDTO
 import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurenDTO
@@ -31,11 +32,11 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
         }
     }
 
-    fun getAllGebruikersWithVoorkeurenAndRestricties(): ResultSet {
+    fun getAllGebruikersWithVoorkeurenAndRestricties(groep: GroepDTO): ResultSet {
         return try {
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-            val stmt = PreparedStatementBuilder(connectionService,
-                "SELECT gebruikersnaam,gebruiker_id,email,token,foto,\n" +
+
+            var sql ="SELECT gebruikersnaam,gebruiker_id,email,token,foto,\n" +
                     "       (\n" +
                     "           SELECT STRING_AGG(V.VOORKEUR_NAAM, ',')\n" +
                     "           FROM VOORKEUR_VAN_GEBRUIKER RV\n" +
@@ -47,9 +48,19 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
                     "           FROM GEBRUIKER_HEEFT_VOEDINGSRESTRICTIE VR\n" +
                     "           WHERE VR.GEBRUIKER_ID = g.GEBRUIKER_ID\n" +
                     "       ) AS RESTRICTIES\n" +
-                    "FROM gebruiker g")
-                    .build()
-            stmt.executeQuery()
+                    "FROM gebruiker g\n" +
+                    "where\n"
+
+            for(lid in groep.leden!!) {
+                sql += "GEBRUIKER_ID = ? or "
+            }
+            sql = sql.substring(0, sql.length - 3)
+
+            val stmt = PreparedStatementBuilder(connectionService,sql)
+            for(lid in groep.leden!!) {
+                stmt.setInt(lid)
+            }
+            stmt.build().executeQuery()
         } catch (e: SQLException) {
             throw DatabaseConnectionException()
         }
