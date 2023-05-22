@@ -8,6 +8,7 @@ import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikerDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikersDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.LoginDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.TokenDTO
+import nl.han.oose.scala.scalasameneten.dto.restaurant.GroepDTO
 import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictieDTO
 import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurDTO
 import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurenDTO
@@ -30,6 +31,41 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
             throw DatabaseConnectionException()
         }
     }
+
+    fun getAllGebruikersWithVoorkeurenAndRestricties(groep: GroepDTO): ResultSet {
+        return try {
+            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+
+            var sql ="SELECT gebruikersnaam,gebruiker_id,email,token,foto,\n" +
+                    "       (\n" +
+                    "           SELECT STRING_AGG(V.VOORKEUR_NAAM, ',')\n" +
+                    "           FROM VOORKEUR_VAN_GEBRUIKER RV\n" +
+                    "           JOIN VOORKEUR V ON RV.VOORKEUR_NAAM = V.VOORKEUR_NAAM\n" +
+                    "           WHERE RV.GEBRUIKER_ID = g.GEBRUIKER_ID\n" +
+                    "       ) AS VOORKEUREN,\n" +
+                    "       (\n" +
+                    "           SELECT STRING_AGG(VR.RESTRICTIE_NAAM, ',')\n" +
+                    "           FROM GEBRUIKER_HEEFT_VOEDINGSRESTRICTIE VR\n" +
+                    "           WHERE VR.GEBRUIKER_ID = g.GEBRUIKER_ID\n" +
+                    "       ) AS RESTRICTIES\n" +
+                    "FROM gebruiker g\n" +
+                    "where\n"
+
+            for(lid in groep.leden!!) {
+                sql += "GEBRUIKER_ID = ? or "
+            }
+            sql = sql.substring(0, sql.length - 3)
+
+            val stmt = PreparedStatementBuilder(connectionService,sql)
+            for(lid in groep.leden!!) {
+                stmt.setInt(lid)
+            }
+            stmt.build().executeQuery()
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+
     fun getNaamVanGebruiker(gebruikerToken: String): String? {
         return try {
             connectionService.initializeConnection((databaseProperties.getConnectionString()))
