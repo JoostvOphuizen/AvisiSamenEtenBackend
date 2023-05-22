@@ -42,4 +42,11 @@ class GebruikerController(private val gebruikerService: GebruikerService, privat
         val voorkeurenDTO = modelMapper.map(voorkeuren, VoorkeurenDTO::class.java)
         return gebruikerService.postGebruikersVoorkeuren(id, voorkeurenDTO)
     }
+
+    @RequestMapping("/slarestrictiesop")
+    @PostMapping(produces = ["application/json"], consumes = ["application/json"])
+    fun postRestricties(@RequestParam id: String, @RequestBody restricties: VoorkeurenDTO) : ResponseEntity<Void> {
+        val restrictiesDTO = modelMapper.map(restricties, VoorkeurenDTO::class.java)
+        return gebruikerService.postGebruikersRestricties(id, restrictiesDTO)
+    }
 }

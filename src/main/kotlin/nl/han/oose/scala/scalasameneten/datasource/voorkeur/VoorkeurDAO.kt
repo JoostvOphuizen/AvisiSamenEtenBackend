@@ -61,12 +61,12 @@ class VoorkeurDAO(private val connectionService: ConnectionService,private val d
         return try {
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
             val stmt = PreparedStatementBuilder(connectionService,
-                "SELECT \n" +
-                        "\tv.RESTRICTIE_NAAM, \n" +
-                        "\tCASE WHEN vo.GEBRUIKER_ID IS NULL THEN 0 ELSE 1 END AS has_voorkeur\n" +
-                        "FROM voedingsrestrictie v\n" +
-                        "LEFT JOIN (SELECT * FROM VOORKEUR_VAN_GEBRUIKER WHERE GEBRUIKER_ID = (SELECT GEBRUIKER_ID FROM GEBRUIKER WHERE token = ?)) vo\n" +
-                        "ON vo.VOORKEUR_NAAM = v.RESTRICTIE_NAAM")
+                "SELECT\n" +
+                    "v.RESTRICTIE_NAAM,\n" +
+                    "CASE WHEN vo.GEBRUIKER_ID IS NULL THEN 0 ELSE 1 END AS has_voorkeur\n" +
+                    "FROM voedingsrestrictie v\n" +
+                    "LEFT JOIN (SELECT * FROM GEBRUIKER_HEEFT_VOEDINGSRESTRICTIE WHERE GEBRUIKER_ID = (SELECT GEBRUIKER_ID FROM GEBRUIKER WHERE token = ?)) vo\n" +
+                    "ON vo.RESTRICTIE_NAAM = v.RESTRICTIE_NAAM")
                     .setString(gebruikerToken)
                     .build()
             stmt.executeQuery()
