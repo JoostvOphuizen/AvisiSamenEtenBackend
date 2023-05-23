@@ -54,7 +54,6 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
                 }
             }
         }
-        // TODO: fix this
         return ResponseEntity.ok(selectedRestaurant ?: restaurants.random())
     }
 
