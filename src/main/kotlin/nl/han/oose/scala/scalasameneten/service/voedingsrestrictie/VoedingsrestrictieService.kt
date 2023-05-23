@@ -16,4 +16,5 @@ class VoedingsrestrictieService(private val voedingsrestrictieDAO: Voedingsrestr
     fun getVoedingsrestricties(): ResponseEntity<VoedingsrestrictiesDTO> {
         return ResponseEntity.ok(voedingsrestrictieDAO!!.makeRestrictiesDTO())
     }
+
 }

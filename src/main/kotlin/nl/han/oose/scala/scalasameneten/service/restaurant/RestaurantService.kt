@@ -33,6 +33,11 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
         }
         val SortedPrioList = prioritizedVoorkeuren.toList().sortedByDescending { (_, value) -> value }.toMap()
         println("SortedPrioList: $SortedPrioList")
+
+        if (SortedPrioList.isEmpty()) {
+            return ResponseEntity.ok(restaurants.random())
+        }
+
         var remainingRestaurants = restaurants.toMutableList()
         var selectedRestaurant: RestaurantWithVoorkeurenAndRestrictiesDTO? = null
 
@@ -49,7 +54,7 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
                 }
             }
         }
-        return null
+        return ResponseEntity.ok(selectedRestaurant ?: restaurants.random())
     }
 
     private fun getAllGebruikersWithVoorkeurenAndRestricties(groep: GroepDTO): MutableList<GebruikerWithVoorkeurenAndRestrictiesDTO> {

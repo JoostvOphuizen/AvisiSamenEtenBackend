@@ -156,6 +156,21 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
             throw DatabaseConnectionException()
         }
     }
+
+    fun alleGebruikersRestrictiesVerwijderen(gebruikerToken: String) {
+        try {
+            val gebruikerId = getIdVanGebruiker(gebruikerToken)!!
+            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            val sql = "DELETE FROM gebruiker_heeft_voedingsrestrictie WHERE gebruiker_id=?"
+            val stmt = PreparedStatementBuilder(connectionService,sql)
+                .setInt(gebruikerId)
+                .build()
+            stmt.executeUpdate()
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+
     fun setGebruikersVoorkeuren(gebruikerToken: String, voorkeurenDTO: VoorkeurenDTO): Void? {
         try{
             val gebruikerId = getIdVanGebruiker(gebruikerToken)!!
@@ -176,6 +191,36 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
                     for (voorkeur in voorkeuren) {
                         stmt.setInt(gebruikerId)
                             .setString(voorkeur.naam!!)
+                    }
+                    stmt.build().executeUpdate()
+                }
+            }
+        } catch (e: Exception){
+            throw DatabaseConnectionException()
+        }
+        return null
+    }
+
+    fun setGebruikersRestricties(gebruikerToken: String, voorkeurenDTO: VoorkeurenDTO): Void? {
+        try{
+            val gebruikerId = getIdVanGebruiker(gebruikerToken)!!
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
+            var sql = "INSERT INTO gebruiker_heeft_voedingsrestrictie(gebruiker_id, restrictie_naam) VALUES "
+            val restricties = voorkeurenDTO.voorkeuren
+            if (restricties != null) {
+                alleGebruikersRestrictiesVerwijderen(gebruikerToken)
+                if (restricties.size > 0) {
+                    for(i in 0 until restricties.size){
+                        val restrictie = restricties[i]
+                        if (restrictie.naam != null) {
+                            if (i != 0) { sql += "," }
+                            sql += "(?,?)"
+                        }
+                    }
+                    val stmt = PreparedStatementBuilder(connectionService, sql)
+                    for (restrictie in restricties) {
+                        stmt.setInt(gebruikerId)
+                            .setString(restrictie.naam!!)
                     }
                     stmt.build().executeUpdate()
                 }

@@ -69,4 +69,8 @@ class GebruikerService(private val gebruikerDAO: GebruikerDAO) {
     fun postGebruikersVoorkeuren(token: String, voorkeurenDTO: VoorkeurenDTO): ResponseEntity<Void> {
         return ResponseEntity.ok(gebruikerDAO!!.setGebruikersVoorkeuren(token, voorkeurenDTO))
     }
+
+    fun postGebruikersRestricties(token: String, restricties: VoorkeurenDTO): ResponseEntity<Void> {
+        return ResponseEntity.ok(gebruikerDAO!!.setGebruikersRestricties(token, restricties))
+    }
 }
