@@ -139,5 +139,8 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
         }
         return restaurants
     }
-
+    fun getAllRestaurants(): ResponseEntity<MutableList<RestaurantWithVoorkeurenAndRestrictiesDTO>>{
+        val restaurants = getAllRestaurantsWithVoorkeurenAndResticties()
+        return ResponseEntity.ok(restaurants)
+    }
 }

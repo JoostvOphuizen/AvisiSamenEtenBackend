@@ -17,4 +17,9 @@ class RestaurantController(private val restaurantService: RestaurantService) {
     fun postBepaalRestaurant(@RequestBody geselecteerdeGebruikers: ArrayList<Int>): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>? {
         return restaurantService.bepaalRestaurant(GroepDTO(geselecteerdeGebruikers, "Placeholder"))
     }
+    @RequestMapping("/allerestaurants")
+    @GetMapping(produces = ["application/json"])
+    fun getAlleRestaurants(): ResponseEntity<MutableList<RestaurantWithVoorkeurenAndRestrictiesDTO>> {
+        return restaurantService.getAllRestaurants()
+    }
 }
