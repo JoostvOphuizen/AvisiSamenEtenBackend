@@ -16,7 +16,7 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
 
     fun getAllRestaurantsWithVoorkeurenAndRestricties(): ResultSet {
         return try {
-            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
             val stmt = PreparedStatementBuilder(connectionService,
                     "SELECT R.RESTAURANT_ID, R.RESTAURANT_NAAM, R.POSTCODE, R.STRAATNAAM, R.HUISNUMMER, R.LINK, R.FOTO,\n" +
                             "       (\n" +
