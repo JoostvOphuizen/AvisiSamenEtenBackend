@@ -258,7 +258,7 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
                 result2 = getGebruikersVoedingsrestricties(result.getString("token"))
                 var restricties = ArrayList<VoedingsrestrictieDTO>()
                 while(result2 != null && result2.next()){
-                    restricties.add(VoedingsrestrictieDTO(result2.getString("restrictie_naam"),result2.getString("type")))
+                    restricties.add(VoedingsrestrictieDTO(result2.getString("restrictie_naam")))
                 }
                 val x = makeGebruiker(result.getString("token"))
                 gebruikers.add(x)
@@ -300,7 +300,7 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
         result = getGebruikersVoedingsrestricties(gebruikerToken)
         val restricties = ArrayList<VoedingsrestrictieDTO>()
         while(result.next()){
-            restricties.add(VoedingsrestrictieDTO(result.getString("restrictie_naam"),result.getString("type")))
+            restricties.add(VoedingsrestrictieDTO(result.getString("restrictie_naam")))
         }
         val gebruikerId = getIdVanGebruiker(gebruikerToken)!!
         return GebruikerDTO(gebruikerId, getNaamVanGebruiker(gebruikerToken)!!, null,  null, null)
