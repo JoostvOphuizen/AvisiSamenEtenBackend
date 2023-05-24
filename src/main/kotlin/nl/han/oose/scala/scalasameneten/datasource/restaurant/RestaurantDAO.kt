@@ -40,7 +40,7 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
     fun getReviews(id: Int): ResultSet{
         return try {
             connectionService.initializeConnection(databaseProperties.getConnectionString())
-            val sql = "SELECT review FROM restaurant_review WHERE restaurant_id=?"
+            val sql = "SELECT beoordeling FROM review WHERE restaurant_id=?"
             val stmt = PreparedStatementBuilder(connectionService,sql)
                     .setInt(id)
                     .build()

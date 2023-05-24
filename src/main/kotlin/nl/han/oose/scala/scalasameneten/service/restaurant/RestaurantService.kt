@@ -13,11 +13,10 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
-import java.lang.Math.pow
-import java.sql.ResultSet
 import kotlin.math.log
 import kotlin.math.pow
 import kotlin.math.sqrt
+import kotlin.random.Random
 
 @Service
 @Component
@@ -43,15 +42,15 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
             return ResponseEntity.ok(restaurants.random())
         }
 
-        var remainingRestaurants = restaurants.toMutableList()
+        var remainingRestaurants: MutableList<RestaurantWithVoorkeurenAndRestrictiesDTO> = restaurants.toMutableList()
         var selectedRestaurant: RestaurantWithVoorkeurenAndRestrictiesDTO? = null
 
         for (voorkeur in sortedPrioList) {
             val filteredRestaurants = remainingRestaurants.filter { it.voorkeuren?.voorkeuren?.contains(VoorkeurDTO(voorkeur.key)) == true }
 
-            if (filteredRestaurants.isNotEmpty()) {
+            if (filteredRestaurants.size > 5) {
                 remainingRestaurants = filteredRestaurants.toMutableList()
-                selectedRestaurant = remainingRestaurants.random()
+                selectedRestaurant = bepaalRestaurantMetReviews(remainingRestaurants.toMutableList())
             } else {
                 if (selectedRestaurant != null) {
                     println("Selected restaurant id: ${selectedRestaurant.restaurantId}")
@@ -59,36 +58,52 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
                 }
             }
         }
-        return ResponseEntity.ok(selectedRestaurant ?: restaurants.random())
+        return ResponseEntity.ok(bepaalRestaurantMetReviews(restaurants))
     }
 
     private fun getReviewGemiddelde(id: Int): Double{
-        val result = restaurantDAO.getReviews(id)
+        val reviews = restaurantDAO.getReviews(id)
         val x = ArrayList<Int>()
-        while(result.next()){
-            x.add(result.getInt("review"))
+        while(reviews.next()){
+            x.add(reviews.getInt("beoordeling"))
         }
         return x.sum()/x.count().toDouble()
     }
 
-    private fun bepaalRestaurantMetReviews(restaurants: MutableList<RestaurantWithVoorkeurenAndRestrictiesDTO>){
-        val restaurantScore = ArrayList<Double>()
-        val percentage = ArrayList<Double>()
+    private fun bepaalRestaurantMetReviews(restaurants: MutableList<RestaurantWithVoorkeurenAndRestrictiesDTO>): RestaurantWithVoorkeurenAndRestrictiesDTO{
+        val restaurantScore = mutableMapOf<Int,Double>()
+        val permillage = mutableMapOf<Int,Double>()
         for(restaurant in restaurants){
+            println(restaurant.restaurantId)
             val reviews = restaurantDAO.getReviews(restaurant.restaurantId)
             val gemiddelde = getReviewGemiddelde(restaurant.restaurantId)
             val x = ArrayList<Double>()
             while(reviews.next()){
-                val xpow = (reviews.getInt("review")-gemiddelde).pow(2)
+                val xpow = (reviews.getInt("beoordeling")-gemiddelde).pow(2)
                 x.add(xpow)
             }
-            val standaarddeviatie = x.sum()/(x.count()-1)
-            restaurantScore[restaurant.restaurantId] = sqrt((gemiddelde.pow(3)*log(x.count().toDouble(),5.0))/standaarddeviatie)
+            var standaarddeviatie = x.sum()/(x.count())
+            if(standaarddeviatie==0.0|| standaarddeviatie.isNaN()){
+                standaarddeviatie = 0.1
+            }
+            restaurantScore[restaurant.restaurantId] = sqrt((gemiddelde.pow(3)*log(x.count().toDouble(),5.0))/standaarddeviatie)+1
+            if(restaurantScore[restaurant.restaurantId]!!.isNaN()){
+                restaurantScore[restaurant.restaurantId] = 1.0
+            }
         }
         for(restaurant in restaurants){
             val id = restaurant.restaurantId
-            percentage[id] = (restaurantScore[id]/restaurantScore.sum())*100
+            permillage[id] = (restaurantScore[id]!!.div(restaurantScore.values.sum()))*1000
         }
+        val random = Random.nextInt(0,1000)
+        var i = 0.0;
+        for(permille in permillage){
+            if(random<=permille.value+i){
+                return restaurants[permille.key]
+            }
+            i += permille.value
+        }
+        return restaurants.random()
     }
 
     private fun getAllGebruikersWithVoorkeurenAndRestricties(groep: GroepDTO): MutableList<GebruikerWithVoorkeurenAndRestrictiesDTO> {
