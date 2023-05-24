@@ -13,6 +13,11 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
+import java.lang.Math.pow
+import java.sql.ResultSet
+import kotlin.math.log
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 @Service
 @Component
@@ -31,17 +36,17 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
                 prioritizedVoorkeuren[voorkeur.naam!!] = count + 1
             }
         }
-        val SortedPrioList = prioritizedVoorkeuren.toList().sortedByDescending { (_, value) -> value }.toMap()
-        println("SortedPrioList: $SortedPrioList")
+        val sortedPrioList = prioritizedVoorkeuren.toList().sortedByDescending { (_, value) -> value }.toMap()
+        println("SortedPrioList: $sortedPrioList")
 
-        if (SortedPrioList.isEmpty()) {
+        if (sortedPrioList.isEmpty()) {
             return ResponseEntity.ok(restaurants.random())
         }
 
         var remainingRestaurants = restaurants.toMutableList()
         var selectedRestaurant: RestaurantWithVoorkeurenAndRestrictiesDTO? = null
 
-        for (voorkeur in SortedPrioList) {
+        for (voorkeur in sortedPrioList) {
             val filteredRestaurants = remainingRestaurants.filter { it.voorkeuren?.voorkeuren?.contains(VoorkeurDTO(voorkeur.key)) == true }
 
             if (filteredRestaurants.isNotEmpty()) {
@@ -55,6 +60,35 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
             }
         }
         return ResponseEntity.ok(selectedRestaurant ?: restaurants.random())
+    }
+
+    private fun getReviewGemiddelde(id: Int): Double{
+        val result = restaurantDAO.getReviews(id)
+        val x = ArrayList<Int>()
+        while(result.next()){
+            x.add(result.getInt("review"))
+        }
+        return x.sum()/x.count().toDouble()
+    }
+
+    private fun bepaalRestaurantMetReviews(restaurants: MutableList<RestaurantWithVoorkeurenAndRestrictiesDTO>){
+        val restaurantScore = ArrayList<Double>()
+        val percentage = ArrayList<Double>()
+        for(restaurant in restaurants){
+            val reviews = restaurantDAO.getReviews(restaurant.restaurantId)
+            val gemiddelde = getReviewGemiddelde(restaurant.restaurantId)
+            val x = ArrayList<Double>()
+            while(reviews.next()){
+                val xpow = (reviews.getInt("review")-gemiddelde).pow(2)
+                x.add(xpow)
+            }
+            val standaarddeviatie = x.sum()/(x.count()-1)
+            restaurantScore[restaurant.restaurantId] = sqrt((gemiddelde.pow(3)*log(x.count().toDouble(),5.0))/standaarddeviatie)
+        }
+        for(restaurant in restaurants){
+            val id = restaurant.restaurantId
+            percentage[id] = (restaurantScore[id]/restaurantScore.sum())*100
+        }
     }
 
     private fun getAllGebruikersWithVoorkeurenAndRestricties(groep: GroepDTO): MutableList<GebruikerWithVoorkeurenAndRestrictiesDTO> {

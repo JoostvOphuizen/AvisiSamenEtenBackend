@@ -16,7 +16,7 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
 
     fun getAllRestaurantsWithVoorkeurenAndRestricties(): ResultSet {
         return try {
-            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
             val stmt = PreparedStatementBuilder(connectionService,
                 "SELECT R.RESTAURANT_ID, R.RESTAURANT_NAAM, R.POSTCODE, R.STRAATNAAM, R.HUISNUMMER, R.LINK, R.FOTO,\n" +
                     "       (\n" +
@@ -34,6 +34,18 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
                 .build()
             stmt.executeQuery()
         } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+    fun getReviews(id: Int): ResultSet{
+        return try {
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
+            val sql = "SELECT review FROM restaurant_review WHERE restaurant_id=?"
+            val stmt = PreparedStatementBuilder(connectionService,sql)
+                    .setInt(id)
+                    .build()
+            stmt.executeQuery()
+        } catch(e: SQLException){
             throw DatabaseConnectionException()
         }
     }
