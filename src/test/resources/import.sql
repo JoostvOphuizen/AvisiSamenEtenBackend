@@ -36,6 +36,8 @@ create table RESTAURANT (
                             POSTCODE             VARCHAR(6)             not null,
                             STRAATNAAM           VARCHAR(256)                 not null,
                             HUISNUMMER           INT               not null,
+                            LINK                 VARCHAR(512)       null,
+                            FOTO                 VARCHAR(512)       null,
                             constraint PK_RESTAURANT primary key (RESTAURANT_ID)
 )
     ;
