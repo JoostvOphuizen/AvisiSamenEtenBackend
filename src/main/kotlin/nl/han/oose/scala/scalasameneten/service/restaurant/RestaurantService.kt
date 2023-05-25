@@ -74,7 +74,6 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
         val restaurantScore = mutableMapOf<Int,Double>()
         val permillage = mutableMapOf<Int,Double>()
         for(restaurant in restaurants){
-            println(restaurant.restaurantId)
             val reviews = restaurantDAO.getReviews(restaurant.restaurantId)
             val gemiddelde = getReviewGemiddelde(restaurant.restaurantId)
             val x = ArrayList<Double>()
@@ -99,7 +98,7 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
         var i = 0.0;
         for(permille in permillage){
             if(random<=permille.value+i){
-                return restaurants[permille.key]
+                return restaurants[permille.key-1]
             }
             i += permille.value
         }

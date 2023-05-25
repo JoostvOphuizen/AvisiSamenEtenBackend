@@ -75,3 +75,12 @@ create table VOORKEUR_VAN_GEBRUIKER (
                                         constraint PK_VOORKEUR_VAN_GEBRUIKER primary key (GEBRUIKER_ID, VOORKEUR_NAAM)
 )
 ;
+drop table if exists REVIEW;
+create table REVIEW (
+                        REVIEW_ID            INT                  AUTO_INCREMENT        not null,
+                        GEBRUIKER_ID         INT                  not null,
+                        RESTAURANT_ID        INT                  not null,
+                        BEOORDELING          VARCHAR(1)               not null,
+                        TEKST                VARCHAR(MAX)             null,
+                        constraint PK_REVIEW primary key (REVIEW_ID)
+);
