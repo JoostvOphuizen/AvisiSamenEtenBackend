@@ -58,7 +58,7 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
                 }
             }
         }
-        return ResponseEntity.ok(bepaalRestaurantMetReviews(restaurants))
+        return ResponseEntity.ok(selectedRestaurant ?: bepaalRestaurantMetReviews(restaurants))
     }
 
     private fun getReviewGemiddelde(id: Int): Double{
