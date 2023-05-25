@@ -94,6 +94,8 @@ class RestaurantServiceTest {
 
     @Test
     fun bepaalRestaurantsMetReviews(){
+        //arrange
+        //act
         val leden = ArrayList<Int>()
         leden.add(2)
         val groep = GroepDTO(leden,"")
@@ -112,6 +114,7 @@ class RestaurantServiceTest {
                 alle_ids_aanwezig = false
             }
         }
+        //assert
         assert(alle_ids_aanwezig)
     }
 }
