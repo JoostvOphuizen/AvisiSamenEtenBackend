@@ -70,8 +70,6 @@ class UitnodigingService (private val uitnodigingDAO: UitnodigingDAO) {
                 for (voedingsrestrictie in hostVoedingsRestricties) {
                     hostArrayListVoedingsRestricties.add(VoedingsrestrictieDTO(voedingsrestrictie))
                 }
-            } else {
-                hostArrayListVoedingsRestricties.add(VoedingsrestrictieDTO("Geen"))
             }
             val hostArrayListVoorkeuren = ArrayList<VoorkeurDTO>()
             if (hostResultset.getString("voorkeuren") != null) {
