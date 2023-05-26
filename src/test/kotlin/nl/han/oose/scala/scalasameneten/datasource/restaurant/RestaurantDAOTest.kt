@@ -30,7 +30,7 @@ class RestaurantDAOTest {
     }
 
     @Test
-    fun getAlleGebruikers(){
+    fun getRestaurantByIdTest(){
         //arrange
         //act
         val returnValue = restaurantDAO.getRestaurant(1)
