@@ -31,10 +31,12 @@ class UitnodigingService (private val uitnodigingDAO: UitnodigingDAO) {
         return ResponseEntity.ok(UitnodigingDTO(uitnodigingToken))
     }
 
-    fun getUitgenodigden(uitnodigingToken: String): ResponseEntity<UitgenodigdenDTO> {
+    fun getUitgenodigden(uitnodigingToken: String, gebruikerToken: String): ResponseEntity<UitgenodigdenDTO> {
+        val gebruikerID = uitnodigingDAO.getGebruikerID(gebruikerToken)
+        val restaurantID = uitnodigingDAO.getRestaurantID(uitnodigingToken)
         val host = getHostAndMapToGebruikerDTO(uitnodigingToken);
         val uitgenodigden = getUitgenodigdenAndMapToGebruikersDTO(uitnodigingToken)
-        return ResponseEntity.ok(UitgenodigdenDTO(host, uitgenodigden));
+        return ResponseEntity.ok(UitgenodigdenDTO(gebruikerID, restaurantID, host, uitgenodigden));
     }
 
     private fun getUitgenodigdenAndMapToGebruikersDTO(uitnodigingToken: String): GebruikersDTO {
@@ -56,7 +58,7 @@ class UitnodigingService (private val uitnodigingDAO: UitnodigingDAO) {
                     voorkeurenArrayList.add(VoorkeurDTO(voorkeur))
                 }
             }
-            uitgenodigden.add(GebruikerDTO(uitgenodigdenResultSet.getInt("gebruiker_id"), uitgenodigdenResultSet.getString("gebruikersnaam"), uitgenodigdenResultSet.getString("email"), voorkeurenArrayList, voedingsrestrictiesArraylist))
+            uitgenodigden.add(GebruikerDTO(uitgenodigdenResultSet.getInt("gebruiker_id"), uitgenodigdenResultSet.getString("gebruikersnaam"), uitgenodigdenResultSet.getString("foto"), voorkeurenArrayList, voedingsrestrictiesArraylist))
         }
         return GebruikersDTO(uitgenodigden)
     }
@@ -80,9 +82,19 @@ class UitnodigingService (private val uitnodigingDAO: UitnodigingDAO) {
             }else{
                 hostArrayListVoorkeuren.add(VoorkeurDTO("Geen"))
             }
-            return  GebruikerDTO(hostResultset.getInt("gebruiker_id"), hostResultset.getString("gebruikersnaam"), hostResultset.getString("email"), hostArrayListVoorkeuren, hostArrayListVoedingsRestricties)
+            return  GebruikerDTO(hostResultset.getInt("gebruiker_id"), hostResultset.getString("gebruikersnaam"), hostResultset.getString("foto"), hostArrayListVoorkeuren, hostArrayListVoedingsRestricties)
         }
         return GebruikerDTO()
+    }
+
+    fun accepteerUitnodiging(uitnodigingToken: String, gebruikerToken: String): ResponseEntity<String> {
+        uitnodigingDAO.accepteerUitnodiging(uitnodigingToken, gebruikerToken)
+        return ResponseEntity.ok("Uitnodiging geaccepteerd")
+    }
+
+    fun updateRestaurant(uitnodigingToken: String, restaurant: Int): ResponseEntity<String> {
+        uitnodigingDAO.updateRestaurant(uitnodigingToken, restaurant)
+        return ResponseEntity.ok("Restaurant geupdate")
     }
 
     fun generateToken(): String {

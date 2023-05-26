@@ -2,9 +2,7 @@ package nl.han.oose.scala.scalasameneten.controller
 
 import nl.han.oose.scala.scalasameneten.dto.uitnodiging.UitgenodigdenDTO
 import nl.han.oose.scala.scalasameneten.dto.uitnodiging.UitnodigingDTO
-import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictiesDTO
 import nl.han.oose.scala.scalasameneten.service.uitnodiging.UitnodigingService
-import nl.han.oose.scala.scalasameneten.service.voedingsrestrictie.VoedingsrestrictieService
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -18,10 +16,21 @@ class UitnodigingController(private val uitnodigingService: UitnodigingService) 
     fun createUitnodiging(@RequestBody gebruikerToken: UitnodigingDTO): ResponseEntity<UitnodigingDTO> {
         return uitnodigingService.createUitnodiging(gebruikerToken.uitnodigingToken)
     }
-
     @GetMapping(produces = ["application/json"])
-    fun getUitgenodigden(@RequestBody gebruikerToken: UitnodigingDTO): ResponseEntity<UitgenodigdenDTO> {
-        return uitnodigingService.getUitgenodigden(gebruikerToken.uitnodigingToken)
+    fun getUitgenodigden(@RequestParam uitnodigingToken: String, @RequestParam gebruikerToken: String): ResponseEntity<UitgenodigdenDTO> {
+        return uitnodigingService.getUitgenodigden(uitnodigingToken, gebruikerToken)
+    }
+
+    @PostMapping(consumes = ["application/json"])
+    @RequestMapping("/accepteer")
+    fun accepteerUitnodiging(@RequestBody uitnodigingToken: UitnodigingDTO, @RequestParam gebruikerToken: String): ResponseEntity<String> {
+        return uitnodigingService.accepteerUitnodiging(uitnodigingToken.uitnodigingToken, gebruikerToken)
+    }
+
+    @PostMapping(consumes = ["application/json"])
+    @RequestMapping("/restaurant")
+    fun updateRestaurant(@RequestBody uitnodigingToken: UitnodigingDTO, @RequestParam restaurantId: Int): ResponseEntity<String> {
+        return uitnodigingService.updateRestaurant(uitnodigingToken.uitnodigingToken, restaurantId)
     }
 
 }

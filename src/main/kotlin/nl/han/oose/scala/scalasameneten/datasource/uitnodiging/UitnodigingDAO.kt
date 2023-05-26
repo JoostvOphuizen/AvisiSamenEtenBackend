@@ -13,6 +13,46 @@ import java.sql.SQLException
 @ComponentScan("nl.han.oose.scala.scalasameneten.datasource.connection")
 class UitnodigingDAO (private val connectionService: ConnectionService, private val databaseProperties: DatabaseProperties) {
 
+    fun getRestaurantID(uitnodigingToken: String): Int? {
+        try {
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
+            val stmt = PreparedStatementBuilder(connectionService,
+                "SELECT RESTAURANT_ID, UITNODIGING_TOKEN, GEBRUIKER_ID  \n" +
+                    "FROM UITNODIGINGSGROEP\n" +
+                    "WHERE UITNODIGING_TOKEN = ?")
+                .setString(uitnodigingToken)
+                .build()
+            val rs = stmt.executeQuery()
+            if (!rs.next()) {
+                return null
+            }
+            val id = rs.getInt("RESTAURANT_ID")
+            if (rs.wasNull()) {
+                return null
+            }
+            return id
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+
+
+    fun updateRestaurant(uitnodigingToken: String, restaurant: Int) {
+        try {
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
+            val stmt = PreparedStatementBuilder(connectionService,
+                "UPDATE UITNODIGINGSGROEP \n" +
+                    "SET RESTAURANT_ID = ?\n" +
+                    "WHERE UITNODIGING_TOKEN = ?")
+                .setInt(restaurant)
+                .setString(uitnodigingToken)
+                .build()
+            stmt.executeUpdate()
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+
     fun createUitnodiging(uitnodigingToken: String, gebruikerToken: String) {
         try {
             connectionService.initializeConnection(databaseProperties.getConnectionString())
@@ -25,7 +65,6 @@ class UitnodigingDAO (private val connectionService: ConnectionService, private 
                 .setString(gebruikerToken)
                 .build()
             stmt.executeUpdate()
-            println("Uitnodiging created")
         } catch (e: SQLException) {
             throw DatabaseConnectionException()
         }
@@ -51,12 +90,18 @@ class UitnodigingDAO (private val connectionService: ConnectionService, private 
             connectionService.initializeConnection(databaseProperties.getConnectionString())
             val stmt = PreparedStatementBuilder(connectionService,
                 "SELECT g.GEBRUIKERSNAAM, g.GEBRUIKER_ID, g.EMAIL, g.FOTO,\n" +
-                    "    STRING_AGG(vvg.VOORKEUR_NAAM, ',') AS VOORKEUREN,\n" +
-                    "    STRING_AGG(ghv.RESTRICTIE_NAAM, ',') AS RESTRICTIES\n" +
+                    "    (\n" +
+                    "        SELECT STRING_AGG(vvg.VOORKEUR_NAAM, ',')\n" +
+                    "        FROM VOORKEUR_VAN_GEBRUIKER vvg\n" +
+                    "        WHERE vvg.GEBRUIKER_ID = g.GEBRUIKER_ID\n" +
+                    "    ) AS VOORKEUREN,\n" +
+                    "    (\n" +
+                    "        SELECT STRING_AGG(ghv.RESTRICTIE_NAAM, ',')\n" +
+                    "        FROM GEBRUIKER_HEEFT_VOEDINGSRESTRICTIE ghv\n" +
+                    "        WHERE ghv.GEBRUIKER_ID = g.GEBRUIKER_ID\n" +
+                    "    ) AS RESTRICTIES\n" +
                     "FROM UITNODIGINGSGROEP ug\n" +
                     "INNER JOIN GEBRUIKER g ON g.GEBRUIKER_ID = ug.GEBRUIKER_ID\n" +
-                    "LEFT JOIN GEBRUIKER_HEEFT_VOEDINGSRESTRICTIE ghv ON ghv.GEBRUIKER_ID = g.GEBRUIKER_ID\n" +
-                    "LEFT JOIN VOORKEUR_VAN_GEBRUIKER vvg ON vvg.GEBRUIKER_ID = g.GEBRUIKER_ID\n" +
                     "WHERE ug.UITNODIGING_TOKEN = ?\n" +
                     "GROUP BY g.GEBRUIKERSNAAM, g.FOTO, g.GEBRUIKER_ID, g.EMAIL;")
                 .setString(uitnodigingToken)
@@ -71,18 +116,75 @@ class UitnodigingDAO (private val connectionService: ConnectionService, private 
         try {
             connectionService.initializeConnection(databaseProperties.getConnectionString())
             val stmt = PreparedStatementBuilder(connectionService,
-                "SELECT g.GEBRUIKERSNAAM, g.FOTO, g.EMAIL, g.GEBRUIKER_ID,\n" +
-                "    STRING_AGG(vvg.VOORKEUR_NAAM, ',') AS VOORKEUREN,\n" +
-                "    STRING_AGG(ghv.RESTRICTIE_NAAM, ',') AS RESTRICTIES\n" +
-                "FROM GEBRUIKER_IN_UITNODINGSGROEP ug\n" +
-                "INNER JOIN GEBRUIKER g ON g.GEBRUIKER_ID = ug.GEBRUIKER_ID\n" +
-                "LEFT JOIN GEBRUIKER_HEEFT_VOEDINGSRESTRICTIE ghv ON ghv.GEBRUIKER_ID = g.GEBRUIKER_ID\n" +
-                "LEFT JOIN VOORKEUR_VAN_GEBRUIKER vvg ON vvg.GEBRUIKER_ID = g.GEBRUIKER_ID\n" +
-                "WHERE ug.UITNODIGING_TOKEN = ?\n" +
-                "GROUP BY g.GEBRUIKERSNAAM, g.FOTO, g.email, g.gebruiker_id;")
+                    "SELECT\n" +
+                        "  g.GEBRUIKERSNAAM,\n" +
+                        "  g.FOTO,\n" +
+                        "  g.EMAIL,\n" +
+                        "  g.GEBRUIKER_ID,\n" +
+                        "  (\n" +
+                        "    SELECT STRING_AGG(vvg.VOORKEUR_NAAM, ',')\n" +
+                        "    FROM (\n" +
+                        "      SELECT DISTINCT vvg.VOORKEUR_NAAM\n" +
+                        "      FROM VOORKEUR_VAN_GEBRUIKER vvg\n" +
+                        "      WHERE vvg.GEBRUIKER_ID = g.GEBRUIKER_ID\n" +
+                        "    ) vvg\n" +
+                        "  ) AS VOORKEUREN,\n" +
+                        "  (\n" +
+                        "    SELECT STRING_AGG(ghv.RESTRICTIE_NAAM, ',')\n" +
+                        "    FROM (\n" +
+                        "      SELECT DISTINCT ghv.RESTRICTIE_NAAM\n" +
+                        "      FROM GEBRUIKER_HEEFT_VOEDINGSRESTRICTIE ghv\n" +
+                        "      WHERE ghv.GEBRUIKER_ID = g.GEBRUIKER_ID\n" +
+                        "    ) ghv\n" +
+                        "  ) AS RESTRICTIES\n" +
+                        "FROM\n" +
+                        "  GEBRUIKER_IN_UITNODINGSGROEP ug\n" +
+                        "  INNER JOIN GEBRUIKER g ON g.GEBRUIKER_ID = ug.GEBRUIKER_ID\n" +
+                        "WHERE\n" +
+                        "  ug.UITNODIGING_TOKEN = ?\n" +
+                        "GROUP BY\n" +
+                        "  g.GEBRUIKERSNAAM,\n" +
+                        "  g.FOTO,\n" +
+                        "  g.EMAIL,\n" +
+                        "  g.GEBRUIKER_ID;")
                 .setString(uitnodigingToken)
                 .build()
             return stmt.executeQuery()
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+
+
+    fun getGebruikerID(gebruikerToken: String): Int {
+        try {
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
+            val stmt = PreparedStatementBuilder(connectionService,
+                "SELECT GEBRUIKER_ID\n" +
+                    "FROM GEBRUIKER\n" +
+                    "WHERE TOKEN = ?")
+                .setString(gebruikerToken)
+                .build()
+            val rs = stmt.executeQuery()
+            rs.next()
+            return rs.getInt("GEBRUIKER_ID")
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+
+    fun accepteerUitnodiging(uitnodigingToken: String, gebruikerToken: String) {
+        try {
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
+            val stmt = PreparedStatementBuilder(connectionService,
+                "INSERT INTO GEBRUIKER_IN_UITNODINGSGROEP (UITNODIGING_TOKEN, GEBRUIKER_ID)\n" +
+                    "SELECT ?, GEBRUIKER_ID\n" +
+                    "FROM GEBRUIKER\n" +
+                    "WHERE TOKEN = ?")
+                .setString(uitnodigingToken)
+                .setString(gebruikerToken)
+                .build()
+            stmt.executeUpdate()
         } catch (e: SQLException) {
             throw DatabaseConnectionException()
         }
