@@ -33,7 +33,6 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
             }
         }
         val sortedPrioList = prioritizedVoorkeuren.toList().sortedByDescending { (_, value) -> value }.toMap()
-        println("SortedPrioList: $sortedPrioList")
 
         if (sortedPrioList.isEmpty()) {
             return ResponseEntity.ok(restaurants.random())

@@ -20,7 +20,7 @@ class RestaurantController(private val restaurantService: RestaurantService) {
 
     @RequestMapping("/getrestaurant")
     @PostMapping(produces = ["application/json"], consumes = ["application/json"])
-    fun getRestaurant(@RequestBody id: Int): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>{
+    fun getRestaurant(@RequestParam id: Int): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>{
         return restaurantService.getRestaurant(id)
     }
 }
