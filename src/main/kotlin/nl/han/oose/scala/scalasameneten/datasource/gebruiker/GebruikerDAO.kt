@@ -272,12 +272,12 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
         return -1
     }
 
-    fun getGebruiker(gebruikerToken: String): ResultSet {
+    fun getGebruiker(email: String): ResultSet {
         try {
             connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-            val sql = "SELECT gebruikersnaam,gebruiker_id,email,token,foto FROM gebruiker WHERE token=?"
+            val sql = "SELECT gebruikersnaam,gebruiker_id,email,token,foto FROM gebruiker WHERE email=?"
             val stmt = PreparedStatementBuilder(connectionService,sql)
-                .setString(gebruikerToken)
+                .setString(email)
                 .build()
             return stmt.executeQuery()
         } catch (e: SQLException) {
@@ -286,17 +286,15 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
     }
 
     fun loginGebruiker(login: LoginDTO, token: String): TokenDTO {
-        val result = getGebruiker(token)
-        while (result.next()){
+        val result = getGebruiker(login.email)
+        if (result.next()){
             //als gebruiker bestaat
-            if(result.getString("email") == login.email){
-                val id = getGebruikerID(login)
-                setGebruikersToken(id, token)
-                return TokenDTO(token)
-            }
+            val id = getGebruikerID(login)
+            setGebruikersToken(id, token)
+        } else {
+            //nieuwe gebruiker
+            setNieuweGebruiker(login, token)
         }
-        //nieuwe gebruiker
-        setNieuweGebruiker(login, token)
         return TokenDTO(token)
     }
 
