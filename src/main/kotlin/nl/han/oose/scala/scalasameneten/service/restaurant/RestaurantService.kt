@@ -139,7 +139,7 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
                 link,
                 foto,
                 VoorkeurenDTO(null, conversieVoorkeuren),
-                conversieRestricties?.let { VoedingsrestrictiesDTO(it) }
+                conversieRestricties?.let { VoedingsrestrictiesDTO(it) }?: VoedingsrestrictiesDTO(ArrayList())
         )
     }
 
