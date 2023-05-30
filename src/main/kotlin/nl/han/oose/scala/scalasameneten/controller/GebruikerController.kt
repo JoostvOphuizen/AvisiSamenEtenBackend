@@ -54,7 +54,7 @@ class GebruikerController(private val gebruikerService: GebruikerService, privat
 
     @RequestMapping("/historie")
     @GetMapping(produces = ["application/json"], consumes = ["application/json"])
-    fun getRestaurantHistorie(@RequestParam id: Int): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>{
+    fun getRestaurantHistorie(@RequestParam id: String): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>{
         return restaurantService.getRecentBezochteRestaurant(id)
     }
 

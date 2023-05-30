@@ -53,18 +53,20 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
         }
     }
 
-    fun getRecentBezochteRestaurant(gebruikersId: Int): ResultSet {
+    fun getRecentBezochteRestaurant(gebruikersToken: String): ResultSet {
         return try {
-            val sql = "select top 1 h.RESTAURANT_ID, restaurant_naam, postcode, straatnaam, huisnummer, link, foto, datum\n" +
-                    "from HIST_BEZOEK h\n" +
-                    "inner join RESTAURANT r\n" +
-                    "on h.RESTAURANT_ID = r.RESTAURANT_ID\n" +
-                    "where h.GEBRUIKER_ID = ?\n" +
-                    "order by DATUM desc"
-
+            val sql = "select top 1 h.RESTAURANT_ID, restaurant_naam, postcode, straatnaam, huisnummer, link, r.foto, datum\n" +
+                        "from HIST_BEZOEK h\n" +
+                        "inner join RESTAURANT r\n" +
+                        "on h.RESTAURANT_ID = r.RESTAURANT_ID\n" +
+                        "inner join GEBRUIKER g\n" +
+                        "on h.GEBRUIKER_ID = g.GEBRUIKER_ID\n" +
+                        "where g.TOKEN =  ?\n" +
+                        "order by DATUM desc"
+            
             connectionService.initializeConnection(databaseProperties.getConnectionString())
             val stmt = PreparedStatementBuilder(connectionService, sql)
-                .setInt(gebruikersId)
+                .setString(gebruikersToken)
                 .build()
             stmt.executeQuery()
         } catch (e: SQLException) {

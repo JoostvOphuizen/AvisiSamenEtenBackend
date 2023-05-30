@@ -150,7 +150,7 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
     }
 
 
-    fun getRecentBezochteRestaurant(id: Int): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO> {
+    fun getRecentBezochteRestaurant(id: String): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO> {
         val restaurantResult = restaurantDAO.getRecentBezochteRestaurant(id)
         if(restaurantResult.next()){
             return ResponseEntity.ok(makeRestaurantDTOWithoutVoorkeurenAndRestricties(restaurantResult))
