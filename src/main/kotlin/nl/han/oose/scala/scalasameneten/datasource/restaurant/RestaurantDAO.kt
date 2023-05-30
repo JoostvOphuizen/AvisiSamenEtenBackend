@@ -51,4 +51,16 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
             throw DatabaseConnectionException()
         }
     }
+    fun getRandomRestaurant(): ResultSet {
+        return try {
+            val sql = "SELECT restaurant_id, restaurant_naam, postcode, straatnaam, huisnummer, link, foto FROM restaurant WHERE restaurant_id=\n" +
+                    "select floor((rand()*((rand()*(select count(*) from restaurant)-1)))+1)"
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
+            val stmt = PreparedStatementBuilder(connectionService, sql)
+                    .build()
+            stmt.executeQuery()
+        } catch(e: SQLException){
+            throw DatabaseConnectionException()
+        }
+    }
 }

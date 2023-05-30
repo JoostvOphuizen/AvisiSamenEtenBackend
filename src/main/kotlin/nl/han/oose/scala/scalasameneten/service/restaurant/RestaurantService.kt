@@ -149,4 +149,10 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
         return ResponseEntity.ok(makeRestaurantDTO(result))
     }
 
+    fun getRandomRestaurant(): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>{
+        val result = restaurantDAO.getRandomRestaurant()
+        result.next()
+        return ResponseEntity.ok(makeRestaurantDTO(result))
+    }
+
 }
