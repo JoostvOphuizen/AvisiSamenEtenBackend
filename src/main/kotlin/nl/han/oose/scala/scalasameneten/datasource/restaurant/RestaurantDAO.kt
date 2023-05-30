@@ -4,6 +4,7 @@ import nl.han.oose.scala.scalasameneten.datasource.PreparedStatementBuilder
 import nl.han.oose.scala.scalasameneten.datasource.connection.ConnectionService
 import nl.han.oose.scala.scalasameneten.datasource.connection.DatabaseProperties
 import nl.han.oose.scala.scalasameneten.datasource.exceptions.DatabaseConnectionException
+import nl.han.oose.scala.scalasameneten.dto.restaurant.RestaurantWithVoorkeurenAndRestrictiesDTO
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.stereotype.Component
 import java.sql.ResultSet
@@ -48,6 +49,25 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
                     .build()
             stmt.executeQuery()
         } catch(e: SQLException){
+            throw DatabaseConnectionException()
+        }
+    }
+
+    fun getRecentBezochteRestaurant(gebruikersId: Int): ResultSet {
+        return try {
+            val sql = "select top 1 h.RESTAURANT_ID, restaurant_naam, postcode, straatnaam, huisnummer, link, foto\n" +
+                    "from HIST_BEZOEK h\n" +
+                    "inner join RESTAURANT r\n" +
+                    "on h.RESTAURANT_ID = r.RESTAURANT_ID\n" +
+                    "where h.GEBRUIKER_ID = ?\n" +
+                    "order by DATUM desc"
+
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
+            val stmt = PreparedStatementBuilder(connectionService, sql)
+                .setInt(gebruikersId)
+                .build()
+            stmt.executeQuery()
+        } catch (e: SQLException) {
             throw DatabaseConnectionException()
         }
     }

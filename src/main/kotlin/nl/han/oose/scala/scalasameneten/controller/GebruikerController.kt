@@ -3,8 +3,10 @@ package nl.han.oose.scala.scalasameneten.controller
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikerDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikersDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.LoginDTO
+import nl.han.oose.scala.scalasameneten.dto.restaurant.RestaurantWithVoorkeurenAndRestrictiesDTO
 import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurenDTO
 import nl.han.oose.scala.scalasameneten.service.gebruiker.GebruikerService
+import nl.han.oose.scala.scalasameneten.service.restaurant.RestaurantService
 import org.modelmapper.ModelMapper
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.http.ResponseEntity
@@ -15,7 +17,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/gebruiker")
 @ComponentScan("nl.han.oose.scala.scalasameneten.service.gebruiker")
 @CrossOrigin
-class GebruikerController(private val gebruikerService: GebruikerService, private val modelMapper: ModelMapper) {
+class GebruikerController(private val gebruikerService: GebruikerService, private val restaurantService: RestaurantService, private val modelMapper: ModelMapper) {
 
     @RequestMapping("/login")
     @PostMapping(produces = ["application/json"], consumes = ["application/json"])
@@ -49,4 +51,11 @@ class GebruikerController(private val gebruikerService: GebruikerService, privat
         val restrictiesDTO = modelMapper.map(restricties, VoorkeurenDTO::class.java)
         return gebruikerService.postGebruikersRestricties(id, restrictiesDTO)
     }
+
+    @RequestMapping("/historie")
+    @GetMapping(produces = ["application/json"], consumes = ["application/json"])
+    fun getRestaurantHistorie(@RequestParam id: Int): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>{
+        return restaurantService.getRecentBezochteRestaurant(id)
+    }
+
 }

@@ -149,4 +149,26 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
         return ResponseEntity.ok(makeRestaurantDTO(result))
     }
 
+
+    fun getRecentBezochteRestaurant(id: Int): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO> {
+        val restaurantResult = restaurantDAO.getRecentBezochteRestaurant(id)
+        return ResponseEntity.ok(makeRestaurantDTOWithoutVoorkeurenAndRestricties(restaurantResult))
+    }
+
+
+    fun makeRestaurantDTOWithoutVoorkeurenAndRestricties(result: ResultSet) : RestaurantWithVoorkeurenAndRestrictiesDTO{
+        val restaurant = RestaurantWithVoorkeurenAndRestrictiesDTO(
+            result.getInt("restaurant_id"),
+            result.getString("restaurant_naam"),
+            result.getString("postcode"),
+            result.getString("straatnaam"),
+            result.getInt("huisnummer"),
+            result.getString("link"),
+            result.getString("foto"),
+            null,
+            null
+        )
+        return restaurant
+    }
+
 }
