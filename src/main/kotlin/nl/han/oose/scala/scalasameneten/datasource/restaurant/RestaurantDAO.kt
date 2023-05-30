@@ -37,4 +37,18 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
             throw DatabaseConnectionException()
         }
     }
+
+    fun getRestaurant(id: Int): ResultSet {
+        return try {
+            val sql = "SELECT restaurant_id, restaurant_naam, postcode, straatnaam, huisnummer, link, foto FROM restaurant WHERE restaurant_id=?"
+
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
+            val stmt = PreparedStatementBuilder(connectionService, sql)
+                    .setInt(id)
+                    .build()
+            stmt.executeQuery()
+        } catch(e: SQLException){
+            throw DatabaseConnectionException()
+        }
+    }
 }

@@ -28,15 +28,25 @@ class RestaurantDAOTest {
         connection.close()
     }
     @Test
-    fun getAlleRestaurants(){
+    fun getAlleRestaurants() {
         //arrange
         //act
         val restaurants = restaurantDAO.getAllRestaurantsWithVoorkeurenAndRestricties()
         var counter = 0
-        while(restaurants.next()){
+        while (restaurants.next()) {
             counter++
         }
         //assert
-        assertEquals(5,counter)
+        assertEquals(5, counter)
+    }
+
+    @Test
+    fun getRestaurantByIdTest(){
+        //arrange
+        //act
+        val returnValue = restaurantDAO.getRestaurant(1)
+        returnValue.next()
+        //assert
+        assertEquals("Stone Grill House", returnValue.getString("restaurant_naam"))
     }
 }
