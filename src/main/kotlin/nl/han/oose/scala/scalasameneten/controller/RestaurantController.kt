@@ -24,7 +24,7 @@ class RestaurantController(private val restaurantService: RestaurantService) {
         return restaurantService.getRestaurant(id)
     }
     @RequestMapping("/randomrestaurant")
-    @PostMapping(produces = ["application/json"])
+    @GetMapping(produces = ["application/json"])
     fun getRandomRestaurant(): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>{
         return restaurantService.getRandomRestaurant()
     }
