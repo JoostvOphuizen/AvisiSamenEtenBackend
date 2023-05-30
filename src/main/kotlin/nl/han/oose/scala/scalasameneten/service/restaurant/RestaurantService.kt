@@ -27,6 +27,7 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
     fun bepaalRestaurant(geselecteerdeGebruikers: GroepDTO): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>? {
         val restaurants = getAllRestaurantsWithVoorkeurenAndResticties()
         val gebruikers = getAllGebruikersWithVoorkeurenAndRestricties(geselecteerdeGebruikers)
+        val maxAantal = 5
 
         val prioritizedVoorkeuren = mutableMapOf<String, Int>()
         for (gebruiker in gebruikers) {
@@ -48,7 +49,7 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
         for (voorkeur in sortedPrioList) {
             val filteredRestaurants = remainingRestaurants.filter { it.voorkeuren?.voorkeuren?.contains(VoorkeurDTO(voorkeur.key)) == true }
 
-            if (filteredRestaurants.size > 5) {
+            if (filteredRestaurants.size > maxAantal) {
                 remainingRestaurants = filteredRestaurants.toMutableList()
                 selectedRestaurant = bepaalRestaurantMetReviews(remainingRestaurants.toMutableList())
             } else {
@@ -73,6 +74,7 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
     private fun bepaalRestaurantMetReviews(restaurants: MutableList<RestaurantWithVoorkeurenAndRestrictiesDTO>): RestaurantWithVoorkeurenAndRestrictiesDTO{
         val restaurantScore = mutableMapOf<Int,Double>()
         val permillage = mutableMapOf<Int,Double>()
+        val mille = 1000
         for(restaurant in restaurants){
             val reviews = restaurantDAO.getReviews(restaurant.restaurantId)
             val gemiddelde = getReviewGemiddelde(restaurant.restaurantId)
@@ -81,20 +83,13 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
                 val xpow = (reviews.getInt("beoordeling")-gemiddelde).pow(2)
                 x.add(xpow)
             }
-            var standaarddeviatie = x.sum()/(x.count())
-            if(standaarddeviatie==0.0|| standaarddeviatie.isNaN()){
-                standaarddeviatie = 0.1
-            }
-            restaurantScore[restaurant.restaurantId] = sqrt((gemiddelde.pow(3)*log(x.count().toDouble(),5.0))/standaarddeviatie)+1
-            if(restaurantScore[restaurant.restaurantId]!!.isNaN()){
-                restaurantScore[restaurant.restaurantId] = 1.0
-            }
+            restaurantScore[restaurant.restaurantId] = restaurantScoreBerekenen(gemiddelde,x)
         }
         for(restaurant in restaurants){
             val id = restaurant.restaurantId
-            permillage[id] = (restaurantScore[id]!!.div(restaurantScore.values.sum()))*1000
+            permillage[id] = (restaurantScore[id]!!.div(restaurantScore.values.sum()))*mille
         }
-        val random = Random.nextInt(0,1000)
+        val random = Random.nextInt(0,mille)
         var i = 0.0;
         for(permille in permillage){
             if(random<=permille.value+i){
@@ -103,6 +98,25 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
             i += permille.value
         }
         return restaurants.random()
+    }
+    private fun restaurantScoreBerekenen(gemiddelde:Double,x:ArrayList<Double>):Double{
+        val standaarddeviatie = standaardDeviatieBerekenen(x)
+        val macht = 3
+        val log = 5.0
+        val standaardScore = 1.0
+        var restaurantScore = sqrt((gemiddelde.pow(macht)*log(x.count().toDouble(),log))/standaarddeviatie)+1
+        if(restaurantScore.isNaN()){
+            restaurantScore = standaardScore
+        }
+        return restaurantScore
+    }
+    private fun standaardDeviatieBerekenen(x: ArrayList<Double>): Double{
+        val standaardStandaard = 0.1
+        var standaarddeviatie = x.sum()/(x.count())
+        if(standaarddeviatie==0.0|| standaarddeviatie.isNaN()){
+            standaarddeviatie = standaardStandaard
+        }
+        return standaarddeviatie
     }
 
     private fun getAllGebruikersWithVoorkeurenAndRestricties(groep: GroepDTO): MutableList<GebruikerWithVoorkeurenAndRestrictiesDTO> {
