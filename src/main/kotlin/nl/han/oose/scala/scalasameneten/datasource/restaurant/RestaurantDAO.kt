@@ -55,7 +55,7 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
 
     fun getRecentBezochteRestaurant(gebruikersId: Int): ResultSet {
         return try {
-            val sql = "select top 1 h.RESTAURANT_ID, restaurant_naam, postcode, straatnaam, huisnummer, link, foto\n" +
+            val sql = "select top 1 h.RESTAURANT_ID, restaurant_naam, postcode, straatnaam, huisnummer, link, foto, datum\n" +
                     "from HIST_BEZOEK h\n" +
                     "inner join RESTAURANT r\n" +
                     "on h.RESTAURANT_ID = r.RESTAURANT_ID\n" +
