@@ -14,6 +14,7 @@ import java.sql.SQLException
 @Component
 @ComponentScan("nl.han.oose.scala.scalasameneten.datasource.connection")
 class RestaurantDAO (private val connectionService: ConnectionService, private val databaseProperties: DatabaseProperties){
+    private final val maxDayCount = 2
 
     fun getAllRestaurantsWithVoorkeurenAndRestricties(): ResultSet {
         return try {
@@ -55,18 +56,20 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
 
     fun getRecentBezochteRestaurant(gebruikersToken: String): ResultSet {
         return try {
-            val sql = "select top 1 h.RESTAURANT_ID, restaurant_naam, postcode, straatnaam, huisnummer, link, r.foto, datum\n" +
-                        "from HIST_BEZOEK h\n" +
-                        "inner join RESTAURANT r\n" +
-                        "on h.RESTAURANT_ID = r.RESTAURANT_ID\n" +
-                        "inner join GEBRUIKER g\n" +
-                        "on h.GEBRUIKER_ID = g.GEBRUIKER_ID\n" +
-                        "where g.TOKEN =  ?\n" +
-                        "order by DATUM desc"
-            
+
+
+            val sql = "SELECT TOP 1 h.RESTAURANT_ID, restaurant_naam, postcode, straatnaam, huisnummer, link, r.foto, datum\n" +
+                    "FROM HIST_BEZOEK h\n" +
+                    "INNER JOIN RESTAURANT r ON h.RESTAURANT_ID = r.RESTAURANT_ID\n" +
+                    "INNER JOIN GEBRUIKER g ON h.GEBRUIKER_ID = g.GEBRUIKER_ID\n" +
+                    "WHERE g.TOKEN = ?\n" +
+                    "  AND h.DATUM >= DATEADD(day, -?, GETDATE())\n" +
+                    "ORDER BY DATUM DESC"
+
             connectionService.initializeConnection(databaseProperties.getConnectionString())
             val stmt = PreparedStatementBuilder(connectionService, sql)
                 .setString(gebruikersToken)
+                .setInt(maxDayCount)
                 .build()
             stmt.executeQuery()
         } catch (e: SQLException) {
