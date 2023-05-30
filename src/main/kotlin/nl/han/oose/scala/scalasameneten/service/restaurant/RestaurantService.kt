@@ -5,6 +5,7 @@ import nl.han.oose.scala.scalasameneten.datasource.restaurant.RestaurantDAO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikerWithVoorkeurenAndRestrictiesDTO
 import nl.han.oose.scala.scalasameneten.dto.restaurant.GroepDTO
 import nl.han.oose.scala.scalasameneten.dto.restaurant.RestaurantWithVoorkeurenAndRestrictiesDTO
+import nl.han.oose.scala.scalasameneten.dto.restaurant.ReviewDTO
 import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictieDTO
 import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictiesDTO
 import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurDTO
@@ -147,6 +148,15 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
         val result = restaurantDAO.getRestaurant(id)
         result.next()
         return ResponseEntity.ok(makeRestaurantDTO(result))
+    }
+
+    fun postReview(restaurantId: Int, review: ReviewDTO): ResponseEntity<String>{
+        try {
+            restaurantDAO.postReview(restaurantId, review)
+        } catch (e: Exception) {
+            return ResponseEntity.badRequest().body("Er is iets misgegaan bij het toevoegen van de review")
+        }
+        return ResponseEntity.ok("Review is toegevoegd")
     }
 
 }

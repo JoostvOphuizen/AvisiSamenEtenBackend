@@ -2,6 +2,7 @@ package nl.han.oose.scala.scalasameneten.controller
 
 import nl.han.oose.scala.scalasameneten.dto.restaurant.GroepDTO
 import nl.han.oose.scala.scalasameneten.dto.restaurant.RestaurantWithVoorkeurenAndRestrictiesDTO
+import nl.han.oose.scala.scalasameneten.dto.restaurant.ReviewDTO
 import nl.han.oose.scala.scalasameneten.service.restaurant.RestaurantService
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.http.ResponseEntity
@@ -22,5 +23,11 @@ class RestaurantController(private val restaurantService: RestaurantService) {
     @PostMapping(produces = ["application/json"], consumes = ["application/json"])
     fun getRestaurant(@RequestParam id: Int): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>{
         return restaurantService.getRestaurant(id)
+    }
+
+    @RequestMapping("/review")
+    @PostMapping(produces = ["application/json"], consumes = ["application/json"])
+    fun postReview(@RequestParam id: Int, @RequestBody review: ReviewDTO): ResponseEntity<String>{
+        return restaurantService.postReview(id, review)
     }
 }
