@@ -13,6 +13,23 @@ import java.sql.SQLException
 @ComponentScan("nl.han.oose.scala.scalasameneten.datasource.connection")
 class UitnodigingDAO (private val connectionService: ConnectionService, private val databaseProperties: DatabaseProperties) {
 
+
+    fun kickUitgenodigde(uitnodigingToken: String, gebruikerID: Int) {
+        try {
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
+            val stmt = PreparedStatementBuilder(connectionService,
+                "DELETE FROM GEBRUIKER_IN_UITNODINGSGROEP\n" +
+                    "WHERE UITNODIGING_TOKEN = ?\n" +
+                    "AND GEBRUIKER_ID = ?")
+                .setString(uitnodigingToken)
+                .setInt(gebruikerID)
+                .build()
+            stmt.executeUpdate()
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+
     fun getRestaurantID(uitnodigingToken: String): Int? {
         try {
             connectionService.initializeConnection(databaseProperties.getConnectionString())

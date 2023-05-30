@@ -33,4 +33,10 @@ class UitnodigingController(private val uitnodigingService: UitnodigingService) 
         return uitnodigingService.updateRestaurant(uitnodigingToken.uitnodigingToken, restaurantId)
     }
 
+    @PostMapping(consumes = ["application/json"])
+    @RequestMapping("/kick")
+    fun kickUitgenodigde(@RequestBody uitnodigingToken: UitnodigingDTO, @RequestParam uitgenodigdeID: Int): ResponseEntity<String> {
+        return uitnodigingService.kickUitgenodigde(uitnodigingToken.uitnodigingToken, uitgenodigdeID)
+    }
+
 }

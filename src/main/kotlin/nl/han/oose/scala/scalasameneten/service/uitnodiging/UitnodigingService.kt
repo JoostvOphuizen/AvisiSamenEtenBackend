@@ -22,6 +22,15 @@ class UitnodigingService (private val uitnodigingDAO: UitnodigingDAO) {
     private final val min = 1000
     private final val max = 10000
 
+    fun kickUitgenodigde(uitnodigingToken: String, gebruikerID: Int): ResponseEntity<String> {
+        try {
+            uitnodigingDAO.kickUitgenodigde(uitnodigingToken, gebruikerID)
+        } catch (e: Exception) {
+            return ResponseEntity.badRequest().body("Gebruiker niet gekickt")
+        }
+        return ResponseEntity.ok("Gebruiker gekickt")
+    }
+
     fun createUitnodiging(gebruikerToken: String): ResponseEntity<UitnodigingDTO> {
         var uitnodigingToken = generateToken()
         while (uitnodigingDAO.checkIfTokenExists(uitnodigingToken)) {
