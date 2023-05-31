@@ -122,4 +122,16 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
             throw DatabaseConnectionException()
         }
     }
+    fun getReviews(id: Int): ResultSet{
+        return try {
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
+            val sql = "SELECT beoordeling FROM review WHERE restaurant_id=?"
+            val stmt = PreparedStatementBuilder(connectionService,sql)
+                    .setInt(id)
+                    .build()
+            stmt.executeQuery()
+        } catch(e: SQLException){
+            throw DatabaseConnectionException()
+        }
+    }
 }
