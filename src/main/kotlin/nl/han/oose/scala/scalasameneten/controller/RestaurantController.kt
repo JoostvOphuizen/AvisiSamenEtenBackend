@@ -29,4 +29,10 @@ class RestaurantController(private val restaurantService: RestaurantService) {
     fun getRestaurant(@RequestParam id: Int): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>{
         return restaurantService.getRestaurant(id)
     }
+
+    @RequestMapping("/getrestaurantbaseinfo")
+    @GetMapping(produces = ["application/json"], consumes = ["application/json"])
+    fun getRestaurantBaseInfo(@RequestParam id: Int): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>{
+        return restaurantService.getRestaurantBaseInfo(id)
+    }
 }
