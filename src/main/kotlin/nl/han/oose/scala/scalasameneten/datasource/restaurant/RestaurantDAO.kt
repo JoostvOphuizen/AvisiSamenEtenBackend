@@ -53,14 +53,14 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
         }
     }
 
-    fun postReview(restaurantId: Int, review: ReviewDTO){
+    fun postReview(restaurantId: Int, review: ReviewDTO, id: Int){
         try {
             val sql = "INSERT INTO review (restaurant_id, gebruiker_id, beoordeling, tekst) VALUES (?, ?, ?, ?)"
 
             connectionService.initializeConnection(databaseProperties.getConnectionString())
             val stmt = PreparedStatementBuilder(connectionService, sql)
                     .setInt(restaurantId)
-                    .setInt(review.gebruikerId)
+                    .setInt(id)
                     .setInt(review.score)
                     .setString(review.tekst)
                     .build()

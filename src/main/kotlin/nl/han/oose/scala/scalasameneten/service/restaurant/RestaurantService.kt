@@ -152,7 +152,8 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
 
     fun postReview(restaurantId: Int, review: ReviewDTO): ResponseEntity<String>{
         try {
-            restaurantDAO.postReview(restaurantId, review)
+            val id = gebruikerDAO.getIdVanGebruiker(review.gebruikerToken)
+            restaurantDAO.postReview(restaurantId, review, id!!)
         } catch (e: Exception) {
             return ResponseEntity.badRequest().body("Er is iets misgegaan bij het toevoegen van de review")
         }
