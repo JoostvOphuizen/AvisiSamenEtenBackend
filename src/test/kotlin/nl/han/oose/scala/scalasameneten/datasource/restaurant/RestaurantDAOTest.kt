@@ -2,9 +2,8 @@ package nl.han.oose.scala.scalasameneten.datasource.restaurant
 
 import nl.han.oose.scala.scalasameneten.datasource.connection.ConnectionService
 import nl.han.oose.scala.scalasameneten.datasource.connection.DatabaseProperties
-import nl.han.oose.scala.scalasameneten.datasource.gebruiker.GebruikerDAO
 import nl.han.oose.scala.scalasameneten.datasource.util.ScriptRunner
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.InputStreamReader
@@ -28,6 +27,18 @@ class RestaurantDAOTest {
         restaurantDAO = RestaurantDAO(mockedConnectedService,databaseProperties)
         connection.close()
     }
+    @Test
+    fun getAlleRestaurants() {
+        //arrange
+        //act
+        val restaurants = restaurantDAO.getAllRestaurantsWithVoorkeurenAndRestricties()
+        var counter = 0
+        while (restaurants.next()) {
+            counter++
+        }
+        //assert
+        assertEquals(5, counter)
+    }
 
     @Test
     fun getRestaurantByIdTest(){
@@ -36,6 +47,6 @@ class RestaurantDAOTest {
         val returnValue = restaurantDAO.getRestaurant(1)
         returnValue.next()
         //assert
-        Assertions.assertEquals("Stone Grill House", returnValue.getString("restaurant_naam"))
+        assertEquals("Stone Grill House", returnValue.getString("restaurant_naam"))
     }
 }

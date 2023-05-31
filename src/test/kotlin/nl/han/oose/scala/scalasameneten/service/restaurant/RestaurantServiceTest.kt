@@ -42,16 +42,33 @@ class RestaurantServiceTest {
         Mockito.`when`(resultSetMock.getString("link")).thenReturn("restaurant 1").thenReturn("restaurant 2")
         Mockito.`when`(resultSetMock.getString("voorkeuren")).thenReturn("voorkeur 1").thenReturn("voorkeur 1")
         Mockito.`when`(resultSetMock.getString("restricties")).thenReturn("restrictie 1").thenReturn("restrictie 1")
-
     }
 
     @Test
-    fun getAllRestaurantsTest(){
+    fun getAllRestaurantsTest() {
         //arrange
+        Mockito.`when`(restaurantDAO.getAllRestaurantsWithVoorkeurenAndRestricties()).thenReturn(resultSetMock)
+        //act
+        val result = restaurantService.getAllRestaurants()
+        val i = result.body
+        val expected = mutableListOf<RestaurantWithVoorkeurenAndRestrictiesDTO>()
+        val voorkeuren = ArrayList<VoorkeurDTO>()
+        voorkeuren.add(VoorkeurDTO("voorkeur 1"))
+        val restricties = ArrayList<VoedingsrestrictieDTO>()
+        restricties.add(VoedingsrestrictieDTO("restrictie 1", "null"))
+        expected.add(RestaurantWithVoorkeurenAndRestrictiesDTO(1, "restaurant 1", "restaurant 1", "restaurant 1", 0, "restaurant 1", null, VoorkeurenDTO(null, voorkeuren), VoedingsrestrictiesDTO(restricties)))
+        expected.add(RestaurantWithVoorkeurenAndRestrictiesDTO(1, "restaurant 2", "restaurant 2", "restaurant 2", 0, "restaurant 2", null, VoorkeurenDTO(null, voorkeuren), VoedingsrestrictiesDTO(restricties)))
+        //assert
+        assertEquals(expected, i)
+    }
+
+    @Test
+    fun getRestaurantTest(){
         Mockito.`when`(restaurantDAO.getRestaurant(1)).thenReturn(resultSetMock)
         //act
-        val result = restaurantService.getRestaurant(1)//assert
+        val result = restaurantService.getRestaurant(1)
         val restaurantnaam = result.body?.restaurantNaam
+        //assert
         assertEquals("restaurant 1",restaurantnaam)
     }
 }
