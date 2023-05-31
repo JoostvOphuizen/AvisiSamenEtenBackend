@@ -56,11 +56,19 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
             } else {
                 if (selectedRestaurant != null) {
                     println("Selected restaurant id: ${selectedRestaurant.restaurantId}")
+                    voegHistoryToe(geselecteerdeGebruikers,selectedRestaurant.restaurantId)
                     return ResponseEntity.ok(selectedRestaurant)
                 }
             }
         }
-        return ResponseEntity.ok(selectedRestaurant ?: bepaalRestaurantMetReviews(restaurants))
+        selectedRestaurant = selectedRestaurant ?: restaurants.random()
+        voegHistoryToe(geselecteerdeGebruikers,selectedRestaurant.restaurantId)
+        return ResponseEntity.ok(selectedRestaurant)
+    }
+    private fun voegHistoryToe(gebruikers: GroepDTO,restaurant: Int){
+        for(gebruiker in gebruikers.leden){
+            restaurantDAO.voegHistoryToe(gebruiker,restaurant)
+        }
     }
 
     private fun getReviewGemiddelde(id: Int): Double{
@@ -130,11 +138,11 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
             val token = gebruikersResult.getString("TOKEN")
             val foto = gebruikersResult.getString("FOTO")
 
-            val voorkeurenString = gebruikersResult.getString("VOORKEUREN")
-            val restrictiesString = gebruikersResult.getString("RESTRICTIES")
+            val voorkeurenString: String? = gebruikersResult.getString("VOORKEUREN")
+            val restrictiesString: String? = gebruikersResult.getString("RESTRICTIES")
 
-            val conversieVoorkeuren = splitVoorkeuren(voorkeurenString)
-            val conversieRestricties = splitRestricties(restrictiesString)
+            val conversieVoorkeuren = voorkeurenString?.let { splitVoorkeuren(it) }
+            val conversieRestricties = restrictiesString?.let { splitRestricties(it) }
 
             val gebruiker = GebruikerWithVoorkeurenAndRestrictiesDTO(
                 gebruikerId,
@@ -143,7 +151,7 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
                 token,
                 foto,
                 VoorkeurenDTO(null,conversieVoorkeuren),
-                VoedingsrestrictiesDTO(conversieRestricties)
+                    conversieRestricties?.let { VoedingsrestrictiesDTO(it) }
             )
             gebruikers.add(gebruiker)
         }

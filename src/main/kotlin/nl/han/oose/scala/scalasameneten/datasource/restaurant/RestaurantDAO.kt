@@ -67,6 +67,17 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
             throw DatabaseConnectionException()
         }
     }
+    fun voegHistoryToe(gebruiker: Int,restaurant: Int) {
+        try {
+            val sql = "INSERT INTO hist_bezoek(datum,restaurant_id,gebruiker_id) VALUES(GETDATE(),?,?)"
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
+            val stmt = PreparedStatementBuilder(connectionService, sql)
+                    .setInt(restaurant)
+                    .setInt(gebruiker)
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
     fun getRandomRestaurant(): ResultSet {
         return try {
             val sql = "SELECT floor((rand()*((rand()*(select count(*) from restaurant))))+1) as id"
@@ -99,7 +110,6 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
             throw DatabaseConnectionException()
         }
     }
-
     fun getRecentBezochteRestaurant(gebruikersToken: String): ResultSet {
         return try {
 
