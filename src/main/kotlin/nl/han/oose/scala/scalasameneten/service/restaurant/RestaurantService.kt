@@ -125,11 +125,11 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
         val link = result.getString("link")
         val foto = result.getString("foto")
 
-        val voorkeurenString = result.getString("voorkeuren")
-        val restrictiesString = result.getString("restricties")
+        val voorkeurenString: String? = result.getString("voorkeuren")
+        val restrictiesString: String? = result.getString("restricties")
 
-        val conversieVoorkeuren = splitVoorkeuren(voorkeurenString)
-        val conversieRestricties = splitRestricties(restrictiesString)
+        val conversieVoorkeuren = voorkeurenString?.let { splitVoorkeuren(it) }
+        val conversieRestricties = restrictiesString?.let { splitRestricties(it) }
 
         return RestaurantWithVoorkeurenAndRestrictiesDTO(
                 restaurantId,
@@ -140,7 +140,7 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
                 link,
                 foto,
                 VoorkeurenDTO(null, conversieVoorkeuren),
-                VoedingsrestrictiesDTO(conversieRestricties)
+                conversieRestricties?.let { VoedingsrestrictiesDTO(it) }?: VoedingsrestrictiesDTO(ArrayList())
         )
     }
 
@@ -154,7 +154,11 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
         result.next()
         return ResponseEntity.ok(makeRestaurantDTOWithoutVoorkeurenAndRestricties(result))
     }
-
+    fun getRandomRestaurant(): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>{
+        val result = restaurantDAO.getRandomRestaurant()
+        result.next()
+        return ResponseEntity.ok(makeRestaurantDTO(result))
+    }
     fun getRecentBezochteRestaurant(id: String): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>? {
         val restaurantResult = restaurantDAO.getRecentBezochteRestaurant(id)
         if(restaurantResult.next()){

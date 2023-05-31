@@ -43,7 +43,19 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
 
     fun getRestaurant(id: Int): ResultSet {
         return try {
-            val sql = "SELECT restaurant_id, restaurant_naam, postcode, straatnaam, huisnummer, link, foto FROM restaurant WHERE restaurant_id=?"
+            val sql = "SELECT r.restaurant_id, r.restaurant_naam, r.postcode, r.straatnaam, r.huisnummer, r.link, r.foto,\n" +
+                    "       (\n" +
+                    "           SELECT STRING_AGG(rv.voorkeur_naam, ',')\n" +
+                    "           FROM restaurant_heeft_voorkeur rv\n" +
+                    "           WHERE rv.restaurant_id = r.restaurant_id\n" +
+                    "       ) AS voorkeuren,\n" +
+                    "       (\n" +
+                    "           SELECT STRING_AGG(vr.restrictie_naam, ',')\n" +
+                    "           FROM voedingsrestrictie_in_restaurant vr\n" +
+                    "           WHERE vr.restaurant_id = r.restaurant_id\n" +
+                    "       ) AS restricties\n" +
+                    "FROM restaurant r " +
+                    "WHERE r.restaurant_id=?"
 
             connectionService.initializeConnection(databaseProperties.getConnectionString())
             val stmt = PreparedStatementBuilder(connectionService, sql)
@@ -51,6 +63,22 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
                     .build()
             stmt.executeQuery()
         } catch(e: SQLException){
+            e.printStackTrace()
+            throw DatabaseConnectionException()
+        }
+    }
+    fun getRandomRestaurant(): ResultSet {
+        return try {
+            val sql = "SELECT floor((rand()*((rand()*(select count(*) from restaurant))))+1) as id"
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
+            val stmt = PreparedStatementBuilder(connectionService, sql)
+                    .build()
+            val result = stmt.executeQuery()
+            result.next()
+            println(result.getInt("id"))
+            getRestaurant(result.getInt("id"))
+        } catch(e: SQLException){
+            e.printStackTrace()
             throw DatabaseConnectionException()
         }
     }
