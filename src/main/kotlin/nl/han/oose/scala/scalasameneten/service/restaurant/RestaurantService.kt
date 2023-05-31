@@ -5,6 +5,7 @@ import nl.han.oose.scala.scalasameneten.datasource.restaurant.RestaurantDAO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikerWithVoorkeurenAndRestrictiesDTO
 import nl.han.oose.scala.scalasameneten.dto.restaurant.GroepDTO
 import nl.han.oose.scala.scalasameneten.dto.restaurant.RestaurantWithVoorkeurenAndRestrictiesDTO
+import nl.han.oose.scala.scalasameneten.dto.restaurant.ReviewDTO
 import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictieDTO
 import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictiesDTO
 import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurDTO
@@ -13,6 +14,10 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
+import kotlin.math.log
+import kotlin.math.pow
+import kotlin.math.sqrt
+import kotlin.random.Random
 import java.sql.ResultSet
 
 @Service
@@ -24,6 +29,7 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
     fun bepaalRestaurant(geselecteerdeGebruikers: GroepDTO): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>? {
         val restaurants = getAllRestaurantsWithVoorkeurenAndResticties()
         val gebruikers = getAllGebruikersWithVoorkeurenAndRestricties(geselecteerdeGebruikers)
+        val maxAantal = 5
 
         val prioritizedVoorkeuren = mutableMapOf<String, Int>()
         for (gebruiker in gebruikers) {
@@ -38,15 +44,15 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
             return ResponseEntity.ok(restaurants.random())
         }
 
-        var remainingRestaurants = restaurants.toMutableList()
+        var remainingRestaurants: MutableList<RestaurantWithVoorkeurenAndRestrictiesDTO> = restaurants.toMutableList()
         var selectedRestaurant: RestaurantWithVoorkeurenAndRestrictiesDTO? = null
 
         for (voorkeur in sortedPrioList) {
             val filteredRestaurants = remainingRestaurants.filter { it.voorkeuren?.voorkeuren?.contains(VoorkeurDTO(voorkeur.key)) == true }
 
-            if (filteredRestaurants.isNotEmpty()) {
+            if (filteredRestaurants.size > maxAantal) {
                 remainingRestaurants = filteredRestaurants.toMutableList()
-                selectedRestaurant = remainingRestaurants.random()
+                selectedRestaurant = bepaalRestaurantMetReviews(remainingRestaurants.toMutableList())
             } else {
                 if (selectedRestaurant != null) {
                     println("Selected restaurant id: ${selectedRestaurant.restaurantId}")
@@ -63,6 +69,63 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
         for(gebruiker in gebruikers.leden){
             restaurantDAO.voegHistoryToe(gebruiker,restaurant)
         }
+    }
+
+    private fun getReviewGemiddelde(id: Int): Double{
+        val reviews = restaurantDAO.getReviews(id)
+        val x = ArrayList<Int>()
+        while(reviews.next()){
+            x.add(reviews.getInt("beoordeling"))
+        }
+        return x.sum()/x.count().toDouble()
+    }
+
+    private fun bepaalRestaurantMetReviews(restaurants: MutableList<RestaurantWithVoorkeurenAndRestrictiesDTO>): RestaurantWithVoorkeurenAndRestrictiesDTO{
+        val restaurantScore = mutableMapOf<Int,Double>()
+        val permillage = mutableMapOf<Int,Double>()
+        val mille = 1000
+        for(restaurant in restaurants){
+            val reviews = restaurantDAO.getReviews(restaurant.restaurantId)
+            val gemiddelde = getReviewGemiddelde(restaurant.restaurantId)
+            val x = ArrayList<Double>()
+            while(reviews.next()){
+                val xpow = (reviews.getInt("beoordeling")-gemiddelde).pow(2)
+                x.add(xpow)
+            }
+            restaurantScore[restaurant.restaurantId] = restaurantScoreBerekenen(gemiddelde,x)
+        }
+        for(restaurant in restaurants){
+            val id = restaurant.restaurantId
+            permillage[id] = (restaurantScore[id]!!.div(restaurantScore.values.sum()))*mille
+        }
+        val random = Random.nextInt(0,mille)
+        var i = 0.0;
+        for(permille in permillage){
+            if(random<=permille.value+i){
+                return restaurants[permille.key-1]
+            }
+            i += permille.value
+        }
+        return restaurants.random()
+    }
+    private fun restaurantScoreBerekenen(gemiddelde:Double,x:ArrayList<Double>):Double{
+        val standaarddeviatie = standaardDeviatieBerekenen(x)
+        val macht = 3
+        val log = 5.0
+        val standaardScore = 1.0
+        var restaurantScore = sqrt((gemiddelde.pow(macht)*log(x.count().toDouble(),log))/standaarddeviatie)+1
+        if(restaurantScore.isNaN()){
+            restaurantScore = standaardScore
+        }
+        return restaurantScore
+    }
+    private fun standaardDeviatieBerekenen(x: ArrayList<Double>): Double{
+        val standaardStandaard = 0.1
+        var standaarddeviatie = x.sum()/(x.count())
+        if(standaarddeviatie==0.0|| standaarddeviatie.isNaN()){
+            standaarddeviatie = standaardStandaard
+        }
+        return standaarddeviatie
     }
 
     private fun getAllGebruikersWithVoorkeurenAndRestricties(groep: GroepDTO): MutableList<GebruikerWithVoorkeurenAndRestrictiesDTO> {
@@ -147,7 +210,7 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
                 link,
                 foto,
                 VoorkeurenDTO(null, conversieVoorkeuren),
-                conversieRestricties?.let { VoedingsrestrictiesDTO(it) }
+                conversieRestricties?.let { VoedingsrestrictiesDTO(it) }?: VoedingsrestrictiesDTO(ArrayList())
         )
     }
 
@@ -156,6 +219,54 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
         result.next()
         return ResponseEntity.ok(makeRestaurantDTO(result))
     }
+    fun getRestaurantBaseInfo(id: Int): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>{
+        val result = restaurantDAO.getRestaurant(id)
+        result.next()
+        return ResponseEntity.ok(makeRestaurantDTOWithoutVoorkeurenAndRestricties(result))
+    }
+    fun getRandomRestaurant(): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>{
+        val result = restaurantDAO.getRandomRestaurant()
+        result.next()
+        return ResponseEntity.ok(makeRestaurantDTO(result))
+    }
+    fun getRecentBezochteRestaurant(id: String): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>? {
+        val restaurantResult = restaurantDAO.getRecentBezochteRestaurant(id)
+        if(restaurantResult.next()){
+            if(restaurantResult.getString("datum") == null){
+                return null
+            }
+
+            return ResponseEntity.ok(makeRestaurantDTOWithoutVoorkeurenAndRestricties(restaurantResult))
+        }
+        return null
+    }
+
+
+    fun postReview(restaurantId: Int, review: ReviewDTO): ResponseEntity<String>{
+        try {
+            val id = gebruikerDAO.getIdVanGebruiker(review.gebruikerToken)
+            restaurantDAO.postReview(restaurantId, review, id!!)
+        } catch (e: Exception) {
+            return ResponseEntity.badRequest().body("Er is iets misgegaan bij het toevoegen van de review")
+        }
+        return ResponseEntity.ok("Review is toegevoegd")
+    }
+
+    fun makeRestaurantDTOWithoutVoorkeurenAndRestricties(result: ResultSet) : RestaurantWithVoorkeurenAndRestrictiesDTO{
+        val restaurant = RestaurantWithVoorkeurenAndRestrictiesDTO(
+            result.getInt("restaurant_id"),
+            result.getString("restaurant_naam"),
+            result.getString("postcode"),
+            result.getString("straatnaam"),
+            result.getInt("huisnummer"),
+            result.getString("link"),
+            result.getString("foto"),
+            null,
+            null
+        )
+        return restaurant
+    }
+
     fun getAllRestaurants(): ResponseEntity<MutableList<RestaurantWithVoorkeurenAndRestrictiesDTO>>{
         val restaurants = getAllRestaurantsWithVoorkeurenAndResticties()
         return ResponseEntity.ok(restaurants)
