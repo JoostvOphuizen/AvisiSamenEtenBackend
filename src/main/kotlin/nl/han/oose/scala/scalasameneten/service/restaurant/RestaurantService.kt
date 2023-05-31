@@ -149,6 +149,24 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
         result.next()
         return ResponseEntity.ok(makeRestaurantDTO(result))
     }
+    fun getRestaurantBaseInfo(id: Int): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>{
+        val result = restaurantDAO.getRestaurant(id)
+        result.next()
+        return ResponseEntity.ok(makeRestaurantDTOWithoutVoorkeurenAndRestricties(result))
+    }
+
+    fun getRecentBezochteRestaurant(id: String): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>? {
+        val restaurantResult = restaurantDAO.getRecentBezochteRestaurant(id)
+        if(restaurantResult.next()){
+            if(restaurantResult.getString("datum") == null){
+                return null
+            }
+
+            return ResponseEntity.ok(makeRestaurantDTOWithoutVoorkeurenAndRestricties(restaurantResult))
+        }
+        return null
+    }
+
 
     fun postReview(restaurantId: Int, review: ReviewDTO): ResponseEntity<String>{
         try {
@@ -160,4 +178,23 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
         return ResponseEntity.ok("Review is toegevoegd")
     }
 
+    fun makeRestaurantDTOWithoutVoorkeurenAndRestricties(result: ResultSet) : RestaurantWithVoorkeurenAndRestrictiesDTO{
+        val restaurant = RestaurantWithVoorkeurenAndRestrictiesDTO(
+            result.getInt("restaurant_id"),
+            result.getString("restaurant_naam"),
+            result.getString("postcode"),
+            result.getString("straatnaam"),
+            result.getInt("huisnummer"),
+            result.getString("link"),
+            result.getString("foto"),
+            null,
+            null
+        )
+        return restaurant
+    }
+
+    fun getAllRestaurants(): ResponseEntity<MutableList<RestaurantWithVoorkeurenAndRestrictiesDTO>>{
+        val restaurants = getAllRestaurantsWithVoorkeurenAndResticties()
+        return ResponseEntity.ok(restaurants)
+    }
 }

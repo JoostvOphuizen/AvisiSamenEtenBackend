@@ -19,6 +19,12 @@ class RestaurantController(private val restaurantService: RestaurantService) {
         return restaurantService.bepaalRestaurant(GroepDTO(geselecteerdeGebruikers, "Placeholder"))
     }
 
+    @RequestMapping("/alle")
+    @GetMapping(produces = ["application/json"])
+    fun getAlleRestaurants(): ResponseEntity<MutableList<RestaurantWithVoorkeurenAndRestrictiesDTO>> {
+        return restaurantService.getAllRestaurants()
+    }
+
     @RequestMapping("/getrestaurant")
     @PostMapping(produces = ["application/json"], consumes = ["application/json"])
     fun getRestaurant(@RequestParam id: Int): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>{
@@ -27,7 +33,13 @@ class RestaurantController(private val restaurantService: RestaurantService) {
 
     @RequestMapping("/review")
     @PostMapping(produces = ["application/json"], consumes = ["application/json"])
-    fun postReview(@RequestParam id: Int, @RequestBody review: ReviewDTO): ResponseEntity<String>{
+    fun postReview(@RequestParam id: Int, @RequestBody review: ReviewDTO): ResponseEntity<String> {
         return restaurantService.postReview(id, review)
+    }
+
+    @RequestMapping("/getrestaurantbaseinfo")
+    @GetMapping(produces = ["application/json"], consumes = ["application/json"])
+    fun getRestaurantBaseInfo(@RequestParam id: Int): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>{
+        return restaurantService.getRestaurantBaseInfo(id)
     }
 }
