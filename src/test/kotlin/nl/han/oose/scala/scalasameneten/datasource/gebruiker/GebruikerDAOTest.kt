@@ -36,7 +36,7 @@ class GebruikerDAOTest {
     fun getAlleGebruikers(){
         //arrange
         //act
-        val returnValue = gebruikerDAO!!.getAlleGebruikers()
+        val returnValue = gebruikerDAO.getAlleGebruikers()
         var counter = 0
         while (returnValue.next()) {
             counter++
@@ -48,7 +48,7 @@ class GebruikerDAOTest {
     fun getNaamVanBestaandeGebruiker() {
         //arrage
         //act
-        val naam = gebruikerDAO?.getNaamVanGebruiker("0000-0000-0000")
+        val naam = gebruikerDAO.getNaamVanGebruiker("0000-0000-0000")
         //assert
         assertEquals("user1", naam)
     }
@@ -56,7 +56,7 @@ class GebruikerDAOTest {
     fun getNaamVanNietBestaandeGebruiker() {
         //arrage
         //act
-        val naam = gebruikerDAO?.getNaamVanGebruiker("1212-1212-1212")
+        val naam = gebruikerDAO.getNaamVanGebruiker("1212-1212-1212")
         //assert
         assertEquals(null, naam)
     }
@@ -64,7 +64,7 @@ class GebruikerDAOTest {
     fun getGebruikersVoedingsRestricties(){
         //arrange
         //act
-        val returnValue = gebruikerDAO!!.getGebruikersVoedingsrestricties("0000-0000-0000")
+        val returnValue = gebruikerDAO.getGebruikersVoedingsrestricties("0000-0000-0000")
         var counter = 0
         while (returnValue.next()) {
             counter++
@@ -76,7 +76,7 @@ class GebruikerDAOTest {
     fun getGebruikersVoorkeuren(){
         //arrange
         //act
-        val returnValue = gebruikerDAO!!.getGebruikersVoorkeuren("0000-0000-0000")
+        val returnValue = gebruikerDAO.getGebruikersVoorkeuren("0000-0000-0000")
         var counter = 0
         while (returnValue.next()) {
             counter++

@@ -5,7 +5,10 @@ import nl.han.oose.scala.scalasameneten.datasource.connection.ConnectionService
 import nl.han.oose.scala.scalasameneten.datasource.connection.DatabaseProperties
 import nl.han.oose.scala.scalasameneten.datasource.gebruiker.GebruikerDAO
 import nl.han.oose.scala.scalasameneten.datasource.restaurant.RestaurantDAO
+<<<<<<< HEAD
 import nl.han.oose.scala.scalasameneten.dto.restaurant.GroepDTO
+=======
+>>>>>>> ee56546f5663a782cbdcb74baf8117d2b18e38a5
 import nl.han.oose.scala.scalasameneten.dto.restaurant.RestaurantWithVoorkeurenAndRestrictiesDTO
 import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictieDTO
 import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictiesDTO
@@ -16,9 +19,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.Mockito
-import java.sql.Connection
 import java.sql.ResultSet
-import kotlin.random.Random
 
 
 class RestaurantServiceTest {
@@ -50,15 +51,14 @@ class RestaurantServiceTest {
         reviewResults6 = Mockito.mock(ResultSet::class.java)
         restaurantService = RestaurantService(restaurantDAO,gebruikerDAO)
 
-        Mockito.`when`(resultSetMock.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false)
-        Mockito.`when`(resultSetMock.getInt("RESTAURANT_ID")).thenReturn(1).thenReturn(2).thenReturn(3).thenReturn(4).thenReturn(5).thenReturn(6)
-        Mockito.`when`(resultSetMock.getString("RESTAURANT_NAAM")).thenReturn("restaurant 1").thenReturn("restaurant 2").thenReturn("restaurant 1").thenReturn("restaurant 2").thenReturn("restaurant 1").thenReturn("restaurant 2")
-        Mockito.`when`(resultSetMock.getString("POSTCODE")).thenReturn("restaurant 1").thenReturn("restaurant 2").thenReturn("restaurant 1").thenReturn("restaurant 2").thenReturn("restaurant 1").thenReturn("restaurant 2")
-        Mockito.`when`(resultSetMock.getString("STRAATNAAM")).thenReturn("restaurant 1").thenReturn("restaurant 2").thenReturn("restaurant 1").thenReturn("restaurant 2").thenReturn("restaurant 1").thenReturn("restaurant 2")
-        Mockito.`when`(resultSetMock.getString("LINK")).thenReturn("restaurant 1").thenReturn("restaurant 2").thenReturn("restaurant 1").thenReturn("restaurant 2").thenReturn("restaurant 1").thenReturn("restaurant 2")
-        Mockito.`when`(resultSetMock.getString("VOORKEUREN")).thenReturn("voorkeur 1").thenReturn("voorkeur 1").thenReturn("voorkeur 1").thenReturn("voorkeur 1").thenReturn("voorkeur 1").thenReturn("voorkeur 1")
-        Mockito.`when`(resultSetMock.getString("RESTRICTIES")).thenReturn("restrictie 1").thenReturn("restrictie 1").thenReturn("restrictie 1").thenReturn("restrictie 1").thenReturn("restrictie 1").thenReturn("restrictie 1")
-
+        Mockito.`when`(resultSetMock.next()).thenReturn(true).thenReturn(true).thenReturn(false)
+        Mockito.`when`(resultSetMock.getInt("restaurant_id")).thenReturn(1)
+        Mockito.`when`(resultSetMock.getString("restaurant_naam")).thenReturn("restaurant 1").thenReturn("restaurant 2")
+        Mockito.`when`(resultSetMock.getString("postcode")).thenReturn("restaurant 1").thenReturn("restaurant 2")
+        Mockito.`when`(resultSetMock.getString("straatnaam")).thenReturn("restaurant 1").thenReturn("restaurant 2")
+        Mockito.`when`(resultSetMock.getString("link")).thenReturn("restaurant 1").thenReturn("restaurant 2")
+        Mockito.`when`(resultSetMock.getString("voorkeuren")).thenReturn("voorkeur 1").thenReturn("voorkeur 1")
+        Mockito.`when`(resultSetMock.getString("restricties")).thenReturn("restrictie 1").thenReturn("restrictie 1")
 
         Mockito.`when`(gebruikersResults.next()).thenReturn(true).thenReturn(false)
         Mockito.`when`(gebruikersResults.getInt("GEBRUIKER_ID")).thenReturn(2)
@@ -116,5 +116,32 @@ class RestaurantServiceTest {
         }
         //assert
         assert(alle_ids_aanwezig)
+    }
+    @Test
+    fun getAllRestaurantsTest() {
+        //arrange
+        Mockito.`when`(restaurantDAO.getAllRestaurantsWithVoorkeurenAndRestricties()).thenReturn(resultSetMock)
+        //act
+        val result = restaurantService.getAllRestaurants()
+        val i = result.body
+        val expected = mutableListOf<RestaurantWithVoorkeurenAndRestrictiesDTO>()
+        val voorkeuren = ArrayList<VoorkeurDTO>()
+        voorkeuren.add(VoorkeurDTO("voorkeur 1"))
+        val restricties = ArrayList<VoedingsrestrictieDTO>()
+        restricties.add(VoedingsrestrictieDTO("restrictie 1", "null"))
+        expected.add(RestaurantWithVoorkeurenAndRestrictiesDTO(1, "restaurant 1", "restaurant 1", "restaurant 1", 0, "restaurant 1", null, VoorkeurenDTO(null, voorkeuren), VoedingsrestrictiesDTO(restricties)))
+        expected.add(RestaurantWithVoorkeurenAndRestrictiesDTO(1, "restaurant 2", "restaurant 2", "restaurant 2", 0, "restaurant 2", null, VoorkeurenDTO(null, voorkeuren), VoedingsrestrictiesDTO(restricties)))
+        //assert
+        assertEquals(expected, i)
+    }
+
+    @Test
+    fun getRestaurantTest(){
+        Mockito.`when`(restaurantDAO.getRestaurant(1)).thenReturn(resultSetMock)
+        //act
+        val result = restaurantService.getRestaurant(1)
+        val restaurantnaam = result.body?.restaurantNaam
+        //assert
+        assertEquals("restaurant 1",restaurantnaam)
     }
 }

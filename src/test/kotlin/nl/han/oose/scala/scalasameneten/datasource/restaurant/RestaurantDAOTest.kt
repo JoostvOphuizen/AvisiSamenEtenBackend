@@ -28,17 +28,38 @@ class RestaurantDAOTest {
         restaurantDAO = RestaurantDAO(mockedConnectedService,databaseProperties)
         connection.close()
     }
-
     @Test
-    fun getReviewsTest(){
+    fun getReviewsTest() {
         //arrange
         //act
         val returnValue = restaurantDAO.getReviews(1)
         var counter = 0
-        while(returnValue.next()){
+        while (returnValue.next()) {
             counter++
         }
         //assert
-        assertEquals(2,counter)
+        assertEquals(2, counter)
+    }
+    @Test
+    fun getAlleRestaurants() {
+        //arrange
+        //act
+        val restaurants = restaurantDAO.getAllRestaurantsWithVoorkeurenAndRestricties()
+        var counter = 0
+        while (restaurants.next()) {
+            counter++
+        }
+        //assert
+        assertEquals(5, counter)
+    }
+
+    @Test
+    fun getRestaurantByIdTest(){
+        //arrange
+        //act
+        val returnValue = restaurantDAO.getRestaurant(1)
+        returnValue.next()
+        //assert
+        assertEquals("Stone Grill House", returnValue.getString("restaurant_naam"))
     }
 }
