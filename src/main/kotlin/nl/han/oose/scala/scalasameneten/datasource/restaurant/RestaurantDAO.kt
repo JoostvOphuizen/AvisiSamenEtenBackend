@@ -4,6 +4,7 @@ import nl.han.oose.scala.scalasameneten.datasource.PreparedStatementBuilder
 import nl.han.oose.scala.scalasameneten.datasource.connection.ConnectionService
 import nl.han.oose.scala.scalasameneten.datasource.connection.DatabaseProperties
 import nl.han.oose.scala.scalasameneten.datasource.exceptions.DatabaseConnectionException
+import nl.han.oose.scala.scalasameneten.dto.restaurant.ReviewDTO
 import nl.han.oose.scala.scalasameneten.dto.restaurant.RestaurantWithVoorkeurenAndRestrictiesDTO
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.stereotype.Component
@@ -49,6 +50,23 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
                     .setInt(id)
                     .build()
             stmt.executeQuery()
+        } catch(e: SQLException){
+            throw DatabaseConnectionException()
+        }
+    }
+
+    fun postReview(restaurantId: Int, review: ReviewDTO, id: Int){
+        try {
+            val sql = "INSERT INTO review (restaurant_id, gebruiker_id, beoordeling, tekst) VALUES (?, ?, ?, ?)"
+
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
+            val stmt = PreparedStatementBuilder(connectionService, sql)
+                    .setInt(restaurantId)
+                    .setInt(id)
+                    .setInt(review.score)
+                    .setString(review.tekst)
+                    .build()
+            stmt.executeUpdate()
         } catch(e: SQLException){
             throw DatabaseConnectionException()
         }
