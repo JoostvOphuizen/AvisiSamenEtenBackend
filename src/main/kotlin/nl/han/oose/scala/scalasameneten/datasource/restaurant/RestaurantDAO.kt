@@ -51,4 +51,17 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
             throw DatabaseConnectionException()
         }
     }
+    fun voegHistoryToe(gebruiker: Int,restaurant: Int){
+        try {
+            val sql = "INSERT INTO hist_bezoek(datum,restaurant_id,gebruiker_id) VALUES(GETDATE(),?,?)"
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
+            val stmt = PreparedStatementBuilder(connectionService,sql)
+                    .setInt(restaurant)
+                    .setInt(gebruiker)
+                    .build()
+            stmt.executeUpdate()
+        } catch(e: SQLException){
+            throw DatabaseConnectionException()
+        }
+    }
 }
