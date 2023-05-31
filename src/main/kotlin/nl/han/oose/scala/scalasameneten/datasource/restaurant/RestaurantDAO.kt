@@ -20,20 +20,20 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
         return try {
             connectionService.initializeConnection(databaseProperties.getConnectionString())
             val stmt = PreparedStatementBuilder(connectionService,
-                "SELECT R.RESTAURANT_ID, R.RESTAURANT_NAAM, R.POSTCODE, R.STRAATNAAM, R.HUISNUMMER, R.LINK, R.FOTO,\n" +
-                    "       (\n" +
-                    "           SELECT STRING_AGG(V.VOORKEUR_NAAM, ',')\n" +
-                    "           FROM RESTAURANT_HEEFT_VOORKEUR RV\n" +
-                    "           JOIN VOORKEUR V ON RV.VOORKEUR_NAAM = V.VOORKEUR_NAAM\n" +
-                    "           WHERE RV.RESTAURANT_ID = R.RESTAURANT_ID\n" +
-                    "       ) AS VOORKEUREN,\n" +
-                    "       (\n" +
-                    "           SELECT STRING_AGG(VR.RESTRICTIE_NAAM, ',')\n" +
-                    "           FROM VOEDINGSRESTRICTIE_IN_RESTAURANT VR\n" +
-                    "           WHERE VR.RESTAURANT_ID = R.RESTAURANT_ID\n" +
-                    "       ) AS RESTRICTIES\n" +
-                    "FROM RESTAURANT R;\n")
-                .build()
+                    "SELECT R.RESTAURANT_ID, R.RESTAURANT_NAAM, R.POSTCODE, R.STRAATNAAM, R.HUISNUMMER, R.LINK, R.FOTO,\n" +
+                            "       (\n" +
+                            "           SELECT STRING_AGG(V.VOORKEUR_NAAM, ',')\n" +
+                            "           FROM RESTAURANT_HEEFT_VOORKEUR RV\n" +
+                            "           JOIN VOORKEUR V ON RV.VOORKEUR_NAAM = V.VOORKEUR_NAAM\n" +
+                            "           WHERE RV.RESTAURANT_ID = R.RESTAURANT_ID\n" +
+                            "       ) AS VOORKEUREN,\n" +
+                            "       (\n" +
+                            "           SELECT STRING_AGG(VR.RESTRICTIE_NAAM, ',')\n" +
+                            "           FROM VOEDINGSRESTRICTIE_IN_RESTAURANT VR\n" +
+                            "           WHERE VR.RESTAURANT_ID = R.RESTAURANT_ID\n" +
+                            "       ) AS RESTRICTIES\n" +
+                            "FROM RESTAURANT R;\n")
+                    .build()
             stmt.executeQuery()
         } catch (e: SQLException) {
             throw DatabaseConnectionException()

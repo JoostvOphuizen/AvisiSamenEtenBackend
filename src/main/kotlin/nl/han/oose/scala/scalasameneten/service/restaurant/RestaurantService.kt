@@ -148,7 +148,6 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
         result.next()
         return ResponseEntity.ok(makeRestaurantDTO(result))
     }
-
     fun getRestaurantBaseInfo(id: Int): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>{
         val result = restaurantDAO.getRestaurant(id)
         result.next()
@@ -183,4 +182,8 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
         return restaurant
     }
 
+    fun getAllRestaurants(): ResponseEntity<MutableList<RestaurantWithVoorkeurenAndRestrictiesDTO>>{
+        val restaurants = getAllRestaurantsWithVoorkeurenAndResticties()
+        return ResponseEntity.ok(restaurants)
+    }
 }
