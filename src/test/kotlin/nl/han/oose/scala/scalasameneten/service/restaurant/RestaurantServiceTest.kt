@@ -5,10 +5,7 @@ import nl.han.oose.scala.scalasameneten.datasource.connection.ConnectionService
 import nl.han.oose.scala.scalasameneten.datasource.connection.DatabaseProperties
 import nl.han.oose.scala.scalasameneten.datasource.gebruiker.GebruikerDAO
 import nl.han.oose.scala.scalasameneten.datasource.restaurant.RestaurantDAO
-<<<<<<< HEAD
 import nl.han.oose.scala.scalasameneten.dto.restaurant.GroepDTO
-=======
->>>>>>> ee56546f5663a782cbdcb74baf8117d2b18e38a5
 import nl.han.oose.scala.scalasameneten.dto.restaurant.RestaurantWithVoorkeurenAndRestrictiesDTO
 import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictieDTO
 import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictiesDTO
@@ -128,7 +125,7 @@ class RestaurantServiceTest {
         val voorkeuren = ArrayList<VoorkeurDTO>()
         voorkeuren.add(VoorkeurDTO("voorkeur 1"))
         val restricties = ArrayList<VoedingsrestrictieDTO>()
-        restricties.add(VoedingsrestrictieDTO("restrictie 1", "null"))
+        restricties.add(VoedingsrestrictieDTO("restrictie 1"))
         expected.add(RestaurantWithVoorkeurenAndRestrictiesDTO(1, "restaurant 1", "restaurant 1", "restaurant 1", 0, "restaurant 1", null, VoorkeurenDTO(null, voorkeuren), VoedingsrestrictiesDTO(restricties)))
         expected.add(RestaurantWithVoorkeurenAndRestrictiesDTO(1, "restaurant 2", "restaurant 2", "restaurant 2", 0, "restaurant 2", null, VoorkeurenDTO(null, voorkeuren), VoedingsrestrictiesDTO(restricties)))
         //assert
