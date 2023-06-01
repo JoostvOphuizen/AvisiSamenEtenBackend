@@ -40,6 +40,11 @@ class RestaurantController(private val restaurantService: RestaurantService) {
     fun postReview(@RequestParam id: Int, @RequestBody review: ReviewDTO): ResponseEntity<String> {
         return restaurantService.postReview(id, review)
     }
+    @RequestMapping("/getreviews")
+    @GetMapping(produces = ["application/json"])
+    fun getReview(@RequestParam id: Int): ResponseEntity<ArrayList<ReviewDTO>> {
+        return restaurantService.getReviews(id)
+    }
 
     @RequestMapping("/getrestaurantbaseinfo")
     @GetMapping(produces = ["application/json"], consumes = ["application/json"])
