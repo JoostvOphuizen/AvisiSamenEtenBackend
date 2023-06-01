@@ -48,3 +48,10 @@ VALUES	('Scala');
 
 INSERT INTO GEBRUIKER_IN_GROEP(GEBRUIKER_ID,GROEPNAAM)
 VALUES	(2,'Scala');
+
+INSERT INTO REVIEW (GEBRUIKER_ID,RESTAURANT_ID,BEOORDELING,TEKST)
+VALUES  (1,1,5,'mooi'),
+        (2,1,3,'minder mooi'),
+        (1,2,5,'SUPER!'),
+        (1,3,2,'matig'),
+        (1,4,4,'Hier een langere review om te zien dat het ook meeschaalt met de grote van een review. Verder moet nu ook de grote van de review niet meer uitmaken nadat het datatuype van deze kolom is aangepast.');
