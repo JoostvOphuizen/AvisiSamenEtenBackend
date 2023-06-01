@@ -26,9 +26,9 @@ import java.sql.ResultSet
 @ComponentScan("nl.han.oose.scala.scalasameneten.datasource.gebruiker")
 class RestaurantService(private val restaurantDAO: RestaurantDAO, private val gebruikerDAO: GebruikerDAO){
 
-    fun bepaalRestaurant(geselecteerdeGebruikers: GroepDTO): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>? {
+    fun bepaalRestaurant(geselecteerdeGebruikers: GroepDTO, gebruikerToken: String?): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>? {
         val restaurants = getAllRestaurantsWithVoorkeurenAndResticties()
-        val gebruikers = getAllGebruikersWithVoorkeurenAndRestricties(geselecteerdeGebruikers)
+        val gebruikers = getAllGebruikersWithVoorkeurenAndRestricties(geselecteerdeGebruikers, gebruikerToken)
         val maxAantal = 5
 
         val prioritizedVoorkeuren = mutableMapOf<String, Int>()
@@ -56,18 +56,18 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
             } else {
                 if (selectedRestaurant != null) {
                     println("Selected restaurant id: ${selectedRestaurant.restaurantId}")
-                    voegHistoryToe(geselecteerdeGebruikers,selectedRestaurant.restaurantId)
+                    voegHistoryToe(gebruikers, selectedRestaurant.restaurantId)
                     return ResponseEntity.ok(selectedRestaurant)
                 }
             }
         }
         selectedRestaurant = selectedRestaurant ?: restaurants.random()
-        voegHistoryToe(geselecteerdeGebruikers,selectedRestaurant.restaurantId)
+        voegHistoryToe(gebruikers, selectedRestaurant.restaurantId)
         return ResponseEntity.ok(selectedRestaurant)
     }
-    private fun voegHistoryToe(gebruikers: GroepDTO,restaurant: Int){
-        for(gebruiker in gebruikers.leden){
-            restaurantDAO.voegHistoryToe(gebruiker,restaurant)
+    private fun voegHistoryToe(gebruikers: MutableList<GebruikerWithVoorkeurenAndRestrictiesDTO>, restaurant: Int){
+        for(gebruiker in gebruikers){
+            gebruiker.id?.let { restaurantDAO.voegHistoryToe(it, restaurant) }
         }
     }
 
@@ -128,9 +128,9 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
         return standaarddeviatie
     }
 
-    private fun getAllGebruikersWithVoorkeurenAndRestricties(groep: GroepDTO): MutableList<GebruikerWithVoorkeurenAndRestrictiesDTO> {
+    private fun getAllGebruikersWithVoorkeurenAndRestricties(groep: GroepDTO, gebruikerToken: String?): MutableList<GebruikerWithVoorkeurenAndRestrictiesDTO> {
         val gebruikers = mutableListOf<GebruikerWithVoorkeurenAndRestrictiesDTO>()
-        val gebruikersResult = gebruikerDAO.getAllGebruikersWithVoorkeurenAndRestricties(groep)
+        val gebruikersResult = gebruikerDAO.getAllGebruikersWithVoorkeurenAndRestricties(groep, gebruikerToken)
         while (gebruikersResult.next()) {
             val gebruikerId = gebruikersResult.getInt("GEBRUIKER_ID")
             val gebruikerNaam = gebruikersResult.getString("GEBRUIKERSNAAM")
