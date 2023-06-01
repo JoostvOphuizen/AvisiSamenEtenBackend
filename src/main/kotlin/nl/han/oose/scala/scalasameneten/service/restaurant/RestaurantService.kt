@@ -224,9 +224,13 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
         result.next()
         return ResponseEntity.ok(makeRestaurantDTOWithoutVoorkeurenAndRestricties(result))
     }
-    fun getRandomRestaurant(): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>{
+    fun getRandomRestaurant(gebruikerToken: String): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>{
         val result = restaurantDAO.getRandomRestaurant()
         result.next()
+
+        val id = gebruikerDAO.getIdVanGebruiker(gebruikerToken)
+        voegHistoryToe(mutableListOf(GebruikerWithVoorkeurenAndRestrictiesDTO(id, null, null, null, null, null, null)), result.getInt("restaurant_id"))
+        
         return ResponseEntity.ok(makeRestaurantDTO(result))
     }
     fun getRecentBezochteRestaurant(id: String): ResponseEntity<RestaurantReviewDTO>? {
