@@ -27,11 +27,6 @@ class PreparedStatementBuilder(private val connectionService: ConnectionService,
         return this
     }
 
-    private fun generateSqlWithPlaceholders(sql: String, paramsCount: Int): String {
-        val placeholders = List(paramsCount) { "?" }.joinToString(", ")
-        return "$sql ($placeholders)"
-    }
-
     fun build(): PreparedStatement {
         val preparedStatement = connectionService.getConnection()!!.prepareStatement(sql)
         var i = 1
