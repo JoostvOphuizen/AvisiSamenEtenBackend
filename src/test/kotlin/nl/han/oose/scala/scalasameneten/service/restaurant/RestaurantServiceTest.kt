@@ -125,7 +125,7 @@ class RestaurantServiceTest {
         val voorkeuren = ArrayList<VoorkeurDTO>()
         voorkeuren.add(VoorkeurDTO("voorkeur 1"))
         val restricties = ArrayList<VoedingsrestrictieDTO>()
-        restricties.add(VoedingsrestrictieDTO("restrictie 1", "null"))
+        restricties.add(VoedingsrestrictieDTO("restrictie 1"))
         expected.add(RestaurantWithVoorkeurenAndRestrictiesDTO(1, "restaurant 1", "restaurant 1", "restaurant 1", 0, "restaurant 1", null, VoorkeurenDTO(null, voorkeuren), VoedingsrestrictiesDTO(restricties)))
         expected.add(RestaurantWithVoorkeurenAndRestrictiesDTO(1, "restaurant 2", "restaurant 2", "restaurant 2", 0, "restaurant 2", null, VoorkeurenDTO(null, voorkeuren), VoedingsrestrictiesDTO(restricties)))
         //assert
