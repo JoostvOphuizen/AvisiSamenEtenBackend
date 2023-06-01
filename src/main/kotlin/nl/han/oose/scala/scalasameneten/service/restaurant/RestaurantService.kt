@@ -55,7 +55,6 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
                 selectedRestaurant = bepaalRestaurantMetReviews(remainingRestaurants.toMutableList())
             } else {
                 if (selectedRestaurant != null) {
-                    println("Selected restaurant id: ${selectedRestaurant.restaurantId}")
                     voegHistoryToe(gebruikers, selectedRestaurant.restaurantId)
                     return ResponseEntity.ok(selectedRestaurant)
                 }

@@ -24,19 +24,12 @@ class GebruikerController(private val gebruikerService: GebruikerService, privat
     fun postLoginGebruiker(@RequestBody login: LoginDTO) = gebruikerService.loginGebruiker(login)
 
     @GetMapping(produces = ["application/json"])
-    fun getGebruikers(): ResponseEntity<GebruikersDTO> = gebruikerService.getGebruikers()
-
-    @GetMapping(produces = ["application/json"])
     @RequestMapping("/baseinfo")
     fun getGebruikersBaseInfo(): ResponseEntity<GebruikersDTO> = gebruikerService.getGebruikersBaseInfo()
 
-    @RequestMapping("/profiel")
-    @GetMapping(produces = ["application/json"])
-    fun getGebruiker(@RequestParam id: String): ResponseEntity<GebruikerDTO> = gebruikerService.getGebruiker(id)
-
     @RequestMapping("/haalvoorkeurenop")
     @GetMapping(produces = ["application/json"], consumes = ["application/json"])
-    fun postVoorkeuren(@RequestParam id: String) : ResponseEntity<VoorkeurenDTO> = gebruikerService.getGebruikersVoorkeuren(id)
+    fun getVoorkeuren(@RequestParam id: String) : ResponseEntity<VoorkeurenDTO> = gebruikerService.getGebruikersVoorkeuren(id)
 
     @RequestMapping("/slavoorkeurenop")
     @PostMapping(produces = ["application/json"], consumes = ["application/json"])

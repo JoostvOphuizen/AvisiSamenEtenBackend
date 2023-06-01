@@ -13,9 +13,6 @@ import org.springframework.stereotype.Service
 @ComponentScan("nl.han.oose.scala.scalasameneten.datasource.voorkeur")
 class VoorkeurService(private val voorkeurDAO: VoorkeurDAO) {
 
-    fun getVoorkeuren(): ResponseEntity<VoorkeurenDTO> {
-        return ResponseEntity.ok(voorkeurDAO!!.makeVoorkeurenDTO())
-    }
 
     fun getVoedingsbehoeften(gebruikersToken: String): ResponseEntity<VoedingsbehoeftenDTO> {
         return ResponseEntity.ok(voorkeurDAO!!.makeVoedingsbehoeftenDTO(gebruikersToken))

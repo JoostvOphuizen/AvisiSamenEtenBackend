@@ -13,23 +13,7 @@ import org.springframework.web.bind.annotation.*
 @CrossOrigin
 class VoorkeurController(private val voorkeurService: VoorkeurService) {
     @GetMapping(produces = ["application/json"])
-    fun getVoorkeur(): ResponseEntity<VoorkeurenDTO> = voorkeurService.getVoorkeuren()
-
-    @GetMapping(produces = ["application/json"])
     @RequestMapping("/voedingsbehoeften")
     fun getVoedingsbehoeften(@RequestParam gebruikersToken: String): ResponseEntity<VoedingsbehoeftenDTO> = voorkeurService.getVoedingsbehoeften(gebruikersToken)
-
-    /*@GetMapping(produces = ["application/json"])
-    fun getVoorkeur2(@RequestParam id: Int): ResponseEntity<VoorkeurDTO> = voorkeurService.getVoorkeuren()
-*/
-
-/*
-    @GetMapping(produces = ["application/json"])
-    fun getVoedingsRestrictie(@RequestParam id: Int): ResponseEntity<ArrayList<VoedingsrestrictieDTO>> = voedingsrestrictieService.getVoedingsrestricties()
-    */
-/*
-    @PostMapping(produces = ["application/json"], consumes = ["application/json"])
-    fun postVoorkeur(@RequestParam id: Int, @RequestBody voorkeurDTO: VoorkeurDTO): ResponseEntity<String> = voorkeurService.postVoorkeuren(voorkeurDTO)
-*/
 
 }

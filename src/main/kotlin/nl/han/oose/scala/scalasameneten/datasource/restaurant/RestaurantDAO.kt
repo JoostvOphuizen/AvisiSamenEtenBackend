@@ -88,7 +88,6 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
                     .build()
             val result = stmt.executeQuery()
             result.next()
-            println(result.getInt("id"))
             getRestaurant(result.getInt("id"))
         } catch(e: SQLException){
             e.printStackTrace()

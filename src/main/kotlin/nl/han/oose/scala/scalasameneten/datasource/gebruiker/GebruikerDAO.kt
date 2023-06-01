@@ -21,6 +21,32 @@ import java.sql.SQLException
 @ComponentScan("nl.han.oose.scala.scalasameneten.datasource.connection")
 class GebruikerDAO(private val connectionService: ConnectionService,private val databaseProperties: DatabaseProperties) {
 
+    fun makeVoorkeurenDTO(gebruikerToken: String): VoorkeurenDTO {
+        return try{
+            val result: ResultSet = getGebruikersVoorkeuren(gebruikerToken)
+            val voorkeuren = ArrayList<VoorkeurDTO>()
+            while (result.next()) {
+                voorkeuren.add(VoorkeurDTO(result.getString("voorkeur_naam")))
+            }
+            VoorkeurenDTO("Voorkeuren", voorkeuren)
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+
+    fun getGebruikersVoorkeuren(gebruikerToken: String): ResultSet {
+        return try {
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
+            val sql = "SELECT voorkeur_naam FROM voorkeur_van_gebruiker v INNER JOIN gebruiker g on v.gebruiker_id=g.gebruiker_id WHERE g.token=?"
+            val stmt = PreparedStatementBuilder(connectionService,sql)
+                .setString(gebruikerToken)
+                .build()
+            stmt.executeQuery()
+        } catch (e: SQLException) {
+            throw DatabaseConnectionException()
+        }
+    }
+
     fun getAlleGebruikers(): ResultSet {
         return try {
             connectionService.initializeConnection(databaseProperties.getConnectionString())
@@ -125,21 +151,9 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
     fun getGebruikersVoedingsrestricties(gebruikerToken: String): ResultSet {
         return try {
             val gebruikerId = getIdVanGebruiker(gebruikerToken)!!
-            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
             val stmt = PreparedStatementBuilder(connectionService,"SELECT restrictie_naam,type FROM gebruiker_heeft_voedingsrestrictie WHERE gebruiker_id=?")
                     .setInt(gebruikerId)
-                    .build()
-            stmt.executeQuery()
-        } catch (e: SQLException) {
-            throw DatabaseConnectionException()
-        }
-    }
-    fun getGebruikersVoorkeuren(gebruikerToken: String): ResultSet {
-        return try {
-            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-            val sql = "SELECT voorkeur_naam FROM voorkeur_van_gebruiker v INNER JOIN gebruiker g on v.gebruiker_id=g.gebruiker_id WHERE g.token=?"
-            val stmt = PreparedStatementBuilder(connectionService,sql)
-                    .setString(gebruikerToken)
                     .build()
             stmt.executeQuery()
         } catch (e: SQLException) {
@@ -150,7 +164,7 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
     fun alleGebruikersVoorkeurenVerwijderen(gebruikerToken: String) {
         try {
             val gebruikerId = getIdVanGebruiker(gebruikerToken)!!
-            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
             val sql = "DELETE FROM voorkeur_van_gebruiker WHERE gebruiker_id=?"
             val stmt = PreparedStatementBuilder(connectionService,sql)
                 .setInt(gebruikerId)
@@ -164,7 +178,7 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
     fun alleGebruikersRestrictiesVerwijderen(gebruikerToken: String) {
         try {
             val gebruikerId = getIdVanGebruiker(gebruikerToken)!!
-            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
             val sql = "DELETE FROM gebruiker_heeft_voedingsrestrictie WHERE gebruiker_id=?"
             val stmt = PreparedStatementBuilder(connectionService,sql)
                 .setInt(gebruikerId)
@@ -235,44 +249,6 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
         return null
     }
 
-    fun makeVoorkeurenDTO(gebruikerToken: String): VoorkeurenDTO {
-        return try{
-            val result: ResultSet = getGebruikersVoorkeuren(gebruikerToken)
-            var voorkeuren = ArrayList<VoorkeurDTO>()
-            while (result != null && result.next()) {
-                voorkeuren.add(VoorkeurDTO(result.getString("voorkeur_naam")))
-            }
-            VoorkeurenDTO("Voorkeuren", voorkeuren)
-        } catch (e: SQLException) {
-            throw DatabaseConnectionException()
-        }
-
-    }
-
-    fun makeGebruikersDTO(): GebruikersDTO {
-        return try {
-            val result: ResultSet = getAlleGebruikers()
-            var gebruikers = ArrayList<GebruikerDTO>()
-            while (result != null && result.next()) {
-                var result2 = getGebruikersVoorkeuren(result.getString("token"))
-                var voorkeuren = ArrayList<VoorkeurDTO>()
-                while(result2 != null && result2.next()){
-                    voorkeuren.add(VoorkeurDTO(result2.getString("voorkeur_naam")))
-                }
-                result2 = getGebruikersVoedingsrestricties(result.getString("token"))
-                var restricties = ArrayList<VoedingsrestrictieDTO>()
-                while(result2 != null && result2.next()){
-                    restricties.add(VoedingsrestrictieDTO(result2.getString("restrictie_naam")))
-                }
-                val x = makeGebruiker(result.getString("token"))
-                gebruikers.add(x)
-            }
-            GebruikersDTO(gebruikers)
-        } catch (e: SQLException) {
-            throw DatabaseConnectionException()
-        }
-    }
-
     fun makeGebruikersDTOBaseInfo(): GebruikersDTO {
         return try {
             val result: ResultSet = getAlleGebruikers()
@@ -290,30 +266,10 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
     fun makeGebruiker(gebruikersId: Int, gebruikersNaam: String, gebruikersFoto: String): GebruikerDTO {
          return GebruikerDTO(gebruikersId, gebruikersNaam, gebruikersFoto, null, null)
     }
-
-
-    fun makeGebruiker(gebruikerToken: String): GebruikerDTO {
-        //TODO: gebruikerFoto
-        val gebruikerFoto = "src\\assets\\profile-user.png"
-
-        var result = getGebruikersVoorkeuren(gebruikerToken)
-        val voorkeuren = ArrayList<VoorkeurDTO>()
-        while(result.next()){
-            voorkeuren.add(VoorkeurDTO(result.getString("voorkeur_naam")))
-        }
-        result = getGebruikersVoedingsrestricties(gebruikerToken)
-        val restricties = ArrayList<VoedingsrestrictieDTO>()
-        while(result.next()){
-            restricties.add(VoedingsrestrictieDTO(result.getString("restrictie_naam")))
-        }
-        val gebruikerId = getIdVanGebruiker(gebruikerToken)!!
-        return GebruikerDTO(gebruikerId, getNaamVanGebruiker(gebruikerToken)!!, null,  null, null)
-    }
-
-
+    
     fun setGebruikersToken(id: Int, token: String){
         try {
-            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
             val sql = "UPDATE gebruiker SET token=? WHERE gebruiker_id=?"
             val stmt = PreparedStatementBuilder(connectionService,sql)
                 .setString(token)
@@ -327,7 +283,7 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
 
     fun setNieuweGebruiker(login: LoginDTO, gebruikerToken: String){
         try {
-            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
             val sql = "INSERT INTO gebruiker (gebruikersnaam, email, token, foto) VALUES (?,?,?,?)"
             val stmt = PreparedStatementBuilder(connectionService,sql)
                 .setString(login.naam)
@@ -342,7 +298,7 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
     }
     fun getGebruikerID(login: LoginDTO): Int{
         try {
-            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
             val sql = "SELECT gebruiker_id FROM gebruiker WHERE gebruikersnaam=?"
             val stmt = PreparedStatementBuilder(connectionService,sql)
                 .setString(login.naam)
@@ -359,7 +315,7 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
 
     fun getGebruiker(email: String): ResultSet {
         try {
-            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
             val sql = "SELECT gebruikersnaam,gebruiker_id,email,token,foto FROM gebruiker WHERE email=?"
             val stmt = PreparedStatementBuilder(connectionService,sql)
                 .setString(email)

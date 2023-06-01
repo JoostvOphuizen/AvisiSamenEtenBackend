@@ -17,7 +17,7 @@ import org.springframework.stereotype.Repository
 class GroepDAO(private val connectionService: ConnectionService, private val databaseProperties: DatabaseProperties) {
     fun insertGroep(groepnaam: String) {
         try {
-            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
             val stmt = PreparedStatementBuilder(connectionService,"INSERT INTO GROEP (GROEPNAAM)\n" +
                     "VALUES(?)")
                 .setString(groepnaam)
@@ -30,7 +30,7 @@ class GroepDAO(private val connectionService: ConnectionService, private val dat
 
     fun getGroepen(): ResultSet {
         try {
-            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
             val stmt = PreparedStatementBuilder(connectionService,"SELECT g.GROEPNAAM, STUFF((\n" +
                     "    SELECT ',' + CAST(gig.GEBRUIKER_ID AS VARCHAR(MAX))\n" +
                     "    FROM GEBRUIKER_IN_GROEP gig\n" +
@@ -48,16 +48,16 @@ class GroepDAO(private val connectionService: ConnectionService, private val dat
 
     fun setGroepsleden(geselecteerdeGebruikers: GroepDTO) {
         try {
-            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
             var sql = "insert into gebruiker_in_groep(gebruiker_id,groepnaam) values \n"
 
-            for(lid in geselecteerdeGebruikers.leden!!) {
+            for(lid in geselecteerdeGebruikers.leden) {
                 sql += "(?,?),"
             }
             sql = sql.substring(0, sql.length - 1)
 
             val stmt = PreparedStatementBuilder(connectionService, sql)
-            for(lid in geselecteerdeGebruikers.leden!!) {
+            for(lid in geselecteerdeGebruikers.leden) {
                 stmt.setInt(lid)
                 stmt.setString(geselecteerdeGebruikers.naam)
             }

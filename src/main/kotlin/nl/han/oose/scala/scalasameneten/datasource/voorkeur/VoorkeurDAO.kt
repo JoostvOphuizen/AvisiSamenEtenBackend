@@ -18,20 +18,10 @@ import java.sql.SQLException
 @ComponentScan("nl.han.oose.scala.scalasameneten.datasource.connection")
 class VoorkeurDAO(private val connectionService: ConnectionService,private val databaseProperties: DatabaseProperties) {
 
-    fun getAlleVoorkeuren(): ResultSet {
-        return try {
-            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
-            val stmt = PreparedStatementBuilder(connectionService, "SELECT voorkeur_naam FROM voorkeur")
-                    .build()
-            stmt.executeQuery()
-        } catch (e: SQLException) {
-            throw DatabaseConnectionException()
-        }
-    }
 
     fun getAlleVoedingsrestricties(): ResultSet {
         return try {
-            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
             val stmt = PreparedStatementBuilder(connectionService, "SELECT RESTRICTIE_NAAM FROM voedingsrestrictie")
                     .build()
             stmt.executeQuery()
@@ -42,7 +32,7 @@ class VoorkeurDAO(private val connectionService: ConnectionService,private val d
 
     fun getAllVoorkeurVoedingsbehoefte(gebruikerToken: String): ResultSet {
         return try {
-            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
             val stmt = PreparedStatementBuilder(connectionService,
                 "SELECT v.voorkeur_naam,\n" +
                         "CASE WHEN vo.GEBRUIKER_ID IS NULL THEN 0 ELSE 1 END AS has_voorkeur\n" +
@@ -59,7 +49,7 @@ class VoorkeurDAO(private val connectionService: ConnectionService,private val d
 
     fun getAllVoedingsrestrictieVoedingsbehoefte(gebruikerToken: String): ResultSet {
         return try {
-            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
             val stmt = PreparedStatementBuilder(connectionService,
                 "SELECT\n" +
                     "v.RESTRICTIE_NAAM,\n" +
@@ -77,25 +67,12 @@ class VoorkeurDAO(private val connectionService: ConnectionService,private val d
 
     fun voorkeurBestaat(voorkeur: String): ResultSet{
         return try{
-            connectionService!!.initializeConnection(databaseProperties!!.getConnectionString())
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
             val stmt = PreparedStatementBuilder(connectionService,"SELECT 1 FROM voorkeur WHERE voorkeur_naam=?")
                     .setString(voorkeur)
                     .build()
             stmt.executeQuery()
         } catch (e: SQLException){
-            throw DatabaseConnectionException()
-        }
-    }
-    fun makeVoorkeurenDTO(): VoorkeurenDTO {
-        return try {
-            val resultSet: ResultSet = getAlleVoorkeuren()
-            val voorkeuren = ArrayList<VoorkeurDTO>()
-            while (resultSet.next()) {
-                val x = VoorkeurDTO(resultSet.getString("voorkeur_naam"))
-                voorkeuren.add(x)
-            }
-            VoorkeurenDTO("Voorkeuren", voorkeuren)
-        } catch (e: SQLException) {
             throw DatabaseConnectionException()
         }
     }
