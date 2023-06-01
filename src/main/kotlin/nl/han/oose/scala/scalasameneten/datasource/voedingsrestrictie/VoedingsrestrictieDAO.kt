@@ -86,13 +86,13 @@ class VoedingsrestrictieDAO(private val connectionService: ConnectionService,pri
             val dieet = getAlleDieet()
             var voedingsrestricties = ArrayList<VoedingsrestrictieDTO>()
             while (allergieen != null && allergieen.next()) {
-                voedingsrestricties.add(VoedingsrestrictieDTO(allergieen.getString("restrictie_naam"),"allergie"))
+                voedingsrestricties.add(VoedingsrestrictieDTO(allergieen.getString("restrictie_naam")))
             }
             while (geloof != null && geloof.next()) {
-                voedingsrestricties.add(VoedingsrestrictieDTO(geloof.getString("restrictie_naam"),"geloof"))
+                voedingsrestricties.add(VoedingsrestrictieDTO(geloof.getString("restrictie_naam")))
             }
             while (dieet != null && dieet.next()) {
-                voedingsrestricties.add(VoedingsrestrictieDTO(dieet.getString("restrictie_naam"),"dieet"))
+                voedingsrestricties.add(VoedingsrestrictieDTO(dieet.getString("restrictie_naam")))
             }
             VoedingsrestrictiesDTO(voedingsrestricties)
         } catch (e: SQLException) {

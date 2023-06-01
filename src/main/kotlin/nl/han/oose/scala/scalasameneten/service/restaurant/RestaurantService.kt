@@ -181,7 +181,7 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
         val restricties = restrictiesString.split(",").toTypedArray()
         val conversieRestricties = ArrayList<VoedingsrestrictieDTO>()
         restricties.forEach { restrictie ->
-            conversieRestricties.add(VoedingsrestrictieDTO(restrictie, "null"))
+            conversieRestricties.add(VoedingsrestrictieDTO(restrictie))
         }
         return conversieRestricties
     }
