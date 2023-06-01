@@ -4,6 +4,7 @@ import nl.han.oose.scala.scalasameneten.datasource.gebruiker.GebruikerDAO
 import nl.han.oose.scala.scalasameneten.datasource.restaurant.RestaurantDAO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikerWithVoorkeurenAndRestrictiesDTO
 import nl.han.oose.scala.scalasameneten.dto.restaurant.GroepDTO
+import nl.han.oose.scala.scalasameneten.dto.restaurant.RestaurantReviewDTO
 import nl.han.oose.scala.scalasameneten.dto.restaurant.RestaurantWithVoorkeurenAndRestrictiesDTO
 import nl.han.oose.scala.scalasameneten.dto.restaurant.ReviewDTO
 import nl.han.oose.scala.scalasameneten.dto.voedingsrestrictie.VoedingsrestrictieDTO
@@ -228,14 +229,14 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
         result.next()
         return ResponseEntity.ok(makeRestaurantDTO(result))
     }
-    fun getRecentBezochteRestaurant(id: String): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>? {
+    fun getRecentBezochteRestaurant(id: String): ResponseEntity<RestaurantReviewDTO>? {
         val restaurantResult = restaurantDAO.getRecentBezochteRestaurant(id)
         if(restaurantResult.next()){
             if(restaurantResult.getString("datum") == null){
                 return null
             }
 
-            return ResponseEntity.ok(makeRestaurantDTOWithoutVoorkeurenAndRestricties(restaurantResult))
+            return ResponseEntity.ok(makeRestaurantReviewDTO(restaurantResult))
         }
         return null
     }
@@ -245,6 +246,7 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
         try {
             val id = gebruikerDAO.getIdVanGebruiker(review.gebruikerToken)
             restaurantDAO.postReview(restaurantId, review, id!!)
+            restaurantDAO.setReviewed(restaurantId, id!!)
         } catch (e: Exception) {
             return ResponseEntity.badRequest().body("Er is iets misgegaan bij het toevoegen van de review")
         }
@@ -262,6 +264,15 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
             result.getString("foto"),
             null,
             null
+        )
+        return restaurant
+    }
+
+    fun makeRestaurantReviewDTO(result: ResultSet) : RestaurantReviewDTO{
+        val restaurant = RestaurantReviewDTO(
+            result.getInt("restaurant_id"),
+            result.getString("restaurant_naam"),
+            result.getInt("review_id"),
         )
         return restaurant
     }

@@ -113,18 +113,17 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
         }
     }
 
-    fun getIdVanGebruiker(gebruikerToken: String): Int? {
-        return try {
+    fun getIdVanGebruiker(gebruikerToken: String): Int {
+        try {
             connectionService.initializeConnection((databaseProperties.getConnectionString()))
             val stmt = PreparedStatementBuilder(connectionService,"SELECT gebruiker_id FROM gebruiker WHERE token=?")
                 .setString(gebruikerToken)
                 .build()
             val result = stmt.executeQuery()
             if(result.next()) {
-                result.getInt("gebruiker_id")
-            } else {
-                throw SQLException()
+                return result.getInt("gebruiker_id")
             }
+            return 0
         } catch (e: SQLException) {
             throw DatabaseConnectionException()
         }

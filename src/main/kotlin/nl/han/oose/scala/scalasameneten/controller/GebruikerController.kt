@@ -3,6 +3,7 @@ package nl.han.oose.scala.scalasameneten.controller
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikerDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikersDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.LoginDTO
+import nl.han.oose.scala.scalasameneten.dto.restaurant.RestaurantReviewDTO
 import nl.han.oose.scala.scalasameneten.dto.restaurant.RestaurantWithVoorkeurenAndRestrictiesDTO
 import nl.han.oose.scala.scalasameneten.dto.voorkeur.VoorkeurenDTO
 import nl.han.oose.scala.scalasameneten.service.gebruiker.GebruikerService
@@ -47,7 +48,7 @@ class GebruikerController(private val gebruikerService: GebruikerService, privat
 
     @RequestMapping("/historie")
     @GetMapping(produces = ["application/json"], consumes = ["application/json"])
-    fun getRestaurantHistorie(@RequestParam id: String): ResponseEntity<RestaurantWithVoorkeurenAndRestrictiesDTO>?{
+    fun getRestaurantHistorie(@RequestParam id: String): ResponseEntity<RestaurantReviewDTO>?{
         return restaurantService.getRecentBezochteRestaurant(id)
     }
 
