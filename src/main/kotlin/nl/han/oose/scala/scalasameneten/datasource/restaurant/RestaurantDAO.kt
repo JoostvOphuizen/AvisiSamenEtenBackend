@@ -74,6 +74,8 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
             val stmt = PreparedStatementBuilder(connectionService, sql)
                     .setInt(restaurant)
                     .setInt(gebruiker)
+                    .build()
+            stmt.executeUpdate()
         } catch (e: SQLException) {
             throw DatabaseConnectionException()
         }
