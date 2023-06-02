@@ -271,7 +271,6 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
         )
         return restaurant
     }
-
     fun makeRestaurantReviewDTO(result: ResultSet) : RestaurantReviewDTO{
         val restaurant = RestaurantReviewDTO(
             result.getInt("restaurant_id"),
@@ -280,9 +279,16 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
         )
         return restaurant
     }
-
     fun getAllRestaurants(): ResponseEntity<MutableList<RestaurantWithVoorkeurenAndRestrictiesDTO>>{
         val restaurants = getAllRestaurantsWithVoorkeurenAndResticties()
         return ResponseEntity.ok(restaurants)
+    }
+    fun getReviews(id: Int): ResponseEntity<ArrayList<ReviewDTO>>{
+        val reviews = ArrayList<ReviewDTO>()
+        val result = restaurantDAO.getReviews(id)
+        while(result.next()){
+            reviews.add(ReviewDTO("",result.getInt("beoordeling"),result.getString("tekst")))
+        }
+        return ResponseEntity.ok(reviews)
     }
 }
