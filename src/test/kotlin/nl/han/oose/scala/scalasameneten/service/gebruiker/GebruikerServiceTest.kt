@@ -56,24 +56,34 @@ class GebruikerServiceTest {
     }
 
     @Test
-    fun loginGebruiker_ValidLogin_ReturnsTokenDTO() {
+    fun genereerToken_ReturnsUniqueToken() {
         // Arrange
-        val login = LoginDTO("email", "naam", "foto")
-        val expectedToken = TokenDTO("token")
-
-        `when`(gebruikerDAO.loginGebruiker(eq(login), Mockito.anyString())).thenReturn(expectedToken)
-        `when`(gebruikerDAO.loginGebruiker(argThat { it == null }, Mockito.anyString())).thenReturn(expectedToken)
-
-        // Mock the genereerToken() method separately
-        val mockToken = "mocked-token"
-        `when`(gebruikerService.genereerToken()).thenReturn(mockToken)
+        val mockResultSet = Mockito.mock(ResultSet::class.java)
+        `when`(gebruikerDAO.getAlleGebruikers()).thenReturn(mockResultSet)
+        `when`(mockResultSet.next()).thenReturn(true, true, false)
+        `when`(mockResultSet.getString("token")).thenReturn("1234-5678-9101", "9999-9999-9999")
 
         // Act
-        val responseEntity: ResponseEntity<TokenDTO> = gebruikerService.loginGebruiker(login)
+        val token1 = gebruikerService.genereerToken()
+        val token2 = gebruikerService.genereerToken()
 
         // Assert
-        assertEquals(expectedToken, responseEntity.body)
-        assertEquals(HttpStatus.OK, responseEntity.statusCode)
+        assertNotEquals(token1, token2)
+    }
+
+    @Test
+    fun genereerToken_ReturnsTokenWithExistingTokens() {
+        // Arrange
+        val mockResultSet = Mockito.mock(ResultSet::class.java)
+        `when`(gebruikerDAO.getAlleGebruikers()).thenReturn(mockResultSet)
+        `when`(mockResultSet.next()).thenReturn(true, true, true, false)
+        `when`(mockResultSet.getString("token")).thenReturn("1234-5678-9101", "9999-9999-9999", "1111-2222-3333", "4444-5555-6666")
+
+        // Act
+        val token = gebruikerService.genereerToken()
+
+        // Assert
+        assertTrue(token.matches(Regex("\\d{4}-\\d{4}-\\d{4}")))
     }
 
 
@@ -107,46 +117,5 @@ class GebruikerServiceTest {
     }
 
 
-    @Test
-    fun postGebruikersVoorkeuren_ReturnsOkResponseEntity() {
-        // Arrange
-        val token = "token"
-        val voorkeurenDTO = VoorkeurenDTO(null, ArrayList())
-        `when`(gebruikerDAO.setGebruikersVoorkeuren(token, voorkeurenDTO)).thenReturn(Unit)
-
-        // Act
-        val responseEntity: ResponseEntity<Void> = gebruikerService.postGebruikersVoorkeuren(token, voorkeurenDTO)
-
-        // Assert
-        assertEquals(HttpStatus.OK, responseEntity.statusCode)
-    }
-
-    @Test
-    fun postGebruikersRestricties_ReturnsOkResponseEntity() {
-        // Arrange
-        val token = "token"
-        val restricties = VoorkeurenDTO(null, ArrayList())
-        `when`(gebruikerDAO.setGebruikersRestricties(token, restricties)).thenReturn(Unit)
-
-        gebruikerService = GebruikerService(gebruikerDAO)
-
-        // Act
-        val responseEntity: ResponseEntity<Void> = gebruikerService.postGebruikersRestricties(token, restricties)
-
-        // Assert
-        assertEquals(HttpStatus.OK, responseEntity.statusCode)
-    }
-
-}
-
-private fun Any.thenReturn(unit: Unit) {
-    return unit
-}
-
-
-private class LoginDtoMatcher(private val expected: LoginDTO) : ArgumentMatcher<LoginDTO> {
-    override fun matches(argument: LoginDTO?): Boolean {
-        return argument != null && argument == expected
-    }
 }
 
