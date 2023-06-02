@@ -97,7 +97,7 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
 
     fun postReview(restaurantId: Int, review: ReviewDTO, id: Int){
         try {
-            val sql = "INSERT INTO review (restaurant_id, gebruiker_id, beoordeling, tekst) VALUES (?, ?, ?, ?)"
+            val sql = "INSERT INTO review (restaurant_id, gebruiker_id, beoordeling, tekst, datum) VALUES (?, ?, ?, ?, GETDATE())"
 
             connectionService.initializeConnection(databaseProperties.getConnectionString())
             val stmt = PreparedStatementBuilder(connectionService, sql)
@@ -111,11 +111,31 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
             throw DatabaseConnectionException()
         }
     }
+
+    fun setReviewed(restaurantId: Int, id: Int){
+        try {
+            val sql = "UPDATE HIST_BEZOEK SET REVIEW_ID = (SELECT MAX(REVIEW_ID) FROM REVIEW WHERE RESTAURANT_ID = ? AND GEBRUIKER_ID = ?) WHERE RESTAURANT_ID = ? AND GEBRUIKER_ID = ?"
+
+            connectionService.initializeConnection(databaseProperties.getConnectionString())
+            val stmt = PreparedStatementBuilder(connectionService, sql)
+                .setInt(restaurantId)
+                .setInt(id)
+                .setInt(restaurantId)
+                .setInt(id)
+                .build()
+            stmt.executeUpdate()
+        } catch(e: SQLException){
+            throw DatabaseConnectionException()
+        }
+    }
+
+
+
     fun getRecentBezochteRestaurant(gebruikersToken: String): ResultSet {
         return try {
 
 
-            val sql = "SELECT TOP 1 h.RESTAURANT_ID, restaurant_naam, postcode, straatnaam, huisnummer, link, r.foto, datum\n" +
+            val sql = "SELECT TOP 1 h.RESTAURANT_ID, restaurant_naam, postcode, straatnaam, huisnummer, link, r.foto, datum, review_id\n" +
                     "FROM HIST_BEZOEK h\n" +
                     "INNER JOIN RESTAURANT r ON h.RESTAURANT_ID = r.RESTAURANT_ID\n" +
                     "INNER JOIN GEBRUIKER g ON h.GEBRUIKER_ID = g.GEBRUIKER_ID\n" +
