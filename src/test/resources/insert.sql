@@ -55,3 +55,14 @@ VALUES  (1,1,5,'mooi'),
         (1,2,5,'SUPER!'),
         (1,3,2,'matig'),
         (1,4,4,'Hier een langere review om te zien dat het ook meeschaalt met de grote van een review. Verder moet nu ook de grote van de review niet meer uitmaken nadat het datatuype van deze kolom is aangepast.');
+
+INSERT INTO HIST_BEZOEK (GEBRUIKER_ID, RESTAURANT_ID, DATUM, REVIEW_ID)
+VALUES  (1, 1, '01/01/2022', 1),
+        (1, 2, '01/02/2022', 3),
+        (1, 4, '01/02/2022', 5),
+        (2, 1, '01/02/2022', 2),
+        (2, 3, '01/01/2022', null),
+        (2, 4, '01/01/2022', null),
+        (2, 5, '01/01/2022', null),
+        (1, 3, '01/02/2022', 4),
+        (2, 3, '03/03/2022', null);

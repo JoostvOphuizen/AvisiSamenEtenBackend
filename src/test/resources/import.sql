@@ -29,6 +29,22 @@ create table GROEP (
                        constraint PK_GROEP primary key (GROEPNAAM)
 )
     ;
+drop table if exists gebruiker_in_uitnodigingsgroep;
+create table gebruiker_in_uitnodigingsgroep (
+    gebruiker_id    INT     not null,
+    uitnodiging_token       varchar(14)     not null,
+    constraint pk_gebruiker_in_uitnodigingsgroep primary key (gebruiker_id,uitnodiging_token)
+)
+    ;
+drop table if exists hist_bezoek;
+create table hist_bezoek (
+    datum       datetime       not null,
+    restaurant_id   int     not null,
+    gebruiker_id    int     not null,
+    review_id       int     null,
+    constraint pk_hist_bezoek primary key (datum,restaurant_id,gebruiker_id)
+)
+    ;
 drop table if exists restaurant;
 create table RESTAURANT (
                             RESTAURANT_ID        INT         AUTO_INCREMENT         not null,
@@ -46,6 +62,14 @@ create table RESTAURANT_HEEFT_VOORKEUR (
                                            VOORKEUR_NAAM        VARCHAR(256)                 not null,
                                            RESTAURANT_ID        INT                   not null,
                                            constraint PK_RESTAURANT_HEEFT_VOORKEUR primary key (VOORKEUR_NAAM, RESTAURANT_ID)
+)
+    ;
+drop table if exists uitnodigingsgroep;
+create table uitnodigingsgroep (
+    uitnodigings_token      varchar(14)     not null,
+    gebruiker_id        int     not null,
+    restaurant_id       int     null,
+    constraint pk_uitnodigingsgroep primary key (uitnodigings_token)
 )
     ;
 drop table if exists VOEDINGSRESTRICTIE;
