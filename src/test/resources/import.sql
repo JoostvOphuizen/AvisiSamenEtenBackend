@@ -10,7 +10,6 @@ create table GEBRUIKER (
 drop table if exists GEBRUIKER_HEEFT_VOEDINGSRESTRICTIE;
 create table GEBRUIKER_HEEFT_VOEDINGSRESTRICTIE (
                                                     RESTRICTIE_NAAM      VARCHAR(256)                 not null,
-                                                    TYPE                 VARCHAR(256)                 not null,
                                                     GEBRUIKER_ID         INT                   not null,
                                                     constraint PK_GEBRUIKER_HEEFT_VOEDINGSRES primary key (RESTRICTIE_NAAM, TYPE, GEBRUIKER_ID)
 )
@@ -75,7 +74,6 @@ create table uitnodigingsgroep (
 drop table if exists VOEDINGSRESTRICTIE;
 create table VOEDINGSRESTRICTIE (
                                     RESTRICTIE_NAAM      VARCHAR(256)                 not null,
-                                    TYPE                 VARCHAR(256)                 not null,
                                     constraint PK_VOEDINGSRESTRICTIE primary key (RESTRICTIE_NAAM, TYPE)
 )
     ;
@@ -83,7 +81,6 @@ drop table if exists VOEDINGSRESTRICTIE_IN_RESTAURANT;
 create table VOEDINGSRESTRICTIE_IN_RESTAURANT (
                                                   RESTAURANT_ID        INT                   not null,
                                                   RESTRICTIE_NAAM      VARCHAR(256)                 not null,
-                                                  TYPE                 VARCHAR(256)                 not null,
                                                   constraint PK_VOEDINGSRESTRICTIE_IN_RESTA primary key (RESTAURANT_ID, RESTRICTIE_NAAM, TYPE)
 )
     ;
@@ -108,5 +105,6 @@ create table REVIEW (
                         RESTAURANT_ID        INT                  not null,
                         BEOORDELING          VARCHAR(1)               not null,
                         TEKST                VARCHAR(MAX)             null,
+                        datum       datetime        not null,
                         constraint PK_REVIEW primary key (REVIEW_ID)
 );
