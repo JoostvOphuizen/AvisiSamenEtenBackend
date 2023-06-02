@@ -1,22 +1,19 @@
-package nl.han.oose.scala.scalasameneten.datasource.gebruiker
-
+package nl.han.oose.scala.scalasameneten.datasource.restaurant
 
 import nl.han.oose.scala.scalasameneten.datasource.connection.ConnectionService
 import nl.han.oose.scala.scalasameneten.datasource.connection.DatabaseProperties
+import nl.han.oose.scala.scalasameneten.datasource.gebruiker.GebruikerDAO
 import nl.han.oose.scala.scalasameneten.datasource.util.ScriptRunner
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-
 import java.io.InputStreamReader
 import java.sql.Connection
 import java.sql.DriverManager
 import java.util.*
 
-
-class GebruikerDAOTest {
-
-    lateinit var gebruikerDAO: GebruikerDAO
+class RestaurantDAOTest {
+    lateinit var restaurantDAO: RestaurantDAO
     lateinit var mockedConnectedService: ConnectionService
     val databaseProperties = DatabaseProperties()
     lateinit var connection: Connection
@@ -28,60 +25,41 @@ class GebruikerDAOTest {
         scriptRunner.runScript(InputStreamReader(Objects.requireNonNull(ClassLoader.getSystemResourceAsStream("insert.sql"))))
 
         mockedConnectedService = ConnectionService()
-        gebruikerDAO = GebruikerDAO(mockedConnectedService,databaseProperties)
+        restaurantDAO = RestaurantDAO(mockedConnectedService,databaseProperties)
         connection.close()
+    }
+    @Test
+    fun getReviewsTest() {
+        //arrange
+        //act
+        val returnValue = restaurantDAO.getReviews(1)
+        var counter = 0
+        while (returnValue.next()) {
+            counter++
+        }
+        //assert
+        assertEquals(2, counter)
+    }
+    @Test
+    fun getAlleRestaurants() {
+        //arrange
+        //act
+        val restaurants = restaurantDAO.getAllRestaurantsWithVoorkeurenAndRestricties()
+        var counter = 0
+        while (restaurants.next()) {
+            counter++
+        }
+        //assert
+        assertEquals(5, counter)
     }
 
     @Test
-    fun getAlleGebruikers(){
+    fun getRestaurantByIdTest(){
         //arrange
         //act
-        val returnValue = gebruikerDAO.getAlleGebruikers()
-        var counter = 0
-        while (returnValue.next()) {
-            counter++
-        }
+        val returnValue = restaurantDAO.getRestaurant(1)
+        returnValue.next()
         //assert
-        assertEquals(3, counter)
-    }
-    @Test
-    fun getNaamVanBestaandeGebruiker() {
-        //arrage
-        //act
-        val naam = gebruikerDAO.getNaamVanGebruiker("0000-0000-0000")
-        //assert
-        assertEquals("user1", naam)
-    }
-    @Test
-    fun getNaamVanNietBestaandeGebruiker() {
-        //arrage
-        //act
-        val naam = gebruikerDAO.getNaamVanGebruiker("1212-1212-1212")
-        //assert
-        assertEquals(null, naam)
-    }
-    @Test
-    fun getGebruikersVoedingsRestricties(){
-        //arrange
-        //act
-        val returnValue = gebruikerDAO.getGebruikersVoedingsrestricties("0000-0000-0000")
-        var counter = 0
-        while (returnValue.next()) {
-            counter++
-        }
-        //assert
-        assertEquals(2, counter)
-    }
-    @Test
-    fun getGebruikersVoorkeuren(){
-        //arrange
-        //act
-        val returnValue = gebruikerDAO.getGebruikersVoorkeuren("0000-0000-0000")
-        var counter = 0
-        while (returnValue.next()) {
-            counter++
-        }
-        //assert
-        assertEquals(2, counter)
+        assertEquals("Stone Grill House", returnValue.getString("restaurant_naam"))
     }
 }
