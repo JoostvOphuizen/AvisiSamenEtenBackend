@@ -194,23 +194,23 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
             connectionService.initializeConnection(databaseProperties.getConnectionString())
             var sql = "INSERT INTO voorkeur_van_gebruiker(gebruiker_id,voorkeur_naam) VALUES "
             val voorkeuren = voorkeurenDTO.voorkeuren
-            if (voorkeuren != null) {
-                alleGebruikersVoorkeurenVerwijderen(gebruikerToken)
-                if (voorkeuren.size > 0) {
-                    for(i in 0 until voorkeuren.size){
-                        val voorkeur = voorkeuren[i]
-                        if (voorkeur.naam != null) {
-                            if (i != 0) { sql += "," }
-                            sql += "(?,?)"
+            alleGebruikersVoorkeurenVerwijderen(gebruikerToken)
+            if (voorkeuren != null && voorkeuren.size > 0) {
+                for (i in 0 until voorkeuren.size) {
+                    val voorkeur = voorkeuren[i]
+                    if (voorkeur.naam != null) {
+                        if (i != 0) {
+                            sql += ","
                         }
+                        sql += "(?,?)"
                     }
-                    val stmt = PreparedStatementBuilder(connectionService, sql)
-                    for (voorkeur in voorkeuren) {
-                        stmt.setInt(gebruikerId)
-                            .setString(voorkeur.naam!!)
-                    }
-                    stmt.build().executeUpdate()
                 }
+                val stmt = PreparedStatementBuilder(connectionService, sql)
+                for (voorkeur in voorkeuren) {
+                    stmt.setInt(gebruikerId)
+                        .setString(voorkeur.naam!!)
+                }
+                stmt.build().executeUpdate()
             }
         } catch (e: Exception){
             throw DatabaseConnectionException()
