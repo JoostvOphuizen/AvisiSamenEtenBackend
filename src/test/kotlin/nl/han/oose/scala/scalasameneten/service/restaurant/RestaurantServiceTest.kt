@@ -1,4 +1,3 @@
-/*
 package nl.han.oose.scala.scalasameneten.service.restaurant
 
 import nl.han.oose.scala.scalasameneten.datasource.gebruiker.GebruikerDAO
@@ -186,4 +185,4 @@ class RestaurantServiceTest {
         assertEquals(verwacht,result!!.body)
     }
 }
-*/
+
