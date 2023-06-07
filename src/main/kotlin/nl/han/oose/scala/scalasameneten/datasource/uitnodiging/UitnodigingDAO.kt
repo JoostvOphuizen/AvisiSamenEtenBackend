@@ -36,7 +36,9 @@ class UitnodigingDAO (private val connectionService: ConnectionService, private 
             val stmt = PreparedStatementBuilder(connectionService,
                 "SELECT RESTAURANT_ID, UITNODIGING_TOKEN, GEBRUIKER_ID  \n" +
                     "FROM UITNODIGINGSGROEP\n" +
-                    "WHERE UITNODIGING_TOKEN = ?")
+                    "WHERE " +
+                        "UITNODIGING_TOKEN = ?")
+
                 .setString(uitnodigingToken)
                 .build()
             val rs = stmt.executeQuery()
@@ -60,7 +62,8 @@ class UitnodigingDAO (private val connectionService: ConnectionService, private 
             val stmt = PreparedStatementBuilder(connectionService,
                 "UPDATE UITNODIGINGSGROEP \n" +
                     "SET RESTAURANT_ID = ?\n" +
-                    "WHERE UITNODIGING_TOKEN = ?")
+                    "WHERE UITNODIGING_TOKEN " +
+                        "= ?")
                 .setInt(restaurant)
                 .setString(uitnodigingToken)
                 .build()

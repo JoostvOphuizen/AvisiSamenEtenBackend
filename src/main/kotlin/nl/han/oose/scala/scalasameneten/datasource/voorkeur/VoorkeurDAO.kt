@@ -94,12 +94,12 @@ class VoorkeurDAO(private val connectionService: ConnectionService,private val d
     fun makeVoorkeurenVoedingsbehoefteDTO(gebruikerToken: String): VoedingsbehoefteDTO {
         return try {
             val resultSet: ResultSet = getAllVoorkeurVoedingsbehoefte(gebruikerToken)
-            val VoedingsKeuze = ArrayList<VoedingsKeuzeDTO>()
+            val voedingskeuzen = ArrayList<VoedingsKeuzeDTO>()
             while (resultSet.next()) {
                 val voedingsKeuze = VoedingsKeuzeDTO(resultSet.getString("voorkeur_naam"), resultSet.getBoolean("has_voorkeur"))
-                VoedingsKeuze.add(voedingsKeuze)
+                voedingskeuzen.add(voedingsKeuze)
             }
-            VoedingsbehoefteDTO("Voorkeuren", VoedingsKeuze)
+            VoedingsbehoefteDTO("Voorkeuren", voedingskeuzen)
         } catch (e: SQLException) {
             throw DatabaseConnectionException()
         }
@@ -108,12 +108,12 @@ class VoorkeurDAO(private val connectionService: ConnectionService,private val d
     fun makeVoedingsrestrictieVoedingsbehoefteDTO(gebruikerToken: String): VoedingsbehoefteDTO {
         return try {
             val resultSet: ResultSet = getAllVoedingsrestrictieVoedingsbehoefte(gebruikerToken)
-            val VoedingsKeuze = ArrayList<VoedingsKeuzeDTO>()
+            val voedingskeuzen = ArrayList<VoedingsKeuzeDTO>()
             while (resultSet.next()) {
                 val voedingsKeuze = VoedingsKeuzeDTO(resultSet.getString("RESTRICTIE_NAAM"), resultSet.getBoolean("has_voorkeur"))
-                VoedingsKeuze.add(voedingsKeuze)
+                voedingskeuzen.add(voedingsKeuze)
             }
-            VoedingsbehoefteDTO("Voedingsrestrictie", VoedingsKeuze)
+            VoedingsbehoefteDTO("Voedingsrestrictie", voedingskeuzen)
         } catch (e: SQLException) {
             throw DatabaseConnectionException()
         }

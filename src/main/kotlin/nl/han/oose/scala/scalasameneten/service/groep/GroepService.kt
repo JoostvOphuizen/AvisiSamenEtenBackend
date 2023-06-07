@@ -6,7 +6,6 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
-import java.sql.ResultSet
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -24,13 +23,13 @@ class GroepService(private val groepDAO: GroepDAO) {
     fun haalGroepenOp(): ResponseEntity<GroepenDTO> {
 
         val groepenResult = groepDAO.getGroepen()
-        var groepen = ArrayList<GroepDTO>()
+        val groepen = ArrayList<GroepDTO>()
 
         while (groepenResult.next()) {
 
             val naam = groepenResult.getString("GROEPNAAM")
-            val GroepIdString = groepenResult.getString("USER_IDS")
-            val id = GroepIdString?.split(",")?.map { it.toInt() }?.toCollection(ArrayList()) ?: ArrayList()
+            val groepIdString = groepenResult.getString("USER_IDS")
+            val id = groepIdString?.split(",")?.map { it.toInt() }?.toCollection(ArrayList()) ?: ArrayList()
             val groep = GroepDTO(id,naam)
             groepen.add(groep)
         }

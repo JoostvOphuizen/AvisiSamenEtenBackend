@@ -1,7 +1,6 @@
 package nl.han.oose.scala.scalasameneten.service.gebruiker
 
 import nl.han.oose.scala.scalasameneten.datasource.gebruiker.GebruikerDAO
-import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikerDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.GebruikersDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.LoginDTO
 import nl.han.oose.scala.scalasameneten.dto.gebruiker.TokenDTO
@@ -19,11 +18,11 @@ class GebruikerService(private val gebruikerDAO: GebruikerDAO) {
 
     fun genereerToken(): String {
         var token = ""
-        val MIN = 1000
-        val MAX = 10000
+        val min = 1000
+        val max = 10000
         for (i in 0..2) {
             val r = Random()
-            token += r.nextInt(MAX - MIN) + MIN
+            token += r.nextInt(max - min) + min
             if (i < 2) {
                 token += "-"
             }
