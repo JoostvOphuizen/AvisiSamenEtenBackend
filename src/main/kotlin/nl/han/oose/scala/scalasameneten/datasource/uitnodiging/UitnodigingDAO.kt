@@ -80,7 +80,8 @@ class UitnodigingDAO (private val connectionService: ConnectionService, private 
                 "INSERT INTO UITNODIGINGSGROEP (UITNODIGING_TOKEN, GEBRUIKER_ID)\n" +
                     "SELECT ?, GEBRUIKER_ID\n" +
                     "FROM GEBRUIKER\n" +
-                    "WHERE TOKEN = ?")
+                    "WHERE " +
+                        "TOKEN = ?")
                 .setString(uitnodigingToken)
                 .setString(gebruikerToken)
                 .build()
@@ -110,13 +111,11 @@ class UitnodigingDAO (private val connectionService: ConnectionService, private 
             connectionService.initializeConnection(databaseProperties.getConnectionString())
             val stmt = PreparedStatementBuilder(connectionService,
                 "SELECT g.GEBRUIKERSNAAM, g.GEBRUIKER_ID, g.EMAIL, g.FOTO,\n" +
-                    "    (\n" +
-                    "        SELECT STRING_AGG(vvg.VOORKEUR_NAAM, ',')\n" +
+                    "        (SELECT STRING_AGG(vvg.VOORKEUR_NAAM, ',')\n" +
                     "        FROM VOORKEUR_VAN_GEBRUIKER vvg\n" +
                     "        WHERE vvg.GEBRUIKER_ID = g.GEBRUIKER_ID\n" +
                     "    ) AS VOORKEUREN,\n" +
-                    "    (\n" +
-                    "        SELECT STRING_AGG(ghv.RESTRICTIE_NAAM, ',')\n" +
+                    "        (SELECT STRING_AGG(ghv.RESTRICTIE_NAAM, ',')\n" +
                     "        FROM GEBRUIKER_HEEFT_VOEDINGSRESTRICTIE ghv\n" +
                     "        WHERE ghv.GEBRUIKER_ID = g.GEBRUIKER_ID\n" +
                     "    ) AS RESTRICTIES\n" +
@@ -141,16 +140,14 @@ class UitnodigingDAO (private val connectionService: ConnectionService, private 
                         "  g.FOTO,\n" +
                         "  g.EMAIL,\n" +
                         "  g.GEBRUIKER_ID,\n" +
-                        "  (\n" +
-                        "    SELECT STRING_AGG(vvg.VOORKEUR_NAAM, ',')\n" +
+                        "    (SELECT STRING_AGG(vvg.VOORKEUR_NAAM, ',')\n" +
                         "    FROM (\n" +
                         "      SELECT DISTINCT vvg.VOORKEUR_NAAM\n" +
                         "      FROM VOORKEUR_VAN_GEBRUIKER vvg\n" +
                         "      WHERE vvg.GEBRUIKER_ID = g.GEBRUIKER_ID\n" +
                         "    ) vvg\n" +
                         "  ) AS VOORKEUREN,\n" +
-                        "  (\n" +
-                        "    SELECT STRING_AGG(ghv.RESTRICTIE_NAAM, ',')\n" +
+                        "    (SELECT STRING_AGG(ghv.RESTRICTIE_NAAM, ',')\n" +
                         "    FROM (\n" +
                         "      SELECT DISTINCT ghv.RESTRICTIE_NAAM\n" +
                         "      FROM GEBRUIKER_HEEFT_VOEDINGSRESTRICTIE ghv\n" +
@@ -182,7 +179,8 @@ class UitnodigingDAO (private val connectionService: ConnectionService, private 
             val stmt = PreparedStatementBuilder(connectionService,
                 "SELECT GEBRUIKER_ID\n" +
                     "FROM GEBRUIKER\n" +
-                    "WHERE TOKEN = ?")
+                    "WHERE TOKEN " +
+                        "= ?")
                 .setString(gebruikerToken)
                 .build()
             val rs = stmt.executeQuery()

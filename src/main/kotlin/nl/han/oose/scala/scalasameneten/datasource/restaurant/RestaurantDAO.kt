@@ -22,14 +22,12 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
             connectionService.initializeConnection(databaseProperties.getConnectionString())
             val stmt = PreparedStatementBuilder(connectionService,
                     "SELECT R.RESTAURANT_ID, R.RESTAURANT_NAAM, R.POSTCODE, R.STRAATNAAM, R.HUISNUMMER, R.LINK, R.FOTO,\n" +
-                            "       (\n" +
-                            "           SELECT STRING_AGG(V.VOORKEUR_NAAM, ',')\n" +
+                            "           (SELECT STRING_AGG(V.VOORKEUR_NAAM, ',')\n" +
                             "           FROM RESTAURANT_HEEFT_VOORKEUR RV\n" +
                             "           JOIN VOORKEUR V ON RV.VOORKEUR_NAAM = V.VOORKEUR_NAAM\n" +
                             "           WHERE RV.RESTAURANT_ID = R.RESTAURANT_ID\n" +
                             "       ) AS VOORKEUREN,\n" +
-                            "       (\n" +
-                            "           SELECT STRING_AGG(VR.RESTRICTIE_NAAM, ',')\n" +
+                            "           (SELECT STRING_AGG(VR.RESTRICTIE_NAAM, ',')\n" +
                             "           FROM VOEDINGSRESTRICTIE_IN_RESTAURANT VR\n" +
                             "           WHERE VR.RESTAURANT_ID = R.RESTAURANT_ID\n" +
                             "       ) AS RESTRICTIES\n" +
@@ -44,13 +42,11 @@ class RestaurantDAO (private val connectionService: ConnectionService, private v
     fun getRestaurant(id: Int): ResultSet {
         return try {
             val sql = "SELECT r.restaurant_id, r.restaurant_naam, r.postcode, r.straatnaam, r.huisnummer, r.link, r.foto,\n" +
-                    "       (\n" +
-                    "           SELECT STRING_AGG(rv.voorkeur_naam, ',')\n" +
+                    "           (SELECT STRING_AGG(rv.voorkeur_naam, ',')\n" +
                     "           FROM restaurant_heeft_voorkeur rv\n" +
                     "           WHERE rv.restaurant_id = r.restaurant_id\n" +
                     "       ) AS voorkeuren,\n" +
-                    "       (\n" +
-                    "           SELECT STRING_AGG(vr.restrictie_naam, ',')\n" +
+                    "           (SELECT STRING_AGG(vr.restrictie_naam, ',')\n" +
                     "           FROM voedingsrestrictie_in_restaurant vr\n" +
                     "           WHERE vr.restaurant_id = r.restaurant_id\n" +
                     "       ) AS restricties\n" +
