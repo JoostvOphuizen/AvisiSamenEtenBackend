@@ -196,15 +196,7 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
             val voorkeuren = voorkeurenDTO.voorkeuren
             alleGebruikersVoorkeurenVerwijderen(gebruikerToken)
             if (voorkeuren != null && voorkeuren.size > 0) {
-                for (i in 0 until voorkeuren.size) {
-                    val voorkeur = voorkeuren[i]
-                    if (voorkeur.naam != null) {
-                        if (i != 0) {
-                            sql += ","
-                        }
-                        sql += "(?,?)"
-                    }
-                }
+                sql = genereerSQLGebruikersVoorkeuren(voorkeuren, sql)
                 val stmt = PreparedStatementBuilder(connectionService, sql)
                 for (voorkeur in voorkeuren) {
                     stmt.setInt(gebruikerId)
@@ -224,28 +216,37 @@ class GebruikerDAO(private val connectionService: ConnectionService,private val 
             connectionService.initializeConnection(databaseProperties.getConnectionString())
             var sql = "INSERT INTO gebruiker_heeft_voedingsrestrictie(gebruiker_id, restrictie_naam) VALUES "
             val restricties = voorkeurenDTO.voorkeuren
-            if (restricties != null) {
-                alleGebruikersRestrictiesVerwijderen(gebruikerToken)
-                if (restricties.size > 0) {
-                    for(i in 0 until restricties.size){
-                        val restrictie = restricties[i]
-                        if (restrictie.naam != null) {
-                            if (i != 0) { sql += "," }
-                            sql += "(?,?)"
-                        }
-                    }
-                    val stmt = PreparedStatementBuilder(connectionService, sql)
-                    for (restrictie in restricties) {
-                        stmt.setInt(gebruikerId)
-                            .setString(restrictie.naam!!)
-                    }
-                    stmt.build().executeUpdate()
+            alleGebruikersRestrictiesVerwijderen(gebruikerToken)
+            if (restricties != null && restricties.size > 0) {
+                sql = genereerSQLGebruikersVoorkeuren(restricties, sql)
+                val stmt = PreparedStatementBuilder(connectionService, sql)
+                for (restrictie in restricties) {
+                    stmt.setInt(gebruikerId)
+                        .setString(restrictie.naam!!)
                 }
+                stmt.build().executeUpdate()
             }
         } catch (e: Exception){
             throw DatabaseConnectionException()
         }
         return null
+    }
+
+    private fun genereerSQLGebruikersVoorkeuren(
+        voorkeuren: ArrayList<VoorkeurDTO>,
+        sql: String
+    ): String {
+        var sql1 = sql
+        for (i in 0 until voorkeuren.size) {
+            val voorkeur = voorkeuren[i]
+            if (voorkeur.naam != null) {
+                if (i != 0) {
+                    sql1 += ","
+                }
+                sql1 += "(?,?)"
+            }
+        }
+        return sql1
     }
 
     fun makeGebruikersDTOBaseInfo(): GebruikersDTO {
