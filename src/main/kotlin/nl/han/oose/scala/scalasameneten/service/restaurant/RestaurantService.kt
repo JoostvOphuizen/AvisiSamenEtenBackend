@@ -98,13 +98,14 @@ class RestaurantService(private val restaurantDAO: RestaurantDAO, private val ge
             val id = restaurant.restaurantId
             permillage[id] = (restaurantScore[id]!!.div(restaurantScore.values.sum()))*mille
         }
-        val random = Random.nextInt(0,mille)
+        var random = Random.nextInt(0,mille)
         var i = 0.0;
         for(permille in permillage){
             if(random<=permille.value+i){
                 return restaurants[permille.key-1]
             }
-            i += permille.value
+            //i += permille.value
+            random -= permille.value.toInt()
         }
         return restaurants.random()
     }
