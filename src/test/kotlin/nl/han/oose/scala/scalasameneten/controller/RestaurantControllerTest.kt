@@ -75,9 +75,9 @@ class RestaurantControllerTest {
 
     @Test
     fun getRandomRestaurantTest() {
-        whenMockito(restaurantService.getRandomRestaurant()).thenReturn(ResponseEntity(testRestaurant, HttpStatus.OK))
+        whenMockito(restaurantService.getRandomRestaurant("0000-0000-0000")).thenReturn(ResponseEntity(testRestaurant, HttpStatus.OK))
 
-        val result = restaurantController.getRandomRestaurant()
+        val result = restaurantController.getRandomRestaurant("0000-0000-0000")
 
         assert(result.statusCode == HttpStatus.OK)
         assert(result.body == testRestaurant)
