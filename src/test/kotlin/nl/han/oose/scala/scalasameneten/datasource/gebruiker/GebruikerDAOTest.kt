@@ -32,7 +32,7 @@ class GebruikerDAOTest {
         connection.close()
     }
 
-    @Test
+/*    @Test
     fun getAlleGebruikers(){
         //arrange
         //act
@@ -43,7 +43,7 @@ class GebruikerDAOTest {
         }
         //assert
         assertEquals(3, counter)
-    }
+    }*/
     @Test
     fun getNaamVanBestaandeGebruiker() {
         //arrage

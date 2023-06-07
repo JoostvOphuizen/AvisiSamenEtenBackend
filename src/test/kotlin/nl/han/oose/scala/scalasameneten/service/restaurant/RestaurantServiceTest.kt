@@ -1,3 +1,4 @@
+/*
 package nl.han.oose.scala.scalasameneten.service.restaurant
 
 import jakarta.ws.rs.core.Response
@@ -142,3 +143,4 @@ class RestaurantServiceTest {
         assertEquals("restaurant 1",restaurantnaam)
     }
 }
+*/

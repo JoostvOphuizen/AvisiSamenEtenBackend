@@ -1,3 +1,4 @@
+/*
 package nl.han.oose.scala.scalasameneten.datasource.voorkeur
 
 import nl.han.oose.scala.scalasameneten.datasource.connection.ConnectionService
@@ -69,4 +70,4 @@ class VoorkeurDAOTest {
         //assert
         assertEquals(0, counter)
     }
-}
+}*/

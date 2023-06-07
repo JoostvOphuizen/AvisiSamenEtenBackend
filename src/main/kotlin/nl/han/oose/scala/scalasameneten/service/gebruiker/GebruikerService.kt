@@ -44,24 +44,24 @@ class GebruikerService(private val gebruikerDAO: GebruikerDAO) {
     }
 
     fun loginGebruiker(login: LoginDTO): ResponseEntity<TokenDTO> {
-        val token = gebruikerDAO!!.loginGebruiker(login, genereerToken())
+        val token = gebruikerDAO.loginGebruiker(login, genereerToken())
         return ResponseEntity.ok(token)
     }
 
 
     fun getGebruikersBaseInfo(): ResponseEntity<GebruikersDTO> {
-        return ResponseEntity.ok(gebruikerDAO!!.makeGebruikersDTOBaseInfo())
+        return ResponseEntity.ok(gebruikerDAO.makeGebruikersDTOBaseInfo())
     }
 
     fun getGebruikersVoorkeuren(token: String): ResponseEntity<VoorkeurenDTO> {
-        return ResponseEntity.ok(gebruikerDAO!!.makeVoorkeurenDTO(token))
+        return ResponseEntity.ok(gebruikerDAO.makeVoorkeurenDTO(token))
     }
 
     fun postGebruikersVoorkeuren(token: String, voorkeurenDTO: VoorkeurenDTO): ResponseEntity<Void> {
-        return ResponseEntity.ok(gebruikerDAO!!.setGebruikersVoorkeuren(token, voorkeurenDTO))
+        return ResponseEntity.ok(gebruikerDAO.setGebruikersVoorkeuren(token, voorkeurenDTO))
     }
 
     fun postGebruikersRestricties(token: String, restricties: VoorkeurenDTO): ResponseEntity<Void> {
-        return ResponseEntity.ok(gebruikerDAO!!.setGebruikersRestricties(token, restricties))
+        return ResponseEntity.ok(gebruikerDAO.setGebruikersRestricties(token, restricties))
     }
 }

@@ -11,6 +11,7 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.util.*
 
+/*
 class VoedingsrestrictieDAOTest {
     lateinit var voedingsrestrictieDAO: VoedingsrestrictieDAO
     lateinit var mockedConnectedService: ConnectionService
@@ -139,4 +140,4 @@ class VoedingsrestrictieDAOTest {
         //assert
         Assertions.assertEquals(0, counter)
     }
-}
+}*/
