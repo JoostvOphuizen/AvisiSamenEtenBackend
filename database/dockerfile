@@ -1,0 +1,23 @@
+# MSSQL Database
+FROM mcr.microsoft.com/mssql/server:2022-latest as database
+
+USER root
+ENV ACCEPT_EULA=Y
+ENV SA_PASSWORD=Database!2023
+EXPOSE 1433
+
+# Copy DDL and Insert scripts to a temporary directory
+#COPY DDL_SAMENETEN.sql /tmp/
+#COPY INSERT_SAMENETEN.sql /tmp/
+
+# Copy and change ownership of entrypoint.sh
+#COPY entrypoint.sh /usr/local/bin/
+#RUN chown root:root /usr/local/bin/entrypoint.sh
+#RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Switch back to mssql user
+#USER mssql
+
+# Run SQL scripts on container startup
+#ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["/opt/mssql/bin/sqlservr"]
